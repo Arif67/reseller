@@ -1,0 +1,5 @@
+@extends('backEnd.layouts.master')
+@section('title','Chart of Accounts')
+@section('content')
+<div class="container-fluid"><div class="row"><div class="col-12"><div class="page-title-box"><div class="page-title-right"><a href="{{ route('accounts.heads.create') }}" class="btn btn-primary rounded-pill">Create</a></div><h4 class="page-title">Chart of Accounts</h4></div></div></div><div class="card"><div class="card-body"><table class="table table-striped align-middle"><thead><tr><th>Name</th><th>Code</th><th>Type</th><th>Parent</th><th>Status</th><th>Action</th></tr></thead><tbody>@foreach($data as $value)<tr><td>{{ $value->name }}</td><td>{{ $value->code ?: '-' }}</td><td>{{ ucfirst($value->type) }}</td><td>{{ $value->parent?->name ?: '-' }}</td><td>{!! $value->status ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-danger">Inactive</span>' !!}</td><td><a href="{{ route('accounts.heads.edit', $value->id) }}" class="btn btn-primary btn-sm">Edit</a></td></tr>@endforeach</tbody></table></div></div></div>
+@endsection

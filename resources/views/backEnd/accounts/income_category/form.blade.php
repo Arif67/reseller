@@ -1,0 +1,3 @@
+<div class="col-md-6"><div class="form-group mb-3"><label class="form-label">Name *</label><input type="text" name="name" class="form-control" value="{{ old('name', $row?->name) }}" required></div></div>
+<div class="col-md-6"><div class="form-group mb-3"><label class="d-block form-label">Status</label><label class="switch"><input type="checkbox" name="status" value="1" @if(old('status', $row?->status ?? 1)) checked @endif><span class="slider round"></span></label></div></div>
+<div class="col-md-12"><div class="form-group mb-3"><label class="form-label">Note</label><textarea name="note" class="form-control" rows="4">{{ old('note', $row?->note) }}</textarea></div></div>

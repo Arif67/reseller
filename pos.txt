@@ -1,0 +1,76 @@
+
+• Haan, tomar system-er jonno clean POS workflow eta hobe:
+
+  1. Master identity
+
+  - product_code = product-er fixed identity
+  - slug = website product page
+  - name = product name
+
+  2. Barcode rule
+
+  - pro_barcode = single product-er unique barcode
+  - variable barcode = size/color/model wise unique barcode
+  - quantity er sathe barcode link hobe na
+
+  3. Stock rule
+
+  - stock = quantity
+  - same barcode repeat hoy
+  - 100 stock মানে 100 copy same barcode, not 100 unique barcode
+
+  4. Variation rule
+
+  - jodi product er variation thake:
+  - each variation alada sellable unit hobe
+  - prottek variation-er alada barcode dibe
+  - example:
+      - T-shirt / Red / M -> TSH-RM
+      - T-shirt / Red / L -> TSH-RL
+
+  5. POS scan flow
+
+  - barcode scan korle system prothome variation match korbe
+  - na paile product barcode match korbe
+  - exact item paile cart e add hobe
+  - stock theke 1 kombe
+
+  6. Print flow
+
+  - product label print page e barcode exactly oi item-er
+  - variation thakle variation barcode print hobe
+  - print count alada field hote pare
+  - example:
+      - stock 100
+      - print count 100
+      - same barcode 100 bar print
+
+  7. Recommended fields
+
+  - product_code
+  - pro_barcode
+  - variation barcode
+  - stock
+  - print_count if needed
+  - sku if you want internal short code
+
+  8. Best practice
+
+  - single product = 1 barcode
+  - single variation = 1 barcode
+  - quantity = inventory count
+  - barcode = identity
+
+  Simple rule
+
+  - Barcode identifies item
+  - Stock counts item
+  - Print count controls label copy
+
+  Chaile ami next step-e tomar existing system-er jonno ekta exact mapping likhe dite pari:
+
+  - kon field kothay use hobe
+  - create/edit page
+  - POS scan
+  - label print
+  - stock update

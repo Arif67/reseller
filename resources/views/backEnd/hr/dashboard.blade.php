@@ -1,0 +1,21 @@
+@extends('backEnd.layouts.master')
+@section('title','HR Dashboard')
+@section('content')
+<div class="container-fluid">
+    <div class="row"><div class="col-12"><div class="page-title-box"><h4 class="page-title">HR Dashboard</h4></div></div></div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-3"><div class="card border-0 shadow-sm h-100" style="background:linear-gradient(135deg,#f8fbff,#eef6ff)"><div class="card-body"><div class="text-muted small">Active Employees</div><h4 class="mb-0">{{ $summary['active_employees'] }}</h4></div></div></div>
+        <div class="col-md-3"><div class="card border-0 shadow-sm h-100" style="background:linear-gradient(135deg,#f6fff7,#ebfff0)"><div class="card-body"><div class="text-muted small">Present Today</div><h4 class="mb-0">{{ $summary['present_today'] }}</h4></div></div></div>
+        <div class="col-md-3"><div class="card border-0 shadow-sm h-100" style="background:linear-gradient(135deg,#fffaf0,#fff3dc)"><div class="card-body"><div class="text-muted small">Late Today</div><h4 class="mb-0">{{ $summary['late_today'] }}</h4></div></div></div>
+        <div class="col-md-3"><div class="card border-0 shadow-sm h-100" style="background:linear-gradient(135deg,#fff6f6,#ffecec)"><div class="card-body"><div class="text-muted small">Pending Leave</div><h4 class="mb-0">{{ $summary['pending_leave'] }}</h4></div></div></div>
+        <div class="col-md-3"><div class="card border-0 shadow-sm h-100" style="background:linear-gradient(135deg,#f9f7ff,#f0ecff)"><div class="card-body"><div class="text-muted small">Paid Payroll This Month</div><h4 class="mb-0">{{ number_format((float) $summary['paid_payroll'], 2, '.', '') }}</h4></div></div></div>
+        <div class="col-md-3"><div class="card border-0 shadow-sm h-100" style="background:linear-gradient(135deg,#f7fffc,#e8fff6)"><div class="card-body"><div class="text-muted small">Present Rate</div><h4 class="mb-0">{{ number_format((float) ($summary['present_rate'] ?? 0), 1, '.', '') }}%</h4></div></div></div>
+        <div class="col-md-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="text-muted small">Quick Action</div><div class="mt-2"><a href="{{ route('hr.attendance.create') }}" class="btn btn-sm btn-primary me-1">Mark Attendance</a><a href="{{ route('hr.payroll.create') }}" class="btn btn-sm btn-outline-primary">Create Payroll</a></div></div></div></div>
+    </div>
+    <div class="row g-3">
+        <div class="col-lg-4"><div class="card border-0 shadow-sm h-100"><div class="card-body"><h5 class="mb-3">Today Attendance</h5><div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Employee</th><th>Status</th></tr></thead><tbody>@forelse($todayAttendance as $row)<tr><td>{{ $row->employee?->name ?: 'Unknown' }}</td><td><span class="badge bg-light text-dark">{{ ucfirst($row->status) }}</span></td></tr>@empty<tr><td colspan="2" class="text-center text-muted">No data found.</td></tr>@endforelse</tbody></table></div></div></div></div>
+        <div class="col-lg-4"><div class="card border-0 shadow-sm h-100"><div class="card-body"><h5 class="mb-3">Recent Leave</h5><div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Employee</th><th>Type</th><th>Status</th></tr></thead><tbody>@forelse($recentLeaves as $row)<tr><td>{{ $row->employee?->name ?: 'Unknown' }}</td><td>{{ $row->leave_type ?: '-' }}</td><td><span class="badge bg-light text-dark">{{ ucfirst($row->status) }}</span></td></tr>@empty<tr><td colspan="3" class="text-center text-muted">No leave records.</td></tr>@endforelse</tbody></table></div></div></div></div>
+        <div class="col-lg-4"><div class="card border-0 shadow-sm h-100"><div class="card-body"><h5 class="mb-3">Recent Payroll</h5><div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th>Employee</th><th>Period</th><th>Net</th></tr></thead><tbody>@forelse($recentPayrolls as $row)<tr><td>{{ $row->employee?->name ?: 'Unknown' }}</td><td>{{ str_pad((string) $row->month, 2, '0', STR_PAD_LEFT) }}/{{ $row->year }}</td><td>{{ number_format((float) $row->net_salary, 2, '.', '') }}</td></tr>@empty<tr><td colspan="3" class="text-center text-muted">No payroll records.</td></tr>@endforelse</tbody></table></div></div></div></div>
+    </div>
+</div>
+@endsection

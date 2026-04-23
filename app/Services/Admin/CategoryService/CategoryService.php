@@ -1,0 +1,260 @@
+<?php
+
+namespace App\Services\Admin\CategoryService;
+
+use App\Models\Category;
+use App\Models\Media;
+use App\Models\Product;
+use App\Services\Admin\MediaService\MediaService;
+use App\Traits\Response;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Yajra\DataTables\Facades\DataTables;
+
+class CategoryService
+{
+    use Response;
+
+    public function __construct(
+        private readonly MediaService $mediaService
+    ) {
+    }
+
+    public function getListData(array $query): array
+    {
+        try {
+            if (request()->ajax()) {
+                $categories = Category::query()
+                    ->select('id', 'name', 'front_view', 'image', 'icon', 'status')
+                    ->latest('id');
+
+                $tableData = DataTables::eloquent($categories)
+                    ->addIndexColumn()
+                    ->addColumn('checkbox', function (Category $category): string {
+                        return '<input type="checkbox" class="form-check-input category-checkbox" value="' . $category->id . '">';
+                    })
+                    ->editColumn('name', function (Category $category): string {
+                        $name = e($category->name);
+
+                        if ((int) $category->front_view === 1) {
+                            return '<span class="btn btn-dark">' . $name . '</span>';
+                        }
+
+                        return '<span>' . $name . '</span>';
+                    })
+                    ->addColumn('image_preview', function (Category $category): string {
+                        if ($category->image_url === '') {
+                            return '<span class="text-muted">No image</span>';
+                        }
+
+                        return '<img src="' . e($category->image_url) . '" class="backend-image" alt="Category image">';
+                    })
+                    ->addColumn('icon_preview', function (Category $category): string {
+                        if ($category->icon_url === '') {
+                            return '<span class="text-muted">No image</span>';
+                        }
+
+                        return '<img src="' . e($category->icon_url) . '" class="backend-image" alt="Category icon">';
+                    })
+                    ->addColumn('status_badge', function (Category $category): string {
+                        if ((int) $category->status === 1) {
+                            return '<span class="badge bg-soft-success text-success">Active</span>';
+                        }
+
+                        return '<span class="badge bg-soft-danger text-danger">Inactive</span>';
+                    })
+                    ->addColumn('action', function (Category $category): string {
+                        $toggleRoute = $category->status == 1
+                            ? route('categories.inactive')
+                            : route('categories.active');
+                        $toggleButtonClass = $category->status == 1
+                            ? 'btn btn-xs btn-secondary waves-effect waves-light change-confirm'
+                            : 'btn btn-xs btn-success waves-effect waves-light change-confirm';
+                        $toggleIcon = $category->status == 1 ? 'fe-thumbs-down' : 'fe-thumbs-up';
+                        $editUrl = route('categories.edit', $category->id);
+
+                        return '<div class="button-list">'
+                            . '<form method="post" action="' . $toggleRoute . '" class="d-inline">'
+                            . csrf_field()
+                            . '<input type="hidden" value="' . $category->id . '" name="hidden_id">'
+                            . '<button type="button" class="' . $toggleButtonClass . '"><i class="fe ' . $toggleIcon . '"></i></button>'
+                            . '</form>'
+                            . '<a href="' . $editUrl . '" class="btn btn-xs btn-primary waves-effect waves-light"><i class="fe-edit-1"></i></a>'
+                            . '</div>';
+                    })
+                    ->rawColumns(['checkbox', 'name', 'image_preview', 'icon_preview', 'status_badge', 'action'])
+                    ->make(true)
+                    ->getData(true);
+
+                return $this->response($tableData)->success();
+            }
+
+            return $this->response($query)->success();
+        } catch (\Throwable $exception) {
+            return $this->response()->error($exception->getMessage());
+        }
+    }
+
+    public function getEditData(int|string $id): array
+    {
+        try {
+            $category = Category::query()->findOrFail($id);
+            $selectedImageMediaId = old(
+                'image_media_id',
+                $category->image ? Media::query()->where('path', $category->image)->value('id') : null
+            );
+            $selectedIconMediaId = old(
+                'icon_media_id',
+                $category->icon ? Media::query()->where('path', $category->icon)->value('id') : null
+            );
+            return $this->response([
+                'edit_data' => $category,
+                'selectedImageMediaId' => $selectedImageMediaId,
+                'selectedIconMediaId' => $selectedIconMediaId,
+            ])->success();
+        } catch (\Throwable $exception) {
+            return $this->response()->error($exception->getMessage());
+        }
+    }
+
+    public function storeCategory(array $payload): array
+    {
+        try {
+            $category = DB::transaction(fn () => $this->saveCategory($payload));
+            return $this->response(['category' => $category])->success('Category inserted successfully');
+        } catch (\Throwable $exception) {
+            return $this->response()->error($exception->getMessage());
+        }
+    }
+
+    public function updateCategory(array $payload): array
+    {
+        try {
+            $categoryId = (int) ($payload['id'] ?? 0);
+            $category = DB::transaction(function () use ($payload, $categoryId) {
+                $category = Category::query()->findOrFail($categoryId);
+                return $this->saveCategory($payload, $category);
+            });
+
+            return $this->response(['category' => $category])->success('Category updated successfully');
+        } catch (\Throwable $exception) {
+            return $this->response()->error($exception->getMessage());
+        }
+    }
+
+    public function changeCategoryStatus(array $payload): array
+    {
+        try {
+            $category = Category::query()->findOrFail((int) ($payload['hidden_id'] ?? 0));
+            $status = (int) ($payload['status'] ?? 0);
+
+            $category->status = $status;
+            $category->save();
+
+            return $this->response(['category' => $category])->success(
+                $status === 1 ? 'Data active successfully' : 'Data inactive successfully'
+            );
+        } catch (\Throwable $exception) {
+            return $this->response()->error($exception->getMessage());
+        }
+    }
+
+    public function deleteCategory(array $payload): array
+    {
+        try {
+            $ids = collect($payload['hidden_ids'] ?? [])
+                ->filter(fn ($value) => filled($value))
+                ->map(fn ($value) => (int) $value)
+                ->filter(fn ($value) => $value > 0)
+                ->values()
+                ->all();
+
+            if (empty($ids)) {
+                $hiddenId = (int) ($payload['hidden_id'] ?? 0);
+                $ids = $hiddenId > 0 ? [$hiddenId] : [];
+            }
+
+            if (empty($ids)) {
+                return $this->response()->error('Please select category first');
+            }
+
+            $linkedCategoryIds = Product::query()
+                ->whereIn('category_id', $ids)
+                ->distinct()
+                ->pluck('category_id')
+                ->all();
+
+            if (! empty($linkedCategoryIds)) {
+                $linkedCategoryNames = Category::query()
+                    ->whereIn('id', $linkedCategoryIds)
+                    ->pluck('name')
+                    ->filter()
+                    ->implode(', ');
+
+                return $this->response()->error(
+                    $linkedCategoryNames !== ''
+                        ? 'These categories have products, so they cannot be deleted: ' . $linkedCategoryNames
+                        : 'This category has products, so it cannot be deleted'
+                );
+            }
+
+            $deletedCount = Category::query()->whereIn('id', $ids)->delete();
+
+            return $this->response(['deleted_count' => $deletedCount])->success(
+                $deletedCount > 1 ? 'Categories deleted successfully' : 'Category deleted successfully'
+            );
+        } catch (\Throwable $exception) {
+            return $this->response()->error($exception->getMessage());
+        }
+    }
+
+    private function prepareData(array $payload): array
+    {
+        $name = trim((string) ($payload['name'] ?? ''));
+
+        return [
+            'name' => $name,
+            'slug' => Str::slug($name),
+            'meta_title' => $payload['meta_title'] ?? null,
+            'meta_description' => $payload['meta_description'] ?? null,
+            'front_view' => (int) ($payload['front_view'] ?? 0),
+            'banner_image' => (int) ($payload['banner_image'] ?? 0),
+            'status' => (int) ($payload['status'] ?? 0),
+            'featured' => (int) ($payload['featured'] ?? 0),
+        ];
+    }
+
+    private function saveCategory(array $payload, ?Category $category = null): Category
+    {
+        $category ??= new Category();
+        $data = $this->prepareData($payload);
+
+        $image = $payload['image'] ?? null;
+        if ($image instanceof UploadedFile) {
+            $data['image'] = $this->mediaService->createFromUpload($image)->path;
+        } elseif (filled($payload['image_media_id'] ?? null)) {
+            $imagePath = Media::query()->whereKey($payload['image_media_id'])->value('path');
+
+            if ($imagePath) {
+                $data['image'] = $imagePath;
+            }
+        }
+
+        $icon = $payload['icon'] ?? null;
+        if ($icon instanceof UploadedFile) {
+            $data['icon'] = $this->mediaService->createFromUpload($icon)->path;
+        } elseif (filled($payload['icon_media_id'] ?? null)) {
+            $iconPath = Media::query()->whereKey($payload['icon_media_id'])->value('path');
+
+            if ($iconPath) {
+                $data['icon'] = $iconPath;
+            }
+        }
+
+        $category->fill($data);
+        $category->save();
+
+        return $category;
+    }
+}

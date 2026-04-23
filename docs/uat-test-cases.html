@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Astha Express UAT Test Cases</title>
+  <style>
+    body {
+      font-family: Calibri, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.45;
+      color: #111827;
+      margin: 36px;
+    }
+    h1, h2, h3 {
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 22pt;
+      border-bottom: 2px solid #cbd5e1;
+      padding-bottom: 8px;
+    }
+    h2 {
+      font-size: 15pt;
+      margin-top: 24px;
+    }
+    h3 {
+      font-size: 12pt;
+      margin-top: 18px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 18px;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 8px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      background: #e2e8f0;
+    }
+    .meta td:first-child,
+    .signoff td:first-child {
+      width: 220px;
+      font-weight: 700;
+      background: #f8fafc;
+    }
+    ul {
+      margin: 6px 0 12px 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Astha Express UAT Test Cases</h1>
+
+  <table class="meta">
+    <tr><td>Project Name</td><td>Astha Express</td></tr>
+    <tr><td>Document Type</td><td>User Acceptance Testing (UAT)</td></tr>
+    <tr><td>Prepared For</td><td>Business owner / client / final acceptance team</td></tr>
+    <tr><td>Prepared By</td><td>OpenAI Codex</td></tr>
+    <tr><td>Purpose</td><td>Validate that the project is ready for business use and major user workflows meet expected business requirements.</td></tr>
+  </table>
+
+  <h2>Tester Information</h2>
+  <table>
+    <tr><th>Field</th><th>Details</th></tr>
+    <tr><td>Tester Name</td><td></td></tr>
+    <tr><td>Testing Date</td><td></td></tr>
+    <tr><td>Environment</td><td></td></tr>
+    <tr><td>Browser / Device</td><td></td></tr>
+    <tr><td>Build / Branch / Version</td><td></td></tr>
+  </table>
+
+  <h2>UAT Scope</h2>
+  <ul>
+    <li>Customer browsing and order placement</li>
+    <li>Customer account and order history</li>
+    <li>Admin product, media, banner, brand, coupon, and settings management</li>
+    <li>POS and order management</li>
+    <li>Business-critical configuration and content update capability</li>
+  </ul>
+
+  <h2>Acceptance Criteria</h2>
+  <ul>
+    <li>All critical business flows should pass.</li>
+    <li>No blocker or data-loss issue should remain open.</li>
+    <li>Admin should be able to manage catalog, media, order, and settings without developer support.</li>
+    <li>Frontend should allow a customer to browse, add to cart, and place an order successfully.</li>
+  </ul>
+
+  <h2>UAT Test Cases</h2>
+  <table>
+    <tr>
+      <th>UAT ID</th>
+      <th>Business Area</th>
+      <th>Scenario</th>
+      <th>Precondition</th>
+      <th>Test Steps</th>
+      <th>Expected Result</th>
+      <th>Status</th>
+      <th>Comment</th>
+    </tr>
+    <tr>
+      <td>UAT-01</td>
+      <td>Storefront</td>
+      <td>Customer can browse homepage and featured products</td>
+      <td>Website is live and products are active</td>
+      <td>Open homepage and review banners, categories, and featured products.</td>
+      <td>Homepage content loads correctly and products are visible.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-02</td>
+      <td>Catalog</td>
+      <td>Customer can open category and product pages</td>
+      <td>At least one category and product exist</td>
+      <td>Open category page, then open a product details page.</td>
+      <td>Category products and product details appear correctly.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-03</td>
+      <td>Cart</td>
+      <td>Customer can add product to cart</td>
+      <td>Product has available stock</td>
+      <td>Add one product to cart from product card or product details page.</td>
+      <td>Cart count and cart summary update successfully.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-04</td>
+      <td>Cart</td>
+      <td>Customer can update cart quantity and remove item</td>
+      <td>Cart already contains one item</td>
+      <td>Increase quantity, decrease quantity, and remove item from cart.</td>
+      <td>Cart values update correctly and remove action works.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-05</td>
+      <td>Checkout</td>
+      <td>Guest customer can place an order</td>
+      <td>Cart contains valid item</td>
+      <td>Fill name, phone, address, area, and submit order.</td>
+      <td>Order is placed successfully and success page is shown.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-06</td>
+      <td>Checkout</td>
+      <td>Shipping charge updates by selected area</td>
+      <td>Checkout page is open</td>
+      <td>Change shipping area selection.</td>
+      <td>Shipping amount and grand total change correctly.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-07</td>
+      <td>Coupon</td>
+      <td>Valid coupon works during checkout</td>
+      <td>Valid coupon exists and cart meets minimum rules</td>
+      <td>Apply valid coupon code during cart/checkout.</td>
+      <td>Discount is applied correctly.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-08</td>
+      <td>Customer Account</td>
+      <td>Customer can register and login</td>
+      <td>No existing account with same phone</td>
+      <td>Create a new customer account, then login.</td>
+      <td>Customer account is created and login succeeds.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-09</td>
+      <td>Customer Account</td>
+      <td>Customer can view own order history</td>
+      <td>Customer account has at least one order</td>
+      <td>Login and open customer orders page.</td>
+      <td>Correct orders appear in order history.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-10</td>
+      <td>Admin</td>
+      <td>Admin can login and open dashboard</td>
+      <td>Valid admin account exists</td>
+      <td>Login to admin panel.</td>
+      <td>Dashboard opens and summary data loads.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-11</td>
+      <td>Admin Catalog</td>
+      <td>Admin can upload media to media library</td>
+      <td>Admin is logged in</td>
+      <td>Go to Media Library and upload one or more images.</td>
+      <td>Images appear in media grid and can be selected later.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-12</td>
+      <td>Admin Catalog</td>
+      <td>Admin can create category using media library image</td>
+      <td>Media library contains at least one image</td>
+      <td>Create category and choose image/icon from media library.</td>
+      <td>Category saves successfully and selected media is applied.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-13</td>
+      <td>Admin Catalog</td>
+      <td>Admin can create or edit brand using media library image</td>
+      <td>Admin is logged in</td>
+      <td>Create or edit brand and select image from media library.</td>
+      <td>Brand saves successfully with selected image.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-14</td>
+      <td>Admin Marketing</td>
+      <td>Admin can create or edit banner using media library image</td>
+      <td>Banner category exists</td>
+      <td>Create or edit banner using upload or media library image.</td>
+      <td>Banner saves successfully and preview is correct.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-15</td>
+      <td>Admin Marketing</td>
+      <td>Admin can create coupon with image</td>
+      <td>Admin is logged in</td>
+      <td>Create coupon and set required values, including image.</td>
+      <td>Coupon saves successfully and is available for use.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-16</td>
+      <td>Admin Product</td>
+      <td>Admin can create a product with images</td>
+      <td>Category and brand exist</td>
+      <td>Create a product with required fields and gallery images.</td>
+      <td>Product saves successfully and appears in frontend.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-17</td>
+      <td>Admin Product</td>
+      <td>Admin can edit product pricing and status</td>
+      <td>Existing product exists</td>
+      <td>Edit price/status of a product and save.</td>
+      <td>Updated product values are visible in admin and frontend.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-18</td>
+      <td>Admin Order</td>
+      <td>Frontend order appears in admin order list</td>
+      <td>At least one frontend test order has been placed</td>
+      <td>Open order list in admin.</td>
+      <td>Placed order appears with correct customer and amount info.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-19</td>
+      <td>Admin Order</td>
+      <td>Admin can process order and update status</td>
+      <td>Existing order available</td>
+      <td>Open order workspace and change status.</td>
+      <td>Status update saves successfully.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-20</td>
+      <td>POS</td>
+      <td>Admin can create POS order</td>
+      <td>At least one active product exists</td>
+      <td>Open POS, search product, add to cart, enter customer data, submit order.</td>
+      <td>POS order is created successfully.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-21</td>
+      <td>POS / Order Source</td>
+      <td>Admin can save order source for POS order</td>
+      <td>POS order form is open</td>
+      <td>Select Order Source and save order.</td>
+      <td>Saved order source appears in admin order records.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-22</td>
+      <td>Settings</td>
+      <td>Admin can update general settings logos using media library</td>
+      <td>Media library contains valid images</td>
+      <td>Open settings and update white logo, dark logo, and favicon.</td>
+      <td>Settings save successfully and new assets appear in website/admin as expected.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-23</td>
+      <td>SEO</td>
+      <td>Admin can update SEO settings</td>
+      <td>Settings record exists</td>
+      <td>Open SEO settings and save title, description, and robots values.</td>
+      <td>SEO configuration saves successfully.</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>UAT-24</td>
+      <td>Campaign</td>
+      <td>Admin can create campaign and customer can place order from campaign page</td>
+      <td>Campaign content and product exist</td>
+      <td>Create campaign in admin, then open frontend campaign page and submit order.</td>
+      <td>Campaign shows correctly and order submission works.</td>
+      <td></td>
+      <td></td>
+    </tr>
+  </table>
+
+  <h2>Business Sign-off</h2>
+  <table class="signoff">
+    <tr><td>Overall UAT Result</td><td></td></tr>
+    <tr><td>Open Critical Issues</td><td></td></tr>
+    <tr><td>Open Minor Issues</td><td></td></tr>
+    <tr><td>Approved By</td><td></td></tr>
+    <tr><td>Approval Date</td><td></td></tr>
+    <tr><td>Business Comment</td><td></td></tr>
+  </table>
+
+  <h2>Defect Tracking Notes</h2>
+  <ul>
+    <li>If any UAT case fails, note the exact page URL and screenshot.</li>
+    <li>Mark business impact clearly: order block, admin block, reporting issue, image issue, content issue, or visual issue.</li>
+    <li>If defect is accepted temporarily, mention whether go-live can continue.</li>
+  </ul>
+</body>
+</html>

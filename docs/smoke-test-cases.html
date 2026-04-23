@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Astha Express Smoke Test Cases</title>
+  <style>
+    body {
+      font-family: Calibri, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.45;
+      color: #111827;
+      margin: 36px;
+    }
+    h1, h2 {
+      color: #0f172a;
+    }
+    h1 {
+      font-size: 22pt;
+      border-bottom: 2px solid #cbd5e1;
+      padding-bottom: 8px;
+    }
+    h2 {
+      font-size: 15pt;
+      margin-top: 24px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 18px;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 8px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      background: #e2e8f0;
+    }
+    ul {
+      margin: 6px 0 12px 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Astha Express Smoke Test Cases</h1>
+
+  <p>This document is for quick post-deploy or post-change smoke testing. Run these cases first to confirm that the most important user and admin flows are still working.</p>
+
+  <h2>Execution Notes</h2>
+  <ul>
+    <li>Run in a fresh browser session.</li>
+    <li>Keep one active product, one category, one admin account, and one customer account ready.</li>
+    <li>Capture screenshot immediately if any smoke case fails.</li>
+  </ul>
+
+  <h2>Smoke Test Cases</h2>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Module</th>
+      <th>Scenario</th>
+      <th>Steps</th>
+      <th>Expected Result</th>
+    </tr>
+    <tr>
+      <td>SM-01</td>
+      <td>Homepage</td>
+      <td>Homepage loads</td>
+      <td>Open homepage.</td>
+      <td>Homepage opens without error, broken layout, or broken images.</td>
+    </tr>
+    <tr>
+      <td>SM-02</td>
+      <td>Category</td>
+      <td>Category page opens</td>
+      <td>Open any category page.</td>
+      <td>Products load correctly.</td>
+    </tr>
+    <tr>
+      <td>SM-03</td>
+      <td>Product</td>
+      <td>Product details open</td>
+      <td>Open any active product details page.</td>
+      <td>Product name, price, image, and order button appear correctly.</td>
+    </tr>
+    <tr>
+      <td>SM-04</td>
+      <td>Cart</td>
+      <td>Add to cart works</td>
+      <td>Add one product to cart.</td>
+      <td>Cart count and cart summary update correctly.</td>
+    </tr>
+    <tr>
+      <td>SM-05</td>
+      <td>Cart</td>
+      <td>Cart page works</td>
+      <td>Open cart page and change quantity.</td>
+      <td>Subtotal and total update correctly.</td>
+    </tr>
+    <tr>
+      <td>SM-06</td>
+      <td>Checkout</td>
+      <td>Checkout page opens</td>
+      <td>Open checkout page with item in cart.</td>
+      <td>Checkout page loads and required fields are visible.</td>
+    </tr>
+    <tr>
+      <td>SM-07</td>
+      <td>Checkout</td>
+      <td>Order placement works</td>
+      <td>Place one test order with valid information.</td>
+      <td>Order is created and success page appears.</td>
+    </tr>
+    <tr>
+      <td>SM-08</td>
+      <td>Customer Login</td>
+      <td>Customer login works</td>
+      <td>Login with valid customer account.</td>
+      <td>Customer account/dashboard opens correctly.</td>
+    </tr>
+    <tr>
+      <td>SM-09</td>
+      <td>Customer Orders</td>
+      <td>Customer order list works</td>
+      <td>Open customer orders page.</td>
+      <td>Placed order appears in order list.</td>
+    </tr>
+    <tr>
+      <td>SM-10</td>
+      <td>Admin Login</td>
+      <td>Admin login works</td>
+      <td>Login to admin panel.</td>
+      <td>Admin dashboard opens without error.</td>
+    </tr>
+    <tr>
+      <td>SM-11</td>
+      <td>Admin Orders</td>
+      <td>Admin order list works</td>
+      <td>Open admin orders list after placing test order.</td>
+      <td>New order is visible with correct amount and customer details.</td>
+    </tr>
+    <tr>
+      <td>SM-12</td>
+      <td>POS</td>
+      <td>POS page works</td>
+      <td>Open POS page and search a product.</td>
+      <td>Product search and cart add work correctly.</td>
+    </tr>
+    <tr>
+      <td>SM-13</td>
+      <td>Media Library</td>
+      <td>Media upload works</td>
+      <td>Upload one image from media library.</td>
+      <td>Image appears in media grid.</td>
+    </tr>
+    <tr>
+      <td>SM-14</td>
+      <td>Category Media Picker</td>
+      <td>Media picker selection works</td>
+      <td>Create/edit category and select image from media library.</td>
+      <td>Selected image saves correctly.</td>
+    </tr>
+    <tr>
+      <td>SM-15</td>
+      <td>Banner</td>
+      <td>Banner image save works</td>
+      <td>Create or edit banner using upload or media library.</td>
+      <td>Banner saves successfully.</td>
+    </tr>
+    <tr>
+      <td>SM-16</td>
+      <td>Brand</td>
+      <td>Brand image save works</td>
+      <td>Create or edit brand with image.</td>
+      <td>Brand saves and image preview is correct.</td>
+    </tr>
+    <tr>
+      <td>SM-17</td>
+      <td>Coupon</td>
+      <td>Coupon image and save works</td>
+      <td>Create or edit coupon with image.</td>
+      <td>Coupon saves successfully.</td>
+    </tr>
+    <tr>
+      <td>SM-18</td>
+      <td>User</td>
+      <td>Admin user image save works</td>
+      <td>Create or edit admin user with image.</td>
+      <td>User saves successfully.</td>
+    </tr>
+    <tr>
+      <td>SM-19</td>
+      <td>Settings</td>
+      <td>General settings save works</td>
+      <td>Update white logo, dark logo, and favicon.</td>
+      <td>Settings save successfully and frontend uses updated assets.</td>
+    </tr>
+    <tr>
+      <td>SM-20</td>
+      <td>SEO Settings</td>
+      <td>SEO settings page works</td>
+      <td>Open SEO settings and save a small change.</td>
+      <td>Page saves without error.</td>
+    </tr>
+  </table>
+
+  <h2>Result Summary Table</h2>
+  <table>
+    <tr>
+      <th>Test Case ID</th>
+      <th>Status</th>
+      <th>Comment</th>
+    </tr>
+    <tr><td>SM-01</td><td></td><td></td></tr>
+    <tr><td>SM-02</td><td></td><td></td></tr>
+    <tr><td>SM-03</td><td></td><td></td></tr>
+    <tr><td>SM-04</td><td></td><td></td></tr>
+    <tr><td>SM-05</td><td></td><td></td></tr>
+    <tr><td>SM-06</td><td></td><td></td></tr>
+    <tr><td>SM-07</td><td></td><td></td></tr>
+    <tr><td>SM-08</td><td></td><td></td></tr>
+    <tr><td>SM-09</td><td></td><td></td></tr>
+    <tr><td>SM-10</td><td></td><td></td></tr>
+    <tr><td>SM-11</td><td></td><td></td></tr>
+    <tr><td>SM-12</td><td></td><td></td></tr>
+    <tr><td>SM-13</td><td></td><td></td></tr>
+    <tr><td>SM-14</td><td></td><td></td></tr>
+    <tr><td>SM-15</td><td></td><td></td></tr>
+    <tr><td>SM-16</td><td></td><td></td></tr>
+    <tr><td>SM-17</td><td></td><td></td></tr>
+    <tr><td>SM-18</td><td></td><td></td></tr>
+    <tr><td>SM-19</td><td></td><td></td></tr>
+    <tr><td>SM-20</td><td></td><td></td></tr>
+  </table>
+</body>
+</html>

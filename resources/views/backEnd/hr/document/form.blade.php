@@ -1,0 +1,12 @@
+<div class="col-md-4"><div class="form-group mb-3"><label class="form-label">Employee *</label><select class="form-control" name="employee_id" required><option value="">Select..</option>@foreach($employees as $employee)<option value="{{ $employee->id }}" @selected((string) old('employee_id', $document?->employee_id) === (string) $employee->id)>{{ $employee->name }}</option>@endforeach</select></div></div>
+<div class="col-md-4"><div class="form-group mb-3"><label class="form-label">Title *</label><input type="text" name="title" class="form-control" value="{{ old('title', $document?->title) }}" required></div></div>
+<div class="col-md-4"><div class="form-group mb-3"><label class="form-label">Document Type</label><input type="text" name="document_type" class="form-control" value="{{ old('document_type', $document?->document_type) }}"></div></div>
+<div class="col-md-4"><div class="form-group mb-3"><label class="form-label">Document Number</label><input type="text" name="document_number" class="form-control" value="{{ old('document_number', $document?->document_number) }}"></div></div>
+<div class="col-md-4"><div class="form-group mb-3"><label class="form-label">Upload File</label><input type="file" name="document_file" class="form-control"></div></div>
+<div class="col-md-4"><div class="form-group mb-3"><label class="form-label">File Path / URL</label><input type="text" name="file_path" class="form-control" value="{{ old('file_path', $document?->file_path) }}"></div></div>
+<div class="col-md-4"><div class="form-group mb-3"><label class="form-label">Expiry Date</label><input type="date" name="expiry_date" class="form-control" value="{{ old('expiry_date', optional($document?->expiry_date)->format('Y-m-d')) }}"></div></div>
+@if(!empty($document?->file_path))
+<div class="col-md-12"><div class="mb-3"><a href="{{ str_starts_with($document->file_path, 'http') ? $document->file_path : asset($document->file_path) }}" target="_blank" class="btn btn-outline-primary btn-sm">View Current File</a></div></div>
+@endif
+<div class="col-md-12"><div class="form-group mb-3"><label class="form-label">Notes</label><textarea name="notes" class="form-control" rows="4">{{ old('notes', $document?->notes) }}</textarea></div></div>
+<div class="col-md-3"><div class="form-group mb-3"><label class="d-block form-label">Status</label><label class="switch"><input type="checkbox" name="status" value="1" @if(old('status', $document?->status ?? 1)) checked @endif><span class="slider round"></span></label></div></div>

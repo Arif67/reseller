@@ -1,0 +1,159 @@
+• Home page section gula niye codebase e aro onek clean kaj kora jete pare. Amar recommendation priority-wise:
+
+  1. Section-wise partial kora
+     index.blade.php ekhono onek boro. Hero slider, marketing banner, best selling, featured, category tabs, service feature alada partial e nile maintain kora
+     easy hobe.
+     Example:
+
+  - resources/views/frontEnd/home/sections/hero.blade.php
+  - resources/views/frontEnd/home/sections/best-selling.blade.php
+
+  2. Repeated product card component banano
+     Best selling, hot deals, new arrival, category product list e almost same product card bar bar ache. Eta ekta reusable partial/component e nile duplicate code
+     onek kombe.
+  3. Price/discount logic helper e neya
+     oldPrice, newPrice, discount calculation onek jaygay repeat hocche. Eta:
+
+  - model accessor
+  - view helper
+  - dedicated presenter/service
+    e nile bug kombe.
+
+  4. Home data service banano
+     Ekhon homepage controller e onek query ache. HomePageService banale controller halka hobe ar business logic ek jaygay thakbe.
+  5. Section config database-driven kora
+     Kon section show hobe, order ki hobe, heading ki hobe, max item koyta hobe egula admin theke control kora gele future edit fast hobe.
+  6. Cache strategy improve kora
+     Home page er alada alada section er cache alada korle ekta part update hole pura page cache invalidate korte hobe na.
+  7. CSS modular kora
+     home.css ekhon ekta file. Eta aro bhanga jete pare:
+
+  - home-hero.css
+  - home-products.css
+  - home-banners.css
+
+  8. JS modular kora
+     home.js eo section-wise init function rakha valo:
+
+  - initHeroSlider()
+  - initProductSliders()
+  - initCountdown()
+
+  9. Admin manage module
+     Homepage sections er jonno admin module banano jete pare:
+
+  - section on/off
+  - section sort order
+  - custom title/subtitle
+  - selected category/product/banner
+
+  10. Query optimization
+     with, select, withCount aro strict kore query optimize kora jete pare. N+1 issue ache kina o audit kora uchit.
+  11. Responsive audit
+     Prottek section er desktop/tablet/mobile behavior standardized kora jete pare. Ekhon section-wise alada style ache, ekta common spacing system nile UI
+     consistent hobe.
+  12. Testable structure
+     Controller/service layer e logic nile pore feature test kora jabe, especially:
+
+  - best selling product
+  - fallback product
+  - section visibility
+
+  Ami chaile next step e eta 3 phase e korte pari:
+
+  1. index.blade.php ke partial e bhanga
+  2. reusable product card component banano
+  3. homepage controller logic HomePageService e neya
+
+  Eta korle codebase er maintainability onek better hobe.
+
+
+
+
+
+
+
+
+  তোমার কী শেখা উচিত এখন
+
+AI দিয়ে coding — Codex/Copilot/ChatGPT ব্যবহার করে faster build করা
+Debugging + verification — AI output blind trust না করা
+DSA + core CS — interviews আর fundamentals-এর জন্য
+System design basics — scalable app কীভাবে বানায়
+Git, testing, code review — team environment-এর skill
+Communication — requirement বোঝা, explain করা, tradeoff discuss করা
+
+
+
+- Google Analytics 4
+    traffic, source, conversion tracking er jonno
+  - Google Ads Conversion Tracking
+    ad campaign sale/lead measure korar jonno
+  - Meta Ads / Facebook CAPI
+    eta already ache, aro event optimization kora jete pare
+  - TikTok Ads Events API
+    eta already ache, aro audience/event tuning kora jete pare
+  - Google Tag Manager
+    eta already ache
+  - Search Console
+    SEO performance ar indexing er jonno
+  - Microsoft Clarity
+    heatmap, session recording, rage click dekhar jonno
+  - Hotjar
+    user behavior analysis er jonno
+  - Mailchimp / Brevo / ConvertKit
+    email marketing ar automation er jonno
+  - SMS Marketing Gateway
+    campaign SMS, abandoned cart SMS, order follow-up
+  - WhatsApp API
+    remarketing, abandoned cart recovery, support
+  - Push Notification
+    OneSignal / Firebase diye browser notification
+  - Abandoned Cart Tracking
+    cart chere jawa customer ke recover korar jonno
+  - Coupon / Promo Automation
+    first order, repeat order, festival offer automation
+  - Affiliate / Referral System
+    referral link diye sales grow korar jonno
+  - UTM Campaign Tracker
+    kon campaign theke sale astese seta track korar jonno
+  - Webhook / CRM Integration
+    HubSpot, Zoho, etc. e lead/order pathanor jonno
+  - Review Request Automation
+    order er por review collect korar jonno
+  - Product Feed Integration
+    Google Merchant Center, Facebook Catalog, TikTok Catalog er jonno
+  - Merchant Center
+    Google Shopping listing er jonno
+  - Conversion Dashboard
+    ek jaygay Meta, TikTok, Google conversion summary
+
+
+
+
+    • Eirokom step by step command dile best hobe.
+
+  1. First planning command
+     Current project er jonno full ecommerce profit-loss system analyze koro. Ki ki data already ache, ki missing, kon table/field
+     lagbe, kon report lagbe, step by step implementation plan dao. Code ekhono change koro na.
+  2. Database design command
+     Profit-loss system er jonno required database changes implement koro. Migration, model field, relation update koro. Existing
+     structure er sathe compatible rekho.
+  3. Per-order calculation command
+     Per order profit calculation implement koro. Order create/update/status change er sathe profit-related snapshot and
+     calculation save hobe emon vabe koro.
+  4. Expense integration command
+     Existing expense table er sathe profit-loss calculation integrate koro jate net profit report e expense include hoy.
+  5. Return/cancel loss command
+     Return, cancel, refund, courier return er impact profit-loss e include koro. Existing order status flow onujayi logic add
+     koro.
+  6. Report dashboard command
+     Admin panel e Profit Loss Dashboard and detailed report page banao. Date range, summary cards, order-wise profit, product-wise
+     profit, expense breakdown show koro.
+  7. Verification command
+     Profit-loss system er sob calculation review koro, bug thakle fix koro, ar test/checklist dao.
+
+
+  1. First phase e profit-loss system er backend foundation implement koro: analysis, migration, model update, per-order
+     calculation, expense integration.
+  2. Second phase e admin dashboard, report page, filters, summaries, verification complete koro.

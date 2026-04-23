@@ -1,0 +1,8 @@
+// Write your code here  // <!-- Google Tag Manager (noscript) -->
+    // @foreach($gtm_code as $gtm)
+    // <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-{{$gtm->code}}"
+    //         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    // <!-- End Google Tag Manager (noscript) -->
+    // @endforeach
+    // <div id="fb-root"></div>
+    // <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0&appId=740431513324176" nonce="DfzQTqZ6"></script>

@@ -1,0 +1,91 @@
+• Accounts module e aro onek useful jinis add kora jete pare. Practical high-value list:
+
+  - Income Ledger
+    non-order income track korar jonno
+  - Cashbook / Bankbook
+    cash in, cash out, bank transaction
+  - Supplier Ledger
+    supplier due, payment history
+  - Customer Due Ledger
+    baki/partial payment tracking
+  - Journal Entry
+    debit-credit based manual accounting entry
+  - Chart of Accounts
+    accounting head setup
+  - Asset Management
+    office asset, purchase value, depreciation
+  - Liability Tracking
+    loan, payable, outstanding dues
+  - Fund Transfer
+    cash to bank, bank to bkash, etc.
+  - Payment Method Report
+    COD, bkash, nagad, card wise summary
+  - Courier Cost Ledger
+    courier-wise expense tracking
+  - Return / Refund Ledger
+    refund ar return related loss account
+  - Tax / VAT Report
+    tax liability/reporting jodi dorkar hoy
+  - Invoice / Money Receipt
+    accounting format e printable slip
+  - Trial Balance
+  - Balance Sheet
+  - Profit & Loss Statement
+    more accounting-grade format
+  - Daily Closing Report
+    daily sales, expense, collection, cash closing
+  - Expense Approval Flow
+    approval chara expense final na hobe
+  - Multi Account Support
+    cash, bank, mobile banking separate balances
+  - Transaction Category
+    reusable income/expense categories
+  - Audit Log
+    ke kokhon kon financial record change korlo
+  - Export
+    Excel/PDF/CSV reports
+
+  Tomar current project er jonno sabcheye useful next gula hobe:
+
+  - Income Ledger
+  - Cashbook / Bankbook
+  - Payment Method Report
+  - Courier Cost Ledger
+  - Return / Refund Ledger
+  - Daily Closing Report
+
+  Chaile ami next e Accounts module ke proper mini-ERP style korte pari with:
+
+  - Chart of Accounts
+  - Cash/Bank Ledger
+  - Income Ledger
+  - Journal Entry
+  - Daily Closing Report
+
+
+    Flow hobe:
+
+  - Purchase save -> inventory movement in
+  - Order save/process -> inventory movement out
+  - Return/adjustment -> movement in/out
+  - Current stock = movement summary or live stock column
+
+  Ami recommend korbo next implementation order:
+
+  1. Inventory Ledger
+  2. Stock Adjustment
+  3. Low Stock Alert
+  4. Purchase Return
+  5. Damage Entry
+  6. Supplier Payment Settlement
+
+  So short answer:
+  purchase-er sathe inventory properly korte hole sudhu purchase enough na, stock movement system lagbe.
+
+  Chaile ami ekhon Inventory Module Phase 1 implement korte pari:
+
+  - inventory movements
+  - stock adjustment
+  - low stock report
+  - purchase integration
+  - sale/order integration foundation

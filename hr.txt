@@ -1,0 +1,41 @@
+• HR module-e aro useful jeigula lage:
+
+  - Shift / Office Time
+    employee kon shift-e kaj kore, late/ot calculation-er jonno
+  - Holiday Management
+    govt holiday, company holiday, weekend rule
+  - Attendance Device / Manual Punch
+    in-out punch system
+  - Leave Type Setup
+    casual, sick, annual, unpaid leave alada rule
+  - Salary Structure
+    basic, house rent, medical, transport, allowance breakup
+  - Advance Salary / Loan
+    employee advance nile payroll theke adjust
+  - Bonus / Incentive
+    eid bonus, performance bonus
+  - Payslip
+    printable/downloadable salary slip
+  - Document Management
+    NID, photo, appointment letter, CV
+  - Designation Setup
+    department theke alada designation master
+  - Notice / Announcement
+    HR notice board
+  - Resignation / Termination
+    exit record maintain
+  - Performance Note
+    employee remarks / KPI note
+  - User Login Link
+    employee er sathe admin/user account link
+  - Expense Sync Rules
+    payroll paid hole accounts expense auto-post, eta already base level-e ache
+  - HR Dashboard
+    total employee, absent today, upcoming salary, leave pending, etc.
+
+  Sabcheye practical next step hobe:
+
+  - Holiday + Shift + Leave Type
+  - Salary Structure + Payslip
+  - Advance Salary / Loan
+  - HR Dashboard

@@ -1,0 +1,589 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Astha Express Test Cases</title>
+  <style>
+    body {
+      font-family: Calibri, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.45;
+      color: #111827;
+      margin: 36px;
+    }
+    h1, h2, h3 {
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 22pt;
+      border-bottom: 2px solid #cbd5e1;
+      padding-bottom: 8px;
+    }
+    h2 {
+      font-size: 15pt;
+      margin-top: 24px;
+    }
+    h3 {
+      font-size: 12pt;
+      margin-top: 18px;
+    }
+    p {
+      margin: 6px 0 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 18px;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 8px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      background: #e2e8f0;
+    }
+    .meta td:first-child {
+      width: 180px;
+      font-weight: 700;
+      background: #f8fafc;
+    }
+    .case-id {
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .priority {
+      font-weight: 700;
+    }
+    .p1 { color: #b91c1c; }
+    .p2 { color: #92400e; }
+    .p3 { color: #1d4ed8; }
+    ul {
+      margin: 6px 0 12px 20px;
+    }
+    li {
+      margin: 4px 0;
+    }
+    .small {
+      font-size: 10pt;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+  <h1>Astha Express Manual Test Cases</h1>
+
+  <table class="meta">
+    <tr><td>Project</td><td>Astha Express</td></tr>
+    <tr><td>Document Purpose</td><td>Manual QA checklist for storefront, checkout, admin, catalog, marketing, media, and settings flows.</td></tr>
+    <tr><td>Prepared By</td><td>OpenAI Codex</td></tr>
+    <tr><td>Suggested Use</td><td>Run P1 cases first, then P2, then P3. Mark Pass/Fail and capture screenshots for failed cases.</td></tr>
+  </table>
+
+  <h2>1. Test Execution Notes</h2>
+  <ul>
+    <li>Use a fresh browser session for guest checkout tests.</li>
+    <li>Use another logged-in session for customer account tests.</li>
+    <li>Keep at least one active product, one product with variation, one banner, one campaign, and one coupon available before starting.</li>
+    <li>If possible, test on both desktop and mobile viewport.</li>
+    <li>For each failed test case, capture steps, screenshot, expected result, actual result, and affected URL.</li>
+  </ul>
+
+  <h2>2. Priority Definition</h2>
+  <ul>
+    <li><span class="priority p1">P1</span>: Core revenue or admin-blocking flow.</li>
+    <li><span class="priority p2">P2</span>: Important business/admin feature.</li>
+    <li><span class="priority p3">P3</span>: Secondary UX, content, or regression check.</li>
+  </ul>
+
+  <h2>3. Core Storefront and Checkout Test Cases</h2>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Priority</th>
+      <th>Module</th>
+      <th>Test Scenario</th>
+      <th>Steps</th>
+      <th>Expected Result</th>
+    </tr>
+    <tr>
+      <td class="case-id">FE-01</td>
+      <td class="priority p1">P1</td>
+      <td>Homepage</td>
+      <td>Homepage loads correctly</td>
+      <td>Open homepage. Verify hero, categories, products, banners, and header/footer.</td>
+      <td>Page loads without error. Main sections render correctly. No broken image or visible raw code.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-02</td>
+      <td class="priority p1">P1</td>
+      <td>Category Listing</td>
+      <td>Category page shows products and filters</td>
+      <td>Open any category page. Use sorting/filter/price range if available.</td>
+      <td>Product list updates correctly and no empty-state bug appears for valid category.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-03</td>
+      <td class="priority p1">P1</td>
+      <td>Product Details</td>
+      <td>Simple product details load correctly</td>
+      <td>Open a simple product. Check name, image, price, availability, add-to-cart button.</td>
+      <td>Product details display correctly and add-to-cart is available if stock exists.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-04</td>
+      <td class="priority p1">P1</td>
+      <td>Product Variations</td>
+      <td>Variant product selection works</td>
+      <td>Open a variable product. Select size/color/other attributes and try add-to-cart.</td>
+      <td>Selection updates properly. Product can be added when valid combination exists.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-05</td>
+      <td class="priority p1">P1</td>
+      <td>Search</td>
+      <td>Live search returns expected products</td>
+      <td>Type part of product name in search field.</td>
+      <td>Relevant suggestions appear and link to correct products.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-06</td>
+      <td class="priority p1">P1</td>
+      <td>Cart</td>
+      <td>Add simple product to cart</td>
+      <td>Add one simple product from product card or product details page.</td>
+      <td>Cart count increases, cart summary updates, correct item appears in cart.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-07</td>
+      <td class="priority p1">P1</td>
+      <td>Cart</td>
+      <td>Cart quantity increment/decrement works</td>
+      <td>Open cart. Increase and decrease quantity.</td>
+      <td>Subtotal and total update correctly without page-breaking issue.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-08</td>
+      <td class="priority p1">P1</td>
+      <td>Cart</td>
+      <td>Remove item from cart</td>
+      <td>Remove one item from mini-cart and cart page.</td>
+      <td>Item is removed and totals update correctly.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-09</td>
+      <td class="priority p1">P1</td>
+      <td>Coupon</td>
+      <td>Valid coupon applies successfully</td>
+      <td>Apply a valid coupon meeting minimum amount requirement.</td>
+      <td>Discount is applied correctly and visible in summary.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-10</td>
+      <td class="priority p1">P1</td>
+      <td>Coupon</td>
+      <td>Invalid or expired coupon is rejected</td>
+      <td>Apply an invalid coupon and an expired coupon.</td>
+      <td>System shows validation/error message and cart total remains unchanged.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-11</td>
+      <td class="priority p1">P1</td>
+      <td>Checkout</td>
+      <td>Guest checkout creates order</td>
+      <td>Add product to cart, go to checkout, place order as guest with valid data.</td>
+      <td>Order is created successfully and success page is shown.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-12</td>
+      <td class="priority p1">P1</td>
+      <td>Checkout</td>
+      <td>Logged-in customer checkout works</td>
+      <td>Login as customer, place an order.</td>
+      <td>Order is saved under that customer account and appears in order history.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-13</td>
+      <td class="priority p1">P1</td>
+      <td>Checkout</td>
+      <td>Required field validation works</td>
+      <td>Try checkout with missing name/phone/address.</td>
+      <td>Validation blocks submission and required field message appears.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-14</td>
+      <td class="priority p2">P2</td>
+      <td>Checkout</td>
+      <td>Shipping area changes amount correctly</td>
+      <td>Change selected area at checkout.</td>
+      <td>Shipping charge and grand total update correctly.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-15</td>
+      <td class="priority p2">P2</td>
+      <td>Campaign Page</td>
+      <td>Campaign landing page loads and order form works</td>
+      <td>Open a campaign page. Add/order from the campaign form.</td>
+      <td>Campaign details load and order can be submitted successfully.</td>
+    </tr>
+    <tr>
+      <td class="case-id">FE-16</td>
+      <td class="priority p2">P2</td>
+      <td>Contact</td>
+      <td>Contact form submission works</td>
+      <td>Submit contact form with valid data.</td>
+      <td>Form submits successfully and no error page appears.</td>
+    </tr>
+  </table>
+
+  <h2>4. Customer Account Test Cases</h2>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Priority</th>
+      <th>Module</th>
+      <th>Test Scenario</th>
+      <th>Steps</th>
+      <th>Expected Result</th>
+    </tr>
+    <tr>
+      <td class="case-id">CU-01</td>
+      <td class="priority p1">P1</td>
+      <td>Registration</td>
+      <td>Customer registration works</td>
+      <td>Create a new customer account with valid phone and password.</td>
+      <td>Account is created successfully.</td>
+    </tr>
+    <tr>
+      <td class="case-id">CU-02</td>
+      <td class="priority p1">P1</td>
+      <td>Login</td>
+      <td>Customer login works with valid credentials</td>
+      <td>Login using registered account.</td>
+      <td>Customer is redirected to account or checkout correctly.</td>
+    </tr>
+    <tr>
+      <td class="case-id">CU-03</td>
+      <td class="priority p1">P1</td>
+      <td>Login</td>
+      <td>Invalid login is blocked</td>
+      <td>Use wrong password or unknown phone.</td>
+      <td>Login fails with proper error message.</td>
+    </tr>
+    <tr>
+      <td class="case-id">CU-04</td>
+      <td class="priority p2">P2</td>
+      <td>Profile</td>
+      <td>Customer profile update works</td>
+      <td>Update name, phone, address and profile image.</td>
+      <td>New values are saved correctly and reflected in account page.</td>
+    </tr>
+    <tr>
+      <td class="case-id">CU-05</td>
+      <td class="priority p2">P2</td>
+      <td>Orders</td>
+      <td>Customer sees order history</td>
+      <td>Open customer orders page after placing an order.</td>
+      <td>Order list shows correct amount, status, and invoice access.</td>
+    </tr>
+    <tr>
+      <td class="case-id">CU-06</td>
+      <td class="priority p2">P2</td>
+      <td>Forgot Password</td>
+      <td>Forgot password flow works</td>
+      <td>Trigger forgot password using a valid phone number.</td>
+      <td>OTP/reset flow proceeds without error.</td>
+    </tr>
+  </table>
+
+  <h2>5. Admin Authentication and Dashboard</h2>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Priority</th>
+      <th>Module</th>
+      <th>Test Scenario</th>
+      <th>Steps</th>
+      <th>Expected Result</th>
+    </tr>
+    <tr>
+      <td class="case-id">AD-01</td>
+      <td class="priority p1">P1</td>
+      <td>Admin Login</td>
+      <td>Admin can log in</td>
+      <td>Login to admin panel with valid admin credentials.</td>
+      <td>Dashboard loads successfully.</td>
+    </tr>
+    <tr>
+      <td class="case-id">AD-02</td>
+      <td class="priority p2">P2</td>
+      <td>Dashboard</td>
+      <td>Dashboard statistics load</td>
+      <td>Open admin dashboard.</td>
+      <td>Cards, order counts, and amounts load without error.</td>
+    </tr>
+  </table>
+
+  <h2>6. Catalog Management Test Cases</h2>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Priority</th>
+      <th>Module</th>
+      <th>Test Scenario</th>
+      <th>Steps</th>
+      <th>Expected Result</th>
+    </tr>
+    <tr>
+      <td class="case-id">CM-01</td>
+      <td class="priority p1">P1</td>
+      <td>Media Library</td>
+      <td>Admin uploads media successfully</td>
+      <td>Upload one or more images from Media Library page.</td>
+      <td>Images appear in media grid and are selectable.</td>
+    </tr>
+    <tr>
+      <td class="case-id">CM-02</td>
+      <td class="priority p1">P1</td>
+      <td>Category</td>
+      <td>Create category with uploaded image</td>
+      <td>Create a category using image upload field.</td>
+      <td>Category saves successfully and image preview works.</td>
+    </tr>
+    <tr>
+      <td class="case-id">CM-03</td>
+      <td class="priority p1">P1</td>
+      <td>Category</td>
+      <td>Create category using media library selection</td>
+      <td>Create category and select image/icon from media library.</td>
+      <td>Category saves successfully and selected media is used.</td>
+    </tr>
+    <tr>
+      <td class="case-id">CM-04</td>
+      <td class="priority p1">P1</td>
+      <td>Brand</td>
+      <td>Create and edit brand with media picker</td>
+      <td>Create a brand, then edit it and replace image from media library.</td>
+      <td>Brand image updates correctly.</td>
+    </tr>
+    <tr>
+      <td class="case-id">CM-05</td>
+      <td class="priority p1">P1</td>
+      <td>Banner</td>
+      <td>Create and edit banner with media picker</td>
+      <td>Create banner, then update image using library selection.</td>
+      <td>Banner saves and displays correctly in frontend if active.</td>
+    </tr>
+    <tr>
+      <td class="case-id">CM-06</td>
+      <td class="priority p1">P1</td>
+      <td>Product</td>
+      <td>Create simple product</td>
+      <td>Create a product with required fields and image gallery.</td>
+      <td>Product saves successfully and appears in admin/frontend.</td>
+    </tr>
+    <tr>
+      <td class="case-id">CM-07</td>
+      <td class="priority p1">P1</td>
+      <td>Product</td>
+      <td>Create variable product</td>
+      <td>Create product with variation values and variation images.</td>
+      <td>Variants save correctly and can be selected on product page.</td>
+    </tr>
+    <tr>
+      <td class="case-id">CM-08</td>
+      <td class="priority p2">P2</td>
+      <td>Product</td>
+      <td>Product edit updates pricing and images</td>
+      <td>Edit existing product and update price/images/status.</td>
+      <td>Changes save correctly and frontend reflects updates.</td>
+    </tr>
+    <tr>
+      <td class="case-id">CM-09</td>
+      <td class="priority p2">P2</td>
+      <td>Campaign</td>
+      <td>Create campaign with banner and review images</td>
+      <td>Create campaign and upload banner plus gallery/review images.</td>
+      <td>Campaign page renders correctly with uploaded content.</td>
+    </tr>
+    <tr>
+      <td class="case-id">CM-10</td>
+      <td class="priority p2">P2</td>
+      <td>Coupon</td>
+      <td>Create coupon with image</td>
+      <td>Create coupon using upload or media library selected image.</td>
+      <td>Coupon saves and is usable in checkout when conditions match.</td>
+    </tr>
+  </table>
+
+  <h2>7. Order Management and POS Test Cases</h2>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Priority</th>
+      <th>Module</th>
+      <th>Test Scenario</th>
+      <th>Steps</th>
+      <th>Expected Result</th>
+    </tr>
+    <tr>
+      <td class="case-id">OM-01</td>
+      <td class="priority p1">P1</td>
+      <td>Orders</td>
+      <td>New frontend order appears in admin</td>
+      <td>Place a frontend order and open admin orders list.</td>
+      <td>Order appears with correct amount, source, customer info, and status.</td>
+    </tr>
+    <tr>
+      <td class="case-id">OM-02</td>
+      <td class="priority p1">P1</td>
+      <td>Order Workspace</td>
+      <td>Admin can open order workspace</td>
+      <td>Open order manage page from order list.</td>
+      <td>Manage/invoice tabs load without error.</td>
+    </tr>
+    <tr>
+      <td class="case-id">OM-03</td>
+      <td class="priority p1">P1</td>
+      <td>Order Status</td>
+      <td>Admin can change order status</td>
+      <td>Update order status from admin.</td>
+      <td>Status changes successfully and list reflects new status.</td>
+    </tr>
+    <tr>
+      <td class="case-id">OM-04</td>
+      <td class="priority p1">P1</td>
+      <td>POS</td>
+      <td>Admin can create POS order</td>
+      <td>Add product from POS page, enter customer info, save order.</td>
+      <td>POS order is created successfully with correct totals.</td>
+    </tr>
+    <tr>
+      <td class="case-id">OM-05</td>
+      <td class="priority p2">P2</td>
+      <td>POS</td>
+      <td>Order source field works in POS</td>
+      <td>Create POS order and set Order Source to Facebook/Messenger/WhatsApp/TikTok/Google/Admin/Organic.</td>
+      <td>Selected source is saved and visible in order list/workspace.</td>
+    </tr>
+    <tr>
+      <td class="case-id">OM-06</td>
+      <td class="priority p2">P2</td>
+      <td>Invoice</td>
+      <td>Printable invoice works</td>
+      <td>Open invoice preview and printable invoice.</td>
+      <td>Invoice displays correct order/customer/item/payment information.</td>
+    </tr>
+  </table>
+
+  <h2>8. Marketing, Tracking, and Reports Test Cases</h2>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Priority</th>
+      <th>Module</th>
+      <th>Test Scenario</th>
+      <th>Steps</th>
+      <th>Expected Result</th>
+    </tr>
+    <tr>
+      <td class="case-id">MK-01</td>
+      <td class="priority p2">P2</td>
+      <td>Pixels</td>
+      <td>Pixel settings save successfully</td>
+      <td>Save Facebook/TikTok pixel configuration in admin.</td>
+      <td>Configuration persists and page reload shows saved values.</td>
+    </tr>
+    <tr>
+      <td class="case-id">MK-02</td>
+      <td class="priority p2">P2</td>
+      <td>Marketing Tools</td>
+      <td>Marketing suite config saves</td>
+      <td>Update marketing suite status and recovery message templates.</td>
+      <td>Updated values remain saved after reload.</td>
+    </tr>
+    <tr>
+      <td class="case-id">MK-03</td>
+      <td class="priority p3">P3</td>
+      <td>Reports</td>
+      <td>UTM campaign report loads</td>
+      <td>Open UTM campaign report page.</td>
+      <td>Page loads without query or rendering error.</td>
+    </tr>
+    <tr>
+      <td class="case-id">MK-04</td>
+      <td class="priority p3">P3</td>
+      <td>Reports</td>
+      <td>Conversion dashboard loads</td>
+      <td>Open conversion dashboard.</td>
+      <td>Dashboard renders without server error.</td>
+    </tr>
+  </table>
+
+  <h2>9. Settings and CMS Test Cases</h2>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Priority</th>
+      <th>Module</th>
+      <th>Test Scenario</th>
+      <th>Steps</th>
+      <th>Expected Result</th>
+    </tr>
+    <tr>
+      <td class="case-id">ST-01</td>
+      <td class="priority p1">P1</td>
+      <td>General Settings</td>
+      <td>General settings save with media picker</td>
+      <td>Save/update white logo, dark logo, and favicon using upload and media library.</td>
+      <td>Saved images appear correctly in admin and frontend.</td>
+    </tr>
+    <tr>
+      <td class="case-id">ST-02</td>
+      <td class="priority p2">P2</td>
+      <td>SEO Settings</td>
+      <td>SEO settings save correctly</td>
+      <td>Update SEO title, tags, description, verification, robots directive.</td>
+      <td>Settings persist after save and reload.</td>
+    </tr>
+    <tr>
+      <td class="case-id">ST-03</td>
+      <td class="priority p2">P2</td>
+      <td>Contact/Page Content</td>
+      <td>Contact and page content save correctly</td>
+      <td>Update content settings from admin and verify frontend page.</td>
+      <td>Frontend content reflects admin changes.</td>
+    </tr>
+  </table>
+
+  <h2>10. Recommended Regression Checklist</h2>
+  <ul>
+    <li>Homepage loads after any admin content/image update.</li>
+    <li>Product details page still works after product edit.</li>
+    <li>Add to cart works for simple and variable products.</li>
+    <li>Checkout still works after coupon/shipping/settings changes.</li>
+    <li>Admin order list and POS work after catalog changes.</li>
+    <li>Media library delete does not break in-use image references.</li>
+    <li>Customer login, profile update, and order history remain functional.</li>
+  </ul>
+
+  <h2>11. Defect Log Template</h2>
+  <table>
+    <tr><th>Field</th><th>What To Write</th></tr>
+    <tr><td>Bug ID</td><td>Example: BUG-001</td></tr>
+    <tr><td>Module</td><td>Example: Checkout / Admin Product / Media Library</td></tr>
+    <tr><td>Environment</td><td>Browser, device, user role</td></tr>
+    <tr><td>Precondition</td><td>Any required setup before reproducing</td></tr>
+    <tr><td>Steps to Reproduce</td><td>Numbered steps</td></tr>
+    <tr><td>Expected Result</td><td>What should happen</td></tr>
+    <tr><td>Actual Result</td><td>What actually happened</td></tr>
+    <tr><td>Severity</td><td>Critical / High / Medium / Low</td></tr>
+    <tr><td>Attachment</td><td>Screenshot or video path</td></tr>
+  </table>
+
+  <p class="small">End of document.</p>
+</body>
+</html>

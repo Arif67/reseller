@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Http\Controllers\Frontend;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\ProductVariable;
+use App\Models\Product;
+use Toastr;
+use Cart;
+use DB;
+use Session;
+
+class FaceBookEventController extends Controller
+{
+    public function viewContent(Request $request)
+    {
+        $accessToken = 'EAAXzE0t81UMBPJBE02nOFW1lnldaFl60OLbHB30Rpj5bYnaRn54rRZBjvF3FqSjADdlirk8s7UKAOs4dBBKV1JrCwVlhQ1b4H5YTg3RuQVWuuQTDofJqGrnVcuoA6cQkb1UTpTl8oNtZCiprMEv9MIB9js4lOO2yVYKVBATipZC32Kk9Ev5z5TLB02k4wZDZD';
+        $pixelId = '104873921067627';
+
+        $response = Http::post("https://graph.facebook.com/v20.0/{$pixelId}/events", [
+            'data' => [[
+                'event_name' => 'ViewContent',
+                'event_time' => time(),
+                'event_id' => $request->event_id,
+                'user_data' => [
+                    'client_ip_address' => $request->client_ip_address,
+                    'client_user_agent' => $request->client_user_agent,
+                ],
+                'custom_data' => [
+                    'currency' => $request->currency,
+                    'value' => $request->value,
+                    'content_ids' => [$request->product_id],
+                    'content_name' => $request->product_name,
+                    'content_category' => $request->category,
+                    'content_brand' => $request->brand,
+                ],
+                'action_source' => 'website'
+            ]],
+            'access_token' => $accessToken,
+        ]);
+
+        return response()->json($response->json());
+    }
+
+   
+}

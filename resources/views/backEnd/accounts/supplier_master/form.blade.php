@@ -1,0 +1,7 @@
+<div class="col-md-4"><div class="form-group mb-3"><label class="form-label">Name *</label><input type="text" name="name" class="form-control" value="{{ old('name', $row?->name) }}" required></div></div>
+<div class="col-md-4"><div class="form-group mb-3"><label class="form-label">Company</label><input type="text" name="company_name" class="form-control" value="{{ old('company_name', $row?->company_name) }}"></div></div>
+<div class="col-md-4"><div class="form-group mb-3"><label class="form-label">Phone</label><input type="text" name="phone" class="form-control" value="{{ old('phone', $row?->phone) }}"></div></div>
+<div class="col-md-4"><div class="form-group mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control" value="{{ old('email', $row?->email) }}"></div></div>
+<div class="col-md-8"><div class="form-group mb-3"><label class="form-label">Address</label><input type="text" name="address" class="form-control" value="{{ old('address', $row?->address) }}"></div></div>
+<div class="col-md-12"><div class="form-group mb-3"><label class="form-label">Note</label><textarea name="note" class="form-control" rows="4">{{ old('note', $row?->note) }}</textarea></div></div>
+<div class="col-md-4"><div class="form-group mb-3"><label class="d-block form-label">Status</label><label class="switch"><input type="checkbox" name="status" value="1" @if(old('status', $row?->status ?? 1)) checked @endif><span class="slider round"></span></label></div></div>

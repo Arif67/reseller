@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:o="urn:schemas-microsoft-com:office:office"
+    xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+    xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math"
+    xmlns:v="urn:schemas-microsoft-com:vml"
+    xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing"
+    xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+    xmlns:w10="urn:schemas-microsoft-com:office:word"
+    xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+    xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"
+    xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup"
+    xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk"
+    xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml"
+    xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
+    mc:Ignorable="w14 wp14">
+    <w:body>
+        <w:p><w:r><w:t>Homepage Dynamic Note</w:t></w:r></w:p>
+        <w:p><w:r><w:t>Date: 2026-04-06</w:t></w:r></w:p>
+        <w:p><w:r><w:t>Current Status</w:t></w:r></w:p>
+        <w:p><w:r><w:t>Homepage already partially dynamic.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- Hero slider data comes from banners table.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- Marketing banners data comes from banners table.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- Featured products load from feature_product flag.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- Best selling products are calculated from order data.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- Category-wise products and New Popular use categories with front_view = 1.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- Homepage section visibility and order are controlled from theme_customizations.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>Still Hardcoded</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- Crazy deal section text and button.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- Service features icons, titles, and descriptions.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- Homepage title and some SEO content.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>Files To Revisit</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- app/Services/Frontend/HomePageService.php</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- resources/views/frontEnd/pages/index.blade.php</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- resources/views/frontEnd/components/home/crazy-deal.blade.php</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- resources/views/frontEnd/components/home/service-features.blade.php</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- app/Http/Controllers/Admin/ThemeCustomizationController.php</w:t></w:r></w:p>
+        <w:p><w:r><w:t>- resources/views/backEnd/theme_customization/index.blade.php</w:t></w:r></w:p>
+        <w:p><w:r><w:t>Next Steps</w:t></w:r></w:p>
+        <w:p><w:r><w:t>1. Decide which homepage sections should be fully editable from admin.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>2. Add database fields or tables for crazy deal and service features content.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>3. Create admin form inputs for title, subtitle, button text, link, icon, and sort order.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>4. Load the new data in HomePageService.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>5. Replace hardcoded Blade content with database-driven values.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>6. Clear related cache after update.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>7. Optionally move homepage SEO title and meta fields to admin-managed settings.</w:t></w:r></w:p>
+        <w:p><w:r><w:t>Resume Priority</w:t></w:r></w:p>
+        <w:p><w:r><w:t>Start later with crazy deal, service features, and homepage SEO.</w:t></w:r></w:p>
+        <w:sectPr>
+            <w:pgSz w:w="12240" w:h="15840"/>
+            <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="708" w:footer="708" w:gutter="0"/>
+        </w:sectPr>
+    </w:body>
+</w:document>

@@ -1,0 +1,14 @@
+@font-face {
+  font-family: 'woodmart-font';
+  src: url('../fonts/woodmart-font-2-400.woff2');
+  font-style: normal;
+}
+.woodmart {
+    font-family: 'woodmart-font';
+}
+.woodmart-user::after {
+    content: '\f124';
+}
+.woodmart-cart::after {
+    content: '\f105';
+}

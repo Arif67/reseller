@@ -1,0 +1,5 @@
+@extends('backEnd.layouts.master')
+@section('title','Supplier Statement')
+@section('content')
+<div class="container-fluid"><div class="row"><div class="col-12"><div class="page-title-box"><div class="page-title-right"><a href="{{ route('accounts.supplier_master.show', $supplier->id) }}" class="btn btn-primary rounded-pill">Profile</a></div><h4 class="page-title">Supplier Statement</h4></div></div></div><div class="card"><div class="card-body"><h5 class="mb-3">{{ $supplier->name }}</h5><table class="table table-striped align-middle"><thead><tr><th>Date</th><th>Reference</th><th>Amount</th><th>Paid</th><th>Due Change</th><th>Note</th></tr></thead><tbody>@foreach($rows as $row)<tr><td>{{ $row->transaction_date?->format('d M Y') ?: '-' }}</td><td>{{ $row->reference_no ?: '-' }}</td><td>{{ number_format((float) $row->amount, 2, '.', '') }}</td><td>{{ number_format((float) $row->paid_amount, 2, '.', '') }}</td><td>{{ number_format((float) $row->due_amount, 2, '.', '') }}</td><td>{{ $row->note ?: '-' }}</td></tr>@endforeach</tbody></table></div></div></div>
+@endsection

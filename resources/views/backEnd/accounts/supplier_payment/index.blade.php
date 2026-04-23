@@ -1,0 +1,5 @@
+@extends('backEnd.layouts.master')
+@section('title','Supplier Payments')
+@section('content')
+<div class="container-fluid"><div class="row"><div class="col-12"><div class="page-title-box"><div class="page-title-right"><a href="{{ route('accounts.supplier_payments.create') }}" class="btn btn-primary rounded-pill">Create Payment</a></div><h4 class="page-title">Supplier Payments</h4></div></div></div><div class="card"><div class="card-body"><table class="table table-striped align-middle"><thead><tr><th>Date</th><th>Supplier</th><th>Purchase</th><th>Amount</th><th>Account</th></tr></thead><tbody>@forelse($data as $value)<tr><td>{{ $value->payment_date?->format('d M Y') ?: '-' }}</td><td>{{ $value->supplier_name }}</td><td>{{ $value->purchase?->purchase_no ?: '-' }}</td><td>{{ number_format((float) $value->amount, 2, '.', '') }}</td><td>{{ $value->financialAccount?->name ?: '-' }}</td></tr>@empty<tr><td colspan="5" class="text-center">No supplier payment found.</td></tr>@endforelse</tbody></table>{{ $data->links('pagination::bootstrap-4') }}</div></div></div>
+@endsection

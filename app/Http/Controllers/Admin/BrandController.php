@@ -1,0 +1,123 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\BrandRequest;
+use App\Services\Admin\BrandService\BrandService;
+use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+
+class BrandController extends Controller
+{
+    public function __construct(
+        private readonly BrandService $service
+    ) {
+    }
+
+    public function index(Request $request): View|Factory|JsonResponse|RedirectResponse
+    {
+        $response = $this->service->getListData($request->all());
+
+        if (! $response['success']) {
+            if ($request->ajax()) {
+                return response()->json(['message' => $response['message']], 500);
+            }
+
+            Toastr::error($response['message'], 'Error');
+
+            return back()->withErrors($response['message']);
+        }
+
+        return $request->ajax()
+            ? response()->json($response['data'])
+            : view('backEnd.brand.index', $response['data']);
+    }
+
+    public function create(): View|Factory|RedirectResponse
+    {
+        return view('backEnd.brand.create');
+    }
+
+    public function store(BrandRequest $request): RedirectResponse
+    {
+        $response = $this->service->storeBrand($request->all());
+
+        return $response['success']
+            ? redirect()->route('brands.index')->with($response)
+            : back()->withErrors($response['message'])->withInput();
+    }
+
+    public function edit(int|string $id): View|Factory|RedirectResponse
+    {
+        $response = $this->service->getEditData($id);
+
+        return $response['success']
+            ? view('backEnd.brand.edit', $response['data'])
+            : back()->withErrors($response['message']);
+    }
+
+    public function update(BrandRequest $request): RedirectResponse
+    {
+        $response = $this->service->updateBrand($request->all());
+
+        return $response['success']
+            ? redirect()->route('brands.index')->with($response)
+            : back()->withErrors($response['message'])->withInput();
+    }
+
+    public function inactive(Request $request): RedirectResponse
+    {
+        $response = $this->service->changeBrandStatus([
+            'hidden_id' => $request->hidden_id,
+            'status' => 0,
+        ]);
+
+        if ($response['success']) {
+            Toastr::success($response['message'], 'Success');
+
+            return back()->with($response);
+        }
+
+        Toastr::error($response['message'], 'Error');
+
+        return back()->withErrors($response['message']);
+    }
+
+    public function active(Request $request): RedirectResponse
+    {
+        $response = $this->service->changeBrandStatus([
+            'hidden_id' => $request->hidden_id,
+            'status' => 1,
+        ]);
+
+        if ($response['success']) {
+            Toastr::success($response['message'], 'Success');
+
+            return back()->with($response);
+        }
+
+        Toastr::error($response['message'], 'Error');
+
+        return back()->withErrors($response['message']);
+    }
+
+    public function destroy(Request $request): RedirectResponse
+    {
+        $response = $this->service->deleteBrand($request->all());
+
+        if ($response['success']) {
+            Toastr::success($response['message'], 'Success');
+
+            return to_route('brands.index')->with($response);
+        }
+
+        Toastr::error($response['message'], 'Error');
+
+        return back()->withErrors($response['message']);
+    }
+}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Homepage Dynamic Note</title>
+</head>
+<body>
+    <h1>Homepage Dynamic Note</h1>
+    <p>Date: 2026-04-06</p>
+
+    <h2>Current Status</h2>
+    <p>Homepage already partially dynamic.</p>
+    <ul>
+        <li>Hero slider data comes from banners table.</li>
+        <li>Marketing banners data comes from banners table.</li>
+        <li>Featured products load from feature_product flag.</li>
+        <li>Best selling products are calculated from order data.</li>
+        <li>Category-wise products and New Popular use categories with front_view = 1.</li>
+        <li>Homepage section visibility and order are controlled from theme_customizations.</li>
+    </ul>
+
+    <h2>Still Hardcoded</h2>
+    <ul>
+        <li>Crazy deal section text and button.</li>
+        <li>Service features icons, titles, and descriptions.</li>
+        <li>Homepage title and some SEO content.</li>
+    </ul>
+
+    <h2>Files To Revisit</h2>
+    <ul>
+        <li>app/Services/Frontend/HomePageService.php</li>
+        <li>resources/views/frontEnd/pages/index.blade.php</li>
+        <li>resources/views/frontEnd/components/home/crazy-deal.blade.php</li>
+        <li>resources/views/frontEnd/components/home/service-features.blade.php</li>
+        <li>app/Http/Controllers/Admin/ThemeCustomizationController.php</li>
+        <li>resources/views/backEnd/theme_customization/index.blade.php</li>
+    </ul>
+
+    <h2>Next Steps</h2>
+    <ol>
+        <li>Decide which homepage sections should be fully editable from admin.</li>
+        <li>Add database fields or tables for crazy deal and service features content.</li>
+        <li>Create admin form inputs for title, subtitle, button text, link, icon, and sort order.</li>
+        <li>Load the new data in HomePageService.</li>
+        <li>Replace hardcoded Blade content with database-driven values.</li>
+        <li>Clear related cache after update.</li>
+        <li>Optionally move homepage SEO title and meta fields to admin-managed settings.</li>
+    </ol>
+
+    <h2>Note</h2>
+    <p>If work resumes later, start from the hardcoded sections first: crazy deal, service features, and homepage SEO.</p>
+</body>
+</html>

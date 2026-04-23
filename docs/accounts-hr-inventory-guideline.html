@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Accounts, HR, and Inventory Management Guideline</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.5;
+            color: #222;
+            margin: 32px;
+        }
+
+        h1, h2, h3 {
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 24px;
+            border-bottom: 2px solid #dbe4f0;
+            padding-bottom: 8px;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-top: 28px;
+        }
+
+        h3 {
+            font-size: 15px;
+            margin-top: 18px;
+        }
+
+        p, li {
+            font-size: 12px;
+        }
+
+        ul {
+            margin-top: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 8px;
+            vertical-align: top;
+            font-size: 12px;
+        }
+
+        th {
+            background: #f8fafc;
+            text-align: left;
+        }
+
+        .note {
+            padding: 10px 12px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Accounts, HR, and Inventory Management Guideline</h1>
+    <p>
+        This document explains the purpose of the <strong>Accounts</strong>, <strong>HR</strong>, and
+        <strong>Inventory Management</strong> modules in simple operational language, so that an admin,
+        manager, or operator can understand what each module is for and what sequence to follow.
+    </p>
+
+    <h2>1. Big Picture</h2>
+    <table>
+        <tr>
+            <th>Module</th>
+            <th>Main Purpose</th>
+            <th>Used For</th>
+        </tr>
+        <tr>
+            <td>Accounts</td>
+            <td>Tracks money movement and financial records</td>
+            <td>Income, supplier dues, payments, purchases, journal entries, fund transfers, reports</td>
+        </tr>
+        <tr>
+            <td>HR</td>
+            <td>Tracks employees and workforce operations</td>
+            <td>Departments, designations, shifts, attendance, leave, payroll, documents, notices</td>
+        </tr>
+        <tr>
+            <td>Inventory</td>
+            <td>Tracks stock movement and stock health</td>
+            <td>Ledger, low stock monitoring, product stock movement, manual stock adjustment</td>
+        </tr>
+    </table>
+
+    <h2>2. Accounts Module</h2>
+    <p>
+        Accounts module is the financial control center. It stores how money enters the business, leaves the business,
+        and moves between internal accounts.
+    </p>
+
+    <h3>2.1 Main Sections</h3>
+    <ul>
+        <li><strong>Account Heads:</strong> Financial categories such as expense head, income head, payable head, cash head.</li>
+        <li><strong>Financial Accounts:</strong> Actual money holding points such as cash, bank, mobile banking wallet.</li>
+        <li><strong>Income Categories and Income:</strong> Different kinds of incoming money and their actual entries.</li>
+        <li><strong>Journal Entries:</strong> Manual accounting adjustments for balancing or special bookkeeping entries.</li>
+        <li><strong>Supplier Master:</strong> Supplier profile and statement history.</li>
+        <li><strong>Supplier Ledger / Supplier Payments:</strong> Supplier balance tracking and payment settlement.</li>
+        <li><strong>Purchases / Purchase Returns:</strong> Product procurement and return handling.</li>
+        <li><strong>Customer Dues:</strong> Track receivable amounts from customers.</li>
+        <li><strong>Fund Transfer:</strong> Move money from one internal financial account to another.</li>
+        <li><strong>Return Refund:</strong> Customer refund or reverse payment tracking.</li>
+        <li><strong>Reports:</strong> Ledger, daily closing, purchase report, payment method report.</li>
+    </ul>
+
+    <h3>2.2 Suggested Working Sequence</h3>
+    <ol>
+        <li>Create <strong>Account Heads</strong>.</li>
+        <li>Create <strong>Financial Accounts</strong> such as cash, bank, bKash, Nagad.</li>
+        <li>Add <strong>Suppliers</strong> if purchases will be recorded.</li>
+        <li>Record <strong>Purchases</strong> and <strong>Supplier Payments</strong>.</li>
+        <li>Record <strong>Income</strong>, <strong>Customer Dues</strong>, and <strong>Fund Transfers</strong>.</li>
+        <li>Use <strong>Journal Entries</strong> only when accounting adjustment is needed.</li>
+        <li>Review reports regularly for reconciliation.</li>
+    </ol>
+
+    <h3>2.3 Practical Meaning</h3>
+    <ul>
+        <li>If stock is bought from a supplier, it should usually be reflected in both <strong>Purchases</strong> and supplier-related financial records.</li>
+        <li>If money is received manually outside normal order flow, it can be entered through <strong>Income</strong>.</li>
+        <li>If cash moves from cash box to bank account, use <strong>Fund Transfer</strong>.</li>
+        <li>If a customer still owes money, use <strong>Customer Due</strong>.</li>
+    </ul>
+
+    <h3>2.4 Management Rule</h3>
+    <p>
+        Accounts data should be entered carefully because these records affect reports and operational decisions.
+        Wrong account selection or duplicate entries can distort financial statements.
+    </p>
+
+    <h2>3. HR Module</h2>
+    <p>
+        HR module is for employee structure, employee records, attendance discipline, salary processing, and personnel administration.
+    </p>
+
+    <h3>3.1 Main Sections</h3>
+    <ul>
+        <li><strong>Departments:</strong> Team or functional grouping, such as Sales, Warehouse, Accounts, Customer Care.</li>
+        <li><strong>Designations:</strong> Job title, such as Manager, Executive, Officer.</li>
+        <li><strong>Shifts:</strong> Working schedule, for example 9 AM to 6 PM.</li>
+        <li><strong>Employees:</strong> Employee master record with assignment to department, designation, shift, and possibly linked user account.</li>
+        <li><strong>Attendance:</strong> Daily attendance entry and dashboard monitoring.</li>
+        <li><strong>Leave Types:</strong> Casual leave, sick leave, annual leave, unpaid leave.</li>
+        <li><strong>Leave:</strong> Employee leave applications and balance tracking.</li>
+        <li><strong>Salary Structures:</strong> Pay setup such as basic, allowance, deduction logic.</li>
+        <li><strong>Payroll:</strong> Salary generation, preview, update, and payslip output.</li>
+        <li><strong>Advances:</strong> Salary advance or employee advance tracking.</li>
+        <li><strong>Bonuses:</strong> Incentive and bonus records.</li>
+        <li><strong>Documents:</strong> Employee files such as ID, appointment letter, certificates.</li>
+        <li><strong>Holidays, Notices, Performance Notes, Separation:</strong> HR administration and compliance support.</li>
+    </ul>
+
+    <h3>3.2 Suggested Working Sequence</h3>
+    <ol>
+        <li>Create <strong>Departments</strong>, <strong>Designations</strong>, and <strong>Shifts</strong>.</li>
+        <li>Create <strong>Employees</strong>.</li>
+        <li>Set up <strong>Leave Types</strong> and <strong>Salary Structures</strong>.</li>
+        <li>Record <strong>Attendance</strong> daily or in bulk.</li>
+        <li>Manage <strong>Leaves</strong>, <strong>Advances</strong>, and <strong>Bonuses</strong> during the month.</li>
+        <li>Run <strong>Payroll</strong> after attendance and salary rules are ready.</li>
+        <li>Maintain <strong>Documents</strong>, <strong>Notices</strong>, and separation records when needed.</li>
+    </ol>
+
+    <h3>3.3 Practical Meaning</h3>
+    <ul>
+        <li><strong>Employee</strong> is the main master record. Without employee setup, other HR features will not work properly.</li>
+        <li><strong>Attendance</strong> and <strong>Leave</strong> should be kept updated before payroll processing.</li>
+        <li><strong>Salary Structure</strong> defines salary logic, while <strong>Payroll</strong> creates the actual pay record for a period.</li>
+    </ul>
+
+    <h3>3.4 Management Rule</h3>
+    <p>
+        HR data should be entered in order. If employees are created before departments, shifts, or designations are ready,
+        later data cleanup becomes difficult.
+    </p>
+
+    <h2>4. Inventory Management Module</h2>
+    <p>
+        Inventory module is responsible for stock visibility. It helps track what came in, what went out, current low-stock risks,
+        and any manual correction to stock quantity.
+    </p>
+
+    <h3>4.1 Main Sections</h3>
+    <ul>
+        <li><strong>Dashboard:</strong> Overview of stock conditions.</li>
+        <li><strong>Inventory Ledger:</strong> Full list of stock movements with dates, reference, note, and movement type.</li>
+        <li><strong>Product Movements:</strong> Stock history for one product, including variant-wise movement if applicable.</li>
+        <li><strong>Low Stock:</strong> Shows products or variants that reached or dropped below threshold.</li>
+        <li><strong>Adjustments:</strong> Manual stock increase or decrease for correction purposes.</li>
+    </ul>
+
+    <h3>4.2 Practical Meaning</h3>
+    <ul>
+        <li>If a product was sold, purchased, returned, or adjusted, the movement should appear in inventory history.</li>
+        <li><strong>Low Stock</strong> is used for replenishment planning.</li>
+        <li><strong>Adjustment In</strong> means stock is added manually.</li>
+        <li><strong>Adjustment Out</strong> means stock is reduced manually.</li>
+    </ul>
+
+    <h3>4.3 Suggested Working Sequence</h3>
+    <ol>
+        <li>Ensure products and their stock structure are already configured.</li>
+        <li>Review <strong>Inventory Ledger</strong> regularly.</li>
+        <li>Use <strong>Low Stock</strong> to identify urgent reorder needs.</li>
+        <li>Use <strong>Adjustment</strong> only when physical stock and system stock do not match.</li>
+    </ol>
+
+    <h3>4.4 Management Rule</h3>
+    <p>
+        Inventory adjustment should not be used as a replacement for correct purchase, return, or order recording.
+        Adjustment is mainly for correction, not for normal flow.
+    </p>
+
+    <h2>5. How These Three Modules Connect</h2>
+    <table>
+        <tr>
+            <th>Business Event</th>
+            <th>Related Module</th>
+            <th>Typical Impact</th>
+        </tr>
+        <tr>
+            <td>Product purchase from supplier</td>
+            <td>Accounts + Inventory</td>
+            <td>Stock increases, supplier payable or payment record is created</td>
+        </tr>
+        <tr>
+            <td>Supplier payment</td>
+            <td>Accounts</td>
+            <td>Supplier due reduces, financial account balance changes</td>
+        </tr>
+        <tr>
+            <td>Employee salary processing</td>
+            <td>HR + Accounts</td>
+            <td>Payroll is prepared and later may affect expense accounting</td>
+        </tr>
+        <tr>
+            <td>Wrong stock counted physically</td>
+            <td>Inventory</td>
+            <td>Stock adjustment corrects the quantity</td>
+        </tr>
+        <tr>
+            <td>Customer refund</td>
+            <td>Accounts</td>
+            <td>Return refund record is stored and financial balance may reduce</td>
+        </tr>
+    </table>
+
+    <h2>6. Simple Admin Checklist</h2>
+    <ul>
+        <li>Before using Accounts, define account heads and financial accounts.</li>
+        <li>Before using HR, define department, designation, and shift.</li>
+        <li>Before relying on Inventory, verify product stock setup and low-stock threshold.</li>
+        <li>Do not use manual adjustment if a normal operational flow already exists.</li>
+        <li>Use reports weekly to catch mismatches early.</li>
+    </ul>
+
+    <h2>7. Common Mistakes to Avoid</h2>
+    <ul>
+        <li>Creating financial entries without selecting the correct account head.</li>
+        <li>Running payroll before attendance and leave are finalized.</li>
+        <li>Using stock adjustment for normal purchase flow instead of purchase entry.</li>
+        <li>Entering duplicate supplier or employee master records.</li>
+        <li>Skipping daily reconciliation and discovering mismatch too late.</li>
+    </ul>
+
+    <div class="note">
+        <strong>Recommended training approach:</strong> First teach the user what each module means, then teach the sequence,
+        then provide 2-3 real examples such as supplier purchase, employee salary, and stock correction.
+    </div>
+</body>
+</html>

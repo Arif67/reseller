@@ -22,12 +22,19 @@
 @endpush
 
 @php
-    $defaultSectionOrder = ['home_slider', 'marketing_banners', 'crazy_deal', 'category_slider', 'category_products', 'best_selling_products', 'featured_products', 'new_popular', 'service_features'];
+    $defaultSectionOrder = ['home_slider', 'marketing_banners', 'recently_viewed_products', 'crazy_deal', 'category_slider', 'category_products', 'best_selling_products', 'featured_products', 'new_popular', 'service_features'];
     $configuredSectionOrder = json_decode($themeCustomization?->home_section_order ?? '', true);
     $homeSectionOrder = is_array($configuredSectionOrder) ? $configuredSectionOrder : $defaultSectionOrder;
 
     foreach ($defaultSectionOrder as $sectionKey) {
         if (! in_array($sectionKey, $homeSectionOrder, true)) {
+            $insertAfter = $sectionKey === 'recently_viewed_products' ? 'marketing_banners' : null;
+
+            if ($insertAfter && ($afterIndex = array_search($insertAfter, $homeSectionOrder, true)) !== false) {
+                array_splice($homeSectionOrder, $afterIndex + 1, 0, [$sectionKey]);
+                continue;
+            }
+
             $homeSectionOrder[] = $sectionKey;
         }
     }
@@ -39,6 +46,7 @@
         'category_slider' => (int) ($themeCustomization?->show_category_slider ?? 1) === 1,
         'category_products' => (int) ($themeCustomization?->show_category_products ?? 1) === 1,
         'best_selling_products' => (int) ($themeCustomization?->show_best_selling_products ?? 1) === 1,
+        'recently_viewed_products' => ($recentlyViewedProducts ?? collect())->isNotEmpty(),
         'featured_products' => (int) ($themeCustomization?->show_featured_products ?? 1) === 1,
         'new_popular' => (int) ($themeCustomization?->show_new_popular ?? 1) === 1,
         'service_features' => (int) ($themeCustomization?->show_service_features ?? 1) === 1,
@@ -51,6 +59,7 @@
         'category_slider' => 'frontEnd.components.home.featured-categories',
         'category_products' => 'frontEnd.components.home.partials.featured-category-products',
         'best_selling_products' => 'frontEnd.components.home.best-selling-products',
+        'recently_viewed_products' => 'frontEnd.components.home.recently-viewed-products',
         'featured_products' => 'frontEnd.components.home.featured-products',
         'new_popular' => 'frontEnd.components.home.new-popular',
         'service_features' => 'frontEnd.components.home.service-features',

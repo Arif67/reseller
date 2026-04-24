@@ -1351,6 +1351,30 @@
         </div>
     </section>
 
+    @if (($recentlyViewedProducts ?? collect())->isNotEmpty())
+    <section class="related-product-section">
+        <div class="container">
+            <div class="row mt-2">
+                <div class="col-12 text-center">
+                    <div class="section-kicker">Continue browsing</div>
+                    <h2 class="fw-bold mb-2" style="font-size: 30px; font-weight: 900; color: #0f172a;">Recently Viewed Products</h2>
+                    <p class="text-muted mb-0">Products you checked recently.</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="product-inner owl-carousel recently_viewed_details_slider">
+                        @foreach ($recentlyViewedProducts as $value)
+                            @include('frontEnd.partials.product-card', ['product' => $value, 'titleLimit' => 56])
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    @endif
+
 <?php endif; ?>
 
 @endsection
@@ -1731,6 +1755,30 @@
                 ? window.getSliderItems('related_slider', { mobile: 2, tablet: 3, desktop: 5 })
                 : { mobile: 2, tablet: 3, desktop: 5 };
             $(".related_slider").owlCarousel({
+                margin: 10,
+                items: relatedSliderItems.desktop,
+                loop: true,
+                dots: true,
+                nav: false,
+                autoplay: true,
+                autoplayTimeout: 6000,
+                autoplayHoverPause: true,
+                responsiveClass: true,
+                responsive: {
+                    0: {
+                        items: relatedSliderItems.mobile,
+                        nav: true,
+                    },
+                    600: {
+                        items: relatedSliderItems.tablet,
+                    },
+                    1000: {
+                        items: relatedSliderItems.desktop,
+                    },
+                },
+            });
+
+            $(".recently_viewed_details_slider").owlCarousel({
                 margin: 10,
                 items: relatedSliderItems.desktop,
                 loop: true,

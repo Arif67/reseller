@@ -1,6 +1,231 @@
 @extends('backEnd.layouts.master')
 @section('title',$order_status->name.' Order')
+@section('css')
+<style>
+    .order-toolbar {
+        padding: 16px 18px;
+        border: 1px solid #dbe4f0;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fbff 55%, #f1f5f9 100%);
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.07);
+        margin-bottom: 16px;
+    }
+
+    .order-toolbar-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .order-toolbar-actions {
+        flex: 0 0 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .order-toolbar-filters {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .order-toolbar .action2-btn {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .order-toolbar .action2-btn li {
+        margin: 0;
+    }
+
+    .order-toolbar .action2-btn .btn {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 9px 15px;
+        border-width: 1px;
+        box-shadow: none;
+    }
+
+    .order-filter-panel {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+    }
+
+    .order-filter-panel .form-control {
+        width: 100% !important;
+        min-height: 42px;
+        border: 1px solid #dbe4f0;
+        border-radius: 999px;
+        box-shadow: none;
+        background: #fff;
+        padding: 0 14px;
+    }
+
+    .order-filter-panel .form-control:focus {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.08);
+    }
+
+    .order-search-box {
+        position: relative;
+        flex: 0 0 260px;
+        min-width: 260px;
+    }
+
+    .order-search-box i {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        transform: translateY(-50%);
+        color: #64748b;
+        font-size: 15px;
+    }
+
+    .order-search-box .form-control {
+        padding-left: 40px;
+    }
+
+    .order-preset-group {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        flex: 0 1 auto;
+    }
+
+    .order-preset-group .btn {
+        white-space: nowrap;
+        min-height: 40px;
+        min-width: 132px;
+        justify-content: center;
+        padding: 8px 16px;
+        border-radius: 999px;
+        font-weight: 700;
+    }
+
+    .order-date-fields {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex: 0 1 auto;
+    }
+
+    .order-date-fields .form-control {
+        min-width: 150px;
+    }
+
+    .order-filter-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 0 0 auto;
+    }
+
+    .order-filter-actions .btn {
+        min-height: 42px;
+        border-radius: 999px;
+        padding: 0 18px;
+        font-weight: 700;
+    }
+
+    .order-filter-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 14px;
+        padding: 10px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 999px;
+        background: #f8fafc;
+        color: #334155;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    @media (max-width: 991.98px) {
+        .order-toolbar {
+            padding: 14px;
+        }
+
+        .order-toolbar-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .order-toolbar-actions,
+        .order-toolbar-filters {
+            width: 100%;
+        }
+
+        .order-preset-group .btn {
+            min-width: 124px;
+        }
+
+        .order-filter-panel {
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .order-filter-panel {
+            padding: 12px;
+        }
+
+        .order-search-box,
+        .order-date-fields,
+        .order-filter-actions {
+            width: 100%;
+        }
+
+        .order-date-fields {
+            flex-direction: column;
+        }
+
+        .order-date-fields .form-control,
+        .order-filter-select {
+            width: 100%;
+        }
+
+        .order-filter-actions {
+            flex-direction: column;
+        }
+
+        .order-preset-group .btn {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .order-toolbar .action2-btn .btn {
+            width: 100%;
+        }
+    }
+</style>
+@endsection
 @section('content')
+@php
+    $currentOrderSlug = $order_status->slug ?? request()->route('slug');
+    $datePresets = [
+        'today' => 'Today',
+        'yesterday' => 'Yesterday',
+        'last_7_days' => 'Last 7 Days',
+        'this_month' => 'This Month',
+    ];
+@endphp
 <div class="container-fluid">
 
     <!-- start page title -->
@@ -27,27 +252,61 @@
                         <span class="ms-2"><span class="badge bg-info text-dark">Organic</span> Orders from search engines, direct visits, or external referrals.</span>
                         <span class="ms-2"><span class="badge bg-danger">Admin Panel</span> Orders created manually from the admin panel.</span>
                     </div> --}}
-                    <div class="row">
-                        <div class="col-sm-8">
+                    <div class="order-toolbar">
+                        <div class="order-toolbar-row">
+                        <div class="order-toolbar-actions">
                             <ul class="action2-btn">
                                 <li><a data-bs-toggle="modal" data-bs-target="#asignUser" class="btn rounded-pill btn-success"><i class="fe-plus"></i> Assign User</a></li>
                                 <li><a data-bs-toggle="modal" data-bs-target="#changeStatus" class="btn rounded-pill btn-primary"><i class="fe-plus"></i> Change Status</a></li>
                                 <li><a href="{{route('admin.order.bulk_destroy')}}" class="btn rounded-pill btn-danger order_delete"><i class="fe-plus"></i> Delete All</a></li>
                                 <li><a href="{{route('admin.order.order_print')}}" class="btn rounded-pill btn-info multi_order_print"><i class="fe-printer"></i> Print</a></li>
-
-                                 <li><a href="{{route('admin.bulk_courier', 'steadfast')}}" class="btn rounded-pill btn-warning multi_order_courier"><i class="fe-truck"></i> state Courier</a></li>
-                         
+                                <li><a href="{{route('admin.bulk_courier', 'steadfast')}}" class="btn rounded-pill btn-warning multi_order_courier"><i class="fe-truck"></i> State Courier</a></li>
                             </ul>
+                            <div class="order-preset-group">
+                                @foreach ($datePresets as $presetValue => $presetLabel)
+                                    <a href="{{ route('admin.orders', $currentOrderSlug) }}?{{ http_build_query(array_filter([
+                                        'keyword' => $activeFilters['keyword'] ?? null,
+                                        'date' => $presetValue,
+                                    ])) }}"
+                                        class="btn btn-sm rounded-pill {{ ($activeFilters['date'] ?? '') === $presetValue ? 'btn-primary' : 'btn-outline-primary' }}">
+                                        {{ $presetLabel }}
+                                    </a>
+                                @endforeach
+                            </div>
                         </div>
-                        <div class="col-sm-4">
-                            <form class="custom_form">
-                                <div class="form-group">
-                                    <input type="text" name="keyword" placeholder="Search">
-                                    <button class="btn  rounded-pill btn-info">Search</button>
+                        <div class="order-toolbar-filters">
+                            <div class="order-filter-panel">
+                            <form class="custom_form" method="GET" action="{{ url()->current() }}">
+                                <div class="d-flex align-items-center flex-wrap justify-content-end gap-2">
+                                    <div class="order-search-box">
+                                            <i class="fe-search"></i>
+                                            <input id="order-keyword" type="text" name="keyword" class="form-control" placeholder="Search by invoice, phone, name" value="{{ $activeFilters['keyword'] ?? '' }}">
+                                    </div>
+                                    <div class="order-date-fields">
+                                            <input id="order-start-date" type="date" name="start_date" class="form-control" value="{{ $activeFilters['start_date'] ?? '' }}">
+                                            <input id="order-end-date" type="date" name="end_date" class="form-control" value="{{ $activeFilters['end_date'] ?? '' }}">
+                                    </div>
+                                    <div class="order-filter-actions">
+                                                <button class="btn rounded-pill btn-info">Filter</button>
+                                                <a href="{{ route('admin.orders', $currentOrderSlug) }}" class="btn rounded-pill btn-secondary">Reset</a>
+                                    </div>
                                 </div>
                             </form>
+                            </div>
+                        </div>
                         </div>
                     </div>
+                    @if(($activeFilters['start_date'] ?? null) || ($activeFilters['end_date'] ?? null) || ($activeFilters['date'] ?? null))
+                    <div class="order-filter-badge">
+                        <i class="fe-calendar"></i>
+                        <span>
+                            Date Filter:
+                            {{ ($activeFilters['date_label'] ?? null)
+                                ? $activeFilters['date_label']
+                                : (($activeFilters['start_date'] ?? '...') . ' to ' . ($activeFilters['end_date'] ?? '...')) }}
+                        </span>
+                    </div>
+                    @endif
                     <div class="table-responsive ">
                         <table id="datatable-buttons" class="table table-striped   w-100">
                             <thead>

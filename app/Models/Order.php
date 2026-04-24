@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Services\OrderTracking\OrderStatusTrackingService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
     use HasFactory;
+
+    protected ?int $trackingPreviousOrderStatus = null;
 
     protected $fillable = [
         'amount',
@@ -66,6 +69,32 @@ class Order extends Model
         'gross_profit' => 'float',
         'net_profit' => 'float',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Order $order) {
+            $order->trackingPreviousOrderStatus = null;
+        });
+
+        static::updating(function (Order $order) {
+            $order->trackingPreviousOrderStatus = $order->getOriginal('order_status');
+        });
+
+        static::created(function (Order $order) {
+            app(OrderStatusTrackingService::class)->trackPlacement($order);
+        });
+
+        static::updated(function (Order $order) {
+            if (! $order->wasChanged('order_status')) {
+                return;
+            }
+
+            app(OrderStatusTrackingService::class)->trackStatusChange(
+                $order,
+                $order->trackingPreviousOrderStatus
+            );
+        });
+    }
 
     public function orderdetails()
     {

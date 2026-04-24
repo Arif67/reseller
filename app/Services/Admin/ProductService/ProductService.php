@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\ProductVariable;
 use App\Models\Productimage;
 use App\Models\Subcategory;
+use App\Services\Admin\AdminActivityLogService;
 use App\Services\Admin\MediaService\MediaService;
 use App\Services\AppService\ProductAttributeService;
 use App\Traits\Response;
@@ -28,6 +29,7 @@ class ProductService
     public function __construct(
         private readonly ProductAttributeService $productAttributeService,
         private readonly MediaService $mediaService,
+        private readonly AdminActivityLogService $activityLogService,
     ) {}
 
     public function getIndexData(Request $request): array|JsonResponse
@@ -179,6 +181,15 @@ class ProductService
             ));
             $this->createVariableRows($product, $request);
 
+            $this->activityLogService->log(
+                'product',
+                'created',
+                (int) $product->id,
+                (string) $product->name,
+                null,
+                $this->snapshotProduct($product->fresh(['media', 'allVariables']))
+            );
+
             return $this->response(['product' => $product])->success('Data insert successfully');
         } catch (\Throwable $exception) {
             return $this->response()->error($exception->getMessage());
@@ -245,6 +256,7 @@ class ProductService
             $this->validateProductRequest($request);
 
             $product = Product::findOrFail($request->id);
+            $before = $this->snapshotProduct($product->loadMissing(['media', 'allVariables']));
             $product->update($this->buildProductInput($request, $product->id));
 
             $uploadedProductMediaIds = $this->saveGalleryImages($product, $request->file('image'));
@@ -254,6 +266,15 @@ class ProductService
             ));
             $this->updateVariableRows($product, $request);
             $this->createVariableRows($product, $request);
+
+            $this->activityLogService->log(
+                'product',
+                'updated',
+                (int) $product->id,
+                (string) $product->name,
+                $before,
+                $this->snapshotProduct($product->fresh(['media', 'allVariables']))
+            );
 
             return $this->response(['product' => $product])->success('Data update successfully');
         } catch (\Throwable $exception) {
@@ -374,8 +395,18 @@ class ProductService
     {
         try {
             $product = Product::query()->findOrFail((int) $id);
+            $before = $this->snapshotProduct($product);
             $product->status = $status;
             $product->save();
+
+            $this->activityLogService->log(
+                'product',
+                $status === 1 ? 'activated' : 'inactivated',
+                (int) $product->id,
+                (string) $product->name,
+                $before,
+                $this->snapshotProduct($product)
+            );
 
             return $this->response(['product' => $product])->success($message);
         } catch (\Throwable $exception) {
@@ -432,6 +463,7 @@ class ProductService
     {
         try {
             $deleteData = Product::with('variables.media', 'media', 'images')->findOrFail($id);
+            $before = $this->snapshotProduct($deleteData->loadMissing('allVariables'));
 
             foreach ($deleteData->variables as $variable) {
                 $variable->media()->detach();
@@ -446,6 +478,15 @@ class ProductService
             }
 
             $deleteData->delete();
+
+            $this->activityLogService->log(
+                'product',
+                'deleted',
+                (int) $id,
+                (string) $deleteData->name,
+                $before,
+                null
+            );
 
             return $this->response(['product' => $deleteData])->success('Data delete successfully');
         } catch (\Throwable $exception) {
@@ -544,6 +585,35 @@ class ProductService
         ]);
 
         $this->validateUniqueBarcodes($request);
+    }
+
+    private function snapshotProduct(Product $product): array
+    {
+        $variableCount = $product->relationLoaded('allVariables')
+            ? $product->allVariables->count()
+            : $product->allVariables()->count();
+
+        $mediaIds = $product->relationLoaded('media')
+            ? $product->media->pluck('id')->values()->all()
+            : $product->media()->pluck('media.id')->values()->all();
+
+        return [
+            'id' => (int) $product->id,
+            'name' => (string) $product->name,
+            'slug' => (string) $product->slug,
+            'status' => (int) ($product->status ?? 0),
+            'category_id' => (int) ($product->category_id ?? 0),
+            'subcategory_id' => (int) ($product->subcategory_id ?? 0),
+            'childcategory_id' => (int) ($product->childcategory_id ?? 0),
+            'brand_id' => (int) ($product->brand_id ?? 0),
+            'type' => (int) ($product->type ?? 0),
+            'stock' => (int) ($product->stock ?? 0),
+            'new_price' => (float) ($product->new_price ?? 0),
+            'old_price' => (float) ($product->old_price ?? 0),
+            'purchase_price' => (float) ($product->purchase_price ?? 0),
+            'variable_count' => $variableCount,
+            'media_ids' => $mediaIds,
+        ];
     }
 
     private function buildProductInput(Request $request, int $productId): array

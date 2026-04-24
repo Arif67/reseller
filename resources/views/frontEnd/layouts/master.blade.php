@@ -43,6 +43,11 @@
         $defaultDescription = $generalsetting?->meta_description ?: 'Buy genuine products online in Bangladesh with fast delivery and trusted service.';
         $defaultKeywords = $generalsetting?->meta_tag ?: 'Bangladesh ecommerce, online shopping, accessories';
         $defaultImagePath = $generalsetting?->white_logo ?: $generalsetting?->favicon ?: 'uploads/logo.png';
+        $details = $details ?? null;
+        $category = $category ?? null;
+        $subcategory = $subcategory ?? null;
+        $childcategory = $childcategory ?? null;
+        $campaign = $campaign ?? null;
 
         $seoTitle = trim($__env->yieldContent('title')) ?: $defaultTitle;
         $seoDescription = $details?->meta_description

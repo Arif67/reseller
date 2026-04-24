@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class ProductCatalogService
 {
@@ -87,6 +88,8 @@ class ProductCatalogService
             ->withCount('variable')
             ->firstOrFail();
 
+        $this->storeRecentlyViewedProduct($details->id);
+
         $reviews = Review::query()->where('product_id', $details->id)->get();
         $canReview = $details->hasCompletedPurchaseBy(Auth::guard('customer')->id());
 
@@ -99,6 +102,7 @@ class ProductCatalogService
                 ->withCount('variable')
                 ->limit(6)
                 ->get(),
+            'recentlyViewedProducts' => $this->getRecentlyViewedProducts($details->id),
             'shippingcharge' => ShippingCharge::query()->where('status', 1)->get(),
             'reviews' => $reviews,
             'canReview' => $canReview,
@@ -242,5 +246,46 @@ class ProductCatalogService
         }
 
         return $query;
+    }
+
+    private function storeRecentlyViewedProduct(int $productId): void
+    {
+        $recentlyViewedIds = collect(Session::get('recently_viewed_products', []))
+            ->map(fn ($id) => (int) $id)
+            ->reject(fn ($id) => $id <= 0)
+            ->reject(fn ($id) => $id === $productId)
+            ->prepend($productId)
+            ->take(12)
+            ->values()
+            ->all();
+
+        Session::put('recently_viewed_products', $recentlyViewedIds);
+    }
+
+    private function getRecentlyViewedProducts(int $currentProductId): Collection
+    {
+        $recentlyViewedIds = collect(Session::get('recently_viewed_products', []))
+            ->map(fn ($id) => (int) $id)
+            ->reject(fn ($id) => $id <= 0 || $id === $currentProductId)
+            ->take(10)
+            ->values();
+
+        if ($recentlyViewedIds->isEmpty()) {
+            return collect();
+        }
+
+        $products = Product::query()
+            ->where('status', 1)
+            ->whereIn('id', $recentlyViewedIds)
+            ->with('image', 'images', 'media', 'variable')
+            ->select('id', 'name', 'description', 'slug', 'status', 'category_id', 'new_price', 'old_price', 'type', 'variation_pricing_mode')
+            ->withCount('variable')
+            ->get()
+            ->keyBy('id');
+
+        return $recentlyViewedIds
+            ->map(fn ($id) => $products->get($id))
+            ->filter()
+            ->values();
     }
 }

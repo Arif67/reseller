@@ -6,9 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\AbandonedCartLead;
 use App\Models\MarketingEventLog;
 use App\Models\Order;
+use App\Models\OrderTrackingEvent;
 use App\Models\VisitorAnalytic;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
 class ReportsController extends Controller
 {
     public function incompleteOrders()
@@ -46,23 +50,42 @@ class ReportsController extends Controller
         return view('backEnd.reports.utm_campaigns', compact('campaigns', 'recentLeads'));
     }
 
-    public function conversionDashboard()
+    public function conversionDashboard(Request $request)
     {
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
         $providerSummary = collect();
         $purchaseSummary = collect();
+        $trackingSummary = collect();
+        $trackingTrend = collect();
+        $recentTrackingEvents = collect();
         $orderMetrics = [
             'total_orders' => 0,
             'total_revenue' => 0,
+            'delivered_orders' => 0,
+            'cancelled_orders' => 0,
+            'delivered_rate' => 0,
+            'cancelled_rate' => 0,
         ];
 
         if (Schema::hasTable('marketing_event_logs')) {
-            $providerSummary = MarketingEventLog::query()
+            $marketingQuery = MarketingEventLog::query();
+
+            if ($dateFrom) {
+                $marketingQuery->whereDate('created_at', '>=', $dateFrom);
+            }
+
+            if ($dateTo) {
+                $marketingQuery->whereDate('created_at', '<=', $dateTo);
+            }
+
+            $providerSummary = (clone $marketingQuery)
                 ->selectRaw('provider, event_name, COUNT(*) as total_events, SUM(CASE WHEN status = "success" THEN 1 ELSE 0 END) as successful_events, SUM(COALESCE(value, 0)) as total_value')
                 ->groupBy('provider', 'event_name')
                 ->orderBy('provider')
                 ->get();
 
-            $purchaseSummary = MarketingEventLog::query()
+            $purchaseSummary = (clone $marketingQuery)
                 ->where('event_name', 'Purchase')
                 ->selectRaw('provider, COUNT(*) as purchase_count, SUM(COALESCE(value, 0)) as purchase_value')
                 ->groupBy('provider')
@@ -70,11 +93,80 @@ class ReportsController extends Controller
         }
 
         if (Schema::hasTable('orders')) {
-            $orderMetrics['total_orders'] = Order::count();
-            $orderMetrics['total_revenue'] = (float) Order::sum('amount');
+            $ordersQuery = Order::query();
+
+            if ($dateFrom) {
+                $ordersQuery->whereDate('created_at', '>=', $dateFrom);
+            }
+
+            if ($dateTo) {
+                $ordersQuery->whereDate('created_at', '<=', $dateTo);
+            }
+
+            $orderMetrics['total_orders'] = (clone $ordersQuery)->count();
+            $orderMetrics['total_revenue'] = (float) (clone $ordersQuery)->sum('amount');
         }
 
-        return view('backEnd.reports.conversion_dashboard', compact('providerSummary', 'purchaseSummary', 'orderMetrics'));
+        if (Schema::hasTable('order_tracking_events')) {
+            $trackingQuery = OrderTrackingEvent::query();
+
+            if ($dateFrom) {
+                $trackingQuery->whereDate('created_at', '>=', $dateFrom);
+            }
+
+            if ($dateTo) {
+                $trackingQuery->whereDate('created_at', '<=', $dateTo);
+            }
+
+            if ($request->input('export') === 'csv') {
+                return $this->exportTrackingEventsCsv(clone $trackingQuery, $dateFrom, $dateTo);
+            }
+
+            $trackingSummary = (clone $trackingQuery)
+                ->whereIn('event_name', ['order_delivered', 'order_cancelled'])
+                ->selectRaw('event_name, COUNT(*) as total_events')
+                ->groupBy('event_name')
+                ->orderBy('event_name')
+                ->get();
+
+            $trackingTrend = (clone $trackingQuery)
+                ->whereIn('event_name', ['order_delivered', 'order_cancelled'])
+                ->selectRaw('DATE(created_at) as event_date')
+                ->selectRaw('SUM(CASE WHEN event_name = "order_delivered" THEN 1 ELSE 0 END) as delivered_count')
+                ->selectRaw('SUM(CASE WHEN event_name = "order_cancelled" THEN 1 ELSE 0 END) as cancelled_count')
+                ->groupBy(DB::raw('DATE(created_at)'))
+                ->orderBy('event_date')
+                ->get();
+
+            $recentTrackingEvents = (clone $trackingQuery)
+                ->whereIn('event_name', ['order_status_changed', 'order_delivered', 'order_cancelled'])
+                ->with('order:id,invoice_id')
+                ->latest('id')
+                ->limit(20)
+                ->get();
+
+            $orderMetrics['delivered_orders'] = (int) $trackingSummary
+                ->firstWhere('event_name', 'order_delivered')
+                ?->total_events;
+            $orderMetrics['cancelled_orders'] = (int) $trackingSummary
+                ->firstWhere('event_name', 'order_cancelled')
+                ?->total_events;
+
+            $trackedOutcomes = max($orderMetrics['delivered_orders'] + $orderMetrics['cancelled_orders'], 1);
+            $orderMetrics['delivered_rate'] = round(($orderMetrics['delivered_orders'] / $trackedOutcomes) * 100, 2);
+            $orderMetrics['cancelled_rate'] = round(($orderMetrics['cancelled_orders'] / $trackedOutcomes) * 100, 2);
+        }
+
+        return view('backEnd.reports.conversion_dashboard', compact(
+            'providerSummary',
+            'purchaseSummary',
+            'trackingSummary',
+            'trackingTrend',
+            'recentTrackingEvents',
+            'orderMetrics',
+            'dateFrom',
+            'dateTo'
+        ));
     }
 
     public function visitorAnalytics(Request $request)
@@ -132,5 +224,51 @@ class ReportsController extends Controller
             'selectedDistrict',
             'totals'
         ));
+    }
+
+    protected function exportTrackingEventsCsv($trackingQuery, ?string $dateFrom, ?string $dateTo): StreamedResponse
+    {
+        $events = $trackingQuery
+            ->whereIn('event_name', ['order_status_changed', 'order_delivered', 'order_cancelled'])
+            ->with('order:id,invoice_id')
+            ->orderBy('created_at')
+            ->get([
+                'created_at',
+                'invoice_id',
+                'event_name',
+                'previous_status_name',
+                'current_status_name',
+                'source',
+                'payload',
+                'order_id',
+            ]);
+
+        $suffix = trim(($dateFrom ?: 'all') . '_to_' . ($dateTo ?: 'all'));
+        $filename = 'order-lifecycle-report-' . $suffix . '.csv';
+
+        return response()->streamDownload(function () use ($events) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['Time', 'Invoice', 'Event', 'Previous Status', 'Current Status', 'Source', 'Order Amount', 'Customer ID', 'Marketing Source']);
+
+            foreach ($events as $event) {
+                $payload = is_array($event->payload) ? $event->payload : [];
+
+                fputcsv($handle, [
+                    optional($event->created_at)->format('Y-m-d H:i:s'),
+                    $event->invoice_id ?: optional($event->order)->invoice_id ?: '',
+                    $event->event_name,
+                    $event->previous_status_name,
+                    $event->current_status_name,
+                    $event->source,
+                    $payload['order_amount'] ?? '',
+                    $payload['customer_id'] ?? '',
+                    $payload['marketing_source'] ?? '',
+                ]);
+            }
+
+            fclose($handle);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 }

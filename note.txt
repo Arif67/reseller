@@ -157,3 +157,25 @@ Communication — requirement বোঝা, explain করা, tradeoff discuss 
   1. First phase e profit-loss system er backend foundation implement koro: analysis, migration, model update, per-order
      calculation, expense integration.
   2. Second phase e admin dashboard, report page, filters, summaries, verification complete koro.
+
+  1. order tracking/reporting fully complete kora
+     Code e tracking related kaj already ase, but eta pura stable kore nile order lifecycle bujha onek easy
+     hobe.
+  2. admin dashboard fast kora
+     Ekhane onek count/sum query ase. Cache ba optimized query dile dashboard onek taratari load hobe.
+  3. category/product/subcategory change log add kora
+     Ke ki change korlo eta track thakle admin management onek secure hobe.
+  4. inventory ar order sync strong kora
+     Order create, cancel, return, delivered hole stock thikmoto adjust hocche naki eta ensure kora dorkar.
+  5. reports export aro bhalo kora
+     Sales, courier, inventory, profit report CSV/Excel export thakle practical use onek barbe.
+  6. media system cleanup
+     Unused image, duplicate image, safe delete eigula add kora jete pare.
+  7. SEO improvement
+     Product/category meta field ase, but frontend e proper use, sitemap, schema markup add kora jete pare.
+  8. role permission aro tight kora
+     Sob admin jeno sob kichu korte na pare, eta control kora dorkar.
+  9. tests add kora
+     Especially order flow, category CRUD, report, inventory part e test thakle bug kombe.
+  10. admin panel UI polish
+     Dashboard er moto order page, category page, report page gulareo sundor kora jete pare.4 

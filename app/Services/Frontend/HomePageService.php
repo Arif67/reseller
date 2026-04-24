@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class HomePageService
 {
@@ -30,6 +31,7 @@ class HomePageService
             'hotdeal_top' => $this->getTopSaleProducts(),
             'featuredProducts' => $this->getFeaturedProducts(),
             'bestSellingProducts' => $this->getBestSellingProducts(),
+            'recentlyViewedProducts' => $this->getRecentlyViewedProducts(),
             'homecategory' => $this->getHomeCategories(),
             'marketing_banner' => $this->getMarketingBanners(),
         ];
@@ -160,6 +162,29 @@ class HomePageService
                 $product->setAttribute('sold_quantity', 0);
                 $product->setAttribute('sold_amount', 0);
             });
+    }
+
+    private function getRecentlyViewedProducts(): Collection
+    {
+        $recentlyViewedIds = collect(Session::get('recently_viewed_products', []))
+            ->map(fn ($id) => (int) $id)
+            ->reject(fn ($id) => $id <= 0)
+            ->values();
+
+        if ($recentlyViewedIds->isEmpty()) {
+            return collect();
+        }
+
+        $products = $this->baseProductCardQuery()
+            ->where('status', 1)
+            ->whereIn('id', $recentlyViewedIds)
+            ->get()
+            ->keyBy('id');
+
+        return $recentlyViewedIds
+            ->map(fn ($id) => $products->get($id))
+            ->filter()
+            ->values();
     }
 
     private function getHomeCategories(): Collection

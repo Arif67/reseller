@@ -163,6 +163,7 @@ $(document).ready(function () {
     }
 
     initShowcaseProductSlider(".best_seller_slider", "showcase_product_slider");
+    initShowcaseProductSlider(".recently_viewed_slider", "showcase_product_slider");
     initShowcaseProductSlider(".featured_products_slider", "showcase_product_slider");
     initShowcaseProductSlider(".category-products-slider", "showcase_product_slider");
 

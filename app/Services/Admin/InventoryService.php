@@ -89,20 +89,10 @@ class InventoryService
         DB::transaction(function () use ($order, $delivered) {
             $order->loadMissing('orderdetails');
 
-            $existingMovements = InventoryMovement::query()
-                ->where('reference_type', 'order_delivery')
-                ->where('reference_id', $order->id)
-                ->get();
+            $existingMovements = $this->orderDeliveryMovements($order);
 
             if (! $delivered) {
-                foreach ($existingMovements as $movement) {
-                    $this->reverseMovement($movement);
-                }
-
-                InventoryMovement::query()
-                    ->where('reference_type', 'order_delivery')
-                    ->where('reference_id', $order->id)
-                    ->delete();
+                $this->clearOrderDeliveryMovements($existingMovements);
 
                 return;
             }
@@ -110,6 +100,31 @@ class InventoryService
             if ($existingMovements->isNotEmpty()) {
                 return;
             }
+
+            foreach ($order->orderdetails as $detail) {
+                $this->applyMovement([
+                    'movement_date' => optional($order->updated_at)->toDateString() ?: now()->toDateString(),
+                    'product_id' => $detail->product_id,
+                    'product_variable_id' => $detail->product_variable_id,
+                    'movement_type' => 'sale_out',
+                    'direction' => 'out',
+                    'qty' => (int) $detail->qty,
+                    'unit_cost' => (float) ($detail->purchase_price ?? 0),
+                    'reference_type' => 'order_delivery',
+                    'reference_id' => $order->id,
+                    'reference_no' => (string) $order->invoice_id,
+                    'note' => $detail->product_name,
+                ]);
+            }
+        });
+    }
+
+    public function resyncOrderDelivery(Order $order): void
+    {
+        DB::transaction(function () use ($order) {
+            $order->loadMissing('orderdetails');
+
+            $this->clearOrderDeliveryMovements($this->orderDeliveryMovements($order));
 
             foreach ($order->orderdetails as $detail) {
                 $this->applyMovement([
@@ -169,7 +184,18 @@ class InventoryService
         $item = $this->resolveStockTarget($payload['product_id'], $payload['product_variable_id'] ?? null);
         $qty = max(1, (int) ($payload['qty'] ?? 0));
         $before = (int) ($item->stock ?? 0);
-        $after = ($payload['direction'] ?? 'in') === 'out' ? max(0, $before - $qty) : $before + $qty;
+        $isOut = ($payload['direction'] ?? 'in') === 'out';
+
+        if ($isOut && $before < $qty) {
+            throw new \RuntimeException(sprintf(
+                'Insufficient stock for %s. Available %d, required %d.',
+                $this->stockTargetLabel($item, $payload['product_id'], $payload['product_variable_id'] ?? null),
+                $before,
+                $qty
+            ));
+        }
+
+        $after = $isOut ? ($before - $qty) : ($before + $qty);
 
         $item->stock = $after;
         $item->save();
@@ -199,6 +225,44 @@ class InventoryService
             ? $current + (int) $movement->qty
             : max(0, $current - (int) $movement->qty);
         $item->save();
+    }
+
+    protected function orderDeliveryMovements(Order $order)
+    {
+        return InventoryMovement::query()
+            ->where('reference_type', 'order_delivery')
+            ->where('reference_id', $order->id)
+            ->get();
+    }
+
+    protected function clearOrderDeliveryMovements($movements): void
+    {
+        foreach ($movements as $movement) {
+            $this->reverseMovement($movement);
+        }
+
+        InventoryMovement::query()
+            ->whereIn('id', $movements->pluck('id'))
+            ->delete();
+    }
+
+    protected function stockTargetLabel(Product|ProductVariable $item, int $productId, ?int $productVariableId = null): string
+    {
+        if ($item instanceof ProductVariable) {
+            $productName = (string) Product::query()->whereKey($productId)->value('name');
+            $parts = array_filter([
+                $productName,
+                $item->color ? 'Color: ' . $item->color : null,
+                $item->size ? 'Size: ' . $item->size : null,
+                $item->model ? 'Model: ' . $item->model : null,
+                $item->weight ? 'Weight: ' . $item->weight : null,
+                $productVariableId ? 'Variant #' . $productVariableId : null,
+            ]);
+
+            return ! empty($parts) ? implode(' / ', $parts) : 'selected variant';
+        }
+
+        return (string) ($item->name ?: ('product #' . $productId));
     }
 
     protected function resolveStockTarget(int $productId, ?int $productVariableId = null): Product|ProductVariable

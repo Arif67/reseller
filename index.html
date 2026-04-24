@@ -1,1 +1,41 @@
-hello world
+1. Security hardening
+     routes/web.php-তে public artisan/debug routes আছে: routes/web.php:98, routes/web.php:108, routes/
+     web.php:116, routes/web.php:138।
+     এগুলো remove বা admin-auth + env guard-এর ভিতরে নিতে হবে। এটা first priority.
+  2. Test coverage
+     tests/-এ এখন basically শুধু example tests আছে। order flow, checkout, payment callback, product search,
+     customer auth, admin reports এগুলোর feature test দরকার। এই app-এর জন্য test ছাড়া change risky.
+  3. Performance
+     Homepage service-এ caching আছে, কিন্তু app/Services/Frontend/HomePageService.php:165-এ category loop-এর
+     ভিতরে product query হচ্ছে।
+     এটা eager loading / batched query দিয়ে optimize করলে homepage faster হবে.
+  4. Blade cleanup
+     resources/views/frontEnd/layouts/master.blade.php:9-এ অনেক business/SEO/theme logic head section-এ আছে।
+     এগুলো view composer / presenter / dedicated SEO service-এ নিলে maintain করা অনেক সহজ হবে.
+  5. Framework upgrade
+     composer.json অনুযায়ী app এখন Laravel ^9.19-এ আছে: composer.json:21।
+     Laravel 10/11 upgrade plan করলে security, package support, long-term maintainability better হবে.
+  6. SEO + conversion
+     ভালো base আছে, robots.txt-ও আছে। এখন next step:
+     product schema
+     FAQ schema
+     breadcrumb schema
+     better category meta automation
+     merchant feed validation
+     abandoned cart recovery improvement
+     conversion funnel dashboard
+  7. Admin analytics
+     আপনাদের recent changes দেখে মনে হচ্ছে order tracking / admin activity log already start হয়েছে। এটা extend
+     করে:
+     order timeline
+     who changed what audit log
+     refund/return funnel
+     sales by source/campaign
+     low stock alerts
+     customer LTV / repeat purchase dashboard
+
+  আমি চাইলে এখনই ৩টার যেকোনো একটা শুরু করতে পারি:
+
+  1. public debug/artisan routes secure করা
+  2. homepage query optimization
+  3. checkout/order flow-এর real feature te

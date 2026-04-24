@@ -186,6 +186,7 @@ Route::group(['namespace'=>'Frontend', 'middleware' => ['ipcheck','check_refer']
     Route::get('livesearch', [FrontendAjaxController::class, 'liveSearch'])->name('livesearch');
     Route::get('search', [CatalogController::class, 'search'])->name('search');
     Route::get('product/{id}', [CatalogController::class, 'details'])->name('product');
+    Route::post('recently-viewed/clear', [HomeController::class, 'clearRecentlyViewed'])->name('recently_viewed.clear');
     Route::get('quick-view', [FrontendAjaxController::class, 'quickView'])->name('quickview');
     Route::get('/shipping-charge', [FrontendAjaxController::class, 'shippingCharge'])->name('shipping.charge');
     Route::get('site/contact-us', [ContentController::class, 'contact'])->name('contact');

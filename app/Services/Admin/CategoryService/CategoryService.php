@@ -5,6 +5,7 @@ namespace App\Services\Admin\CategoryService;
 use App\Models\Category;
 use App\Models\Media;
 use App\Models\Product;
+use App\Services\Admin\AdminActivityLogService;
 use App\Services\Admin\MediaService\MediaService;
 use App\Traits\Response;
 use Illuminate\Http\UploadedFile;
@@ -17,7 +18,8 @@ class CategoryService
     use Response;
 
     public function __construct(
-        private readonly MediaService $mediaService
+        private readonly MediaService $mediaService,
+        private readonly AdminActivityLogService $activityLogService,
     ) {
     }
 
@@ -122,6 +124,14 @@ class CategoryService
     {
         try {
             $category = DB::transaction(fn () => $this->saveCategory($payload));
+            $this->activityLogService->log(
+                'category',
+                'created',
+                (int) $category->id,
+                (string) $category->name,
+                null,
+                $this->snapshotCategory($category)
+            );
             return $this->response(['category' => $category])->success('Category inserted successfully');
         } catch (\Throwable $exception) {
             return $this->response()->error($exception->getMessage());
@@ -132,10 +142,21 @@ class CategoryService
     {
         try {
             $categoryId = (int) ($payload['id'] ?? 0);
-            $category = DB::transaction(function () use ($payload, $categoryId) {
+            $before = null;
+            $category = DB::transaction(function () use ($payload, $categoryId, &$before) {
                 $category = Category::query()->findOrFail($categoryId);
+                $before = $this->snapshotCategory($category);
                 return $this->saveCategory($payload, $category);
             });
+
+            $this->activityLogService->log(
+                'category',
+                'updated',
+                (int) $category->id,
+                (string) $category->name,
+                $before,
+                $this->snapshotCategory($category)
+            );
 
             return $this->response(['category' => $category])->success('Category updated successfully');
         } catch (\Throwable $exception) {
@@ -148,9 +169,19 @@ class CategoryService
         try {
             $category = Category::query()->findOrFail((int) ($payload['hidden_id'] ?? 0));
             $status = (int) ($payload['status'] ?? 0);
+            $before = $this->snapshotCategory($category);
 
             $category->status = $status;
             $category->save();
+
+            $this->activityLogService->log(
+                'category',
+                $status === 1 ? 'activated' : 'inactivated',
+                (int) $category->id,
+                (string) $category->name,
+                $before,
+                $this->snapshotCategory($category)
+            );
 
             return $this->response(['category' => $category])->success(
                 $status === 1 ? 'Data active successfully' : 'Data inactive successfully'
@@ -199,7 +230,22 @@ class CategoryService
                 );
             }
 
+            $categories = Category::query()
+                ->whereIn('id', $ids)
+                ->get();
+
             $deletedCount = Category::query()->whereIn('id', $ids)->delete();
+
+            foreach ($categories as $category) {
+                $this->activityLogService->log(
+                    'category',
+                    'deleted',
+                    (int) $category->id,
+                    (string) $category->name,
+                    $this->snapshotCategory($category),
+                    null
+                );
+            }
 
             return $this->response(['deleted_count' => $deletedCount])->success(
                 $deletedCount > 1 ? 'Categories deleted successfully' : 'Category deleted successfully'
@@ -256,5 +302,19 @@ class CategoryService
         $category->save();
 
         return $category;
+    }
+
+    private function snapshotCategory(Category $category): array
+    {
+        return [
+            'id' => (int) $category->id,
+            'name' => (string) $category->name,
+            'slug' => (string) $category->slug,
+            'status' => (int) ($category->status ?? 0),
+            'front_view' => (int) ($category->front_view ?? 0),
+            'featured' => (int) ($category->featured ?? 0),
+            'image' => (string) ($category->image ?? ''),
+            'icon' => (string) ($category->icon ?? ''),
+        ];
     }
 }

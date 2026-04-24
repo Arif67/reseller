@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c7135fc73a95e913d73dcb21145f7e66",
+    "content-hash": "9f53394132b01851ccf82f37e9d21dbc",
     "packages": [
         {
             "name": "brian2694/laravel-toastr",
@@ -3240,40 +3240,37 @@
         {
             "name": "shurjopayv2/laravel8",
             "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/NAM00/spV2_Laravel8.git",
-                "reference": "9c9fce571a99f29f011d0aa0670e5ad1555baea2"
-            },
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/NAM00/spV2_Laravel8/zipball/9c9fce571a99f29f011d0aa0670e5ad1555baea2",
-                "reference": "9c9fce571a99f29f011d0aa0670e5ad1555baea2",
-                "shasum": ""
+                "type": "path",
+                "url": "packages/shurjopayv2/laravel8",
+                "reference": "ad3874ffe469e064627893b1c3b75c1596106d0c"
             },
-            "default-branch": true,
+            "require": {
+                "illuminate/http": "^9.0",
+                "illuminate/support": "^9.0",
+                "php": "^8.1"
+            },
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "shurjopayv2\\ShurjopayLaravelPackage8\\ShurjopayServiceProvider"
+                    ]
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "shurjopayv2\\ShurjopayLaravelPackage8\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
-            "authors": [
-                {
-                    "name": "Nazia Afsan Mowmita",
-                    "email": "mowmita@shurjomukhi.com.bd"
-                }
-            ],
-            "description": "Online Payment Gateway",
-            "support": {
-                "issues": "https://github.com/NAM00/spV2_Laravel8/issues",
-                "source": "https://github.com/NAM00/spV2_Laravel8/tree/master"
-            },
-            "time": "2021-11-01T06:12:18+00:00"
+            "description": "Local compatibility package for the legacy ShurjoPay Laravel 8 integration.",
+            "transport-options": {
+                "symlink": false,
+                "relative": true
+            }
         },
         {
             "name": "spatie/laravel-permission",
@@ -8522,6 +8519,6 @@
     "platform": {
         "php": "^8.1"
     },
-    "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "platform-dev": [],
+    "plugin-api-version": "2.2.0"
 }

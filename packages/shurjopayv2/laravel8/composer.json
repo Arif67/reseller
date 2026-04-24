@@ -1,0 +1,24 @@
+{
+    "name": "shurjopayv2/laravel8",
+    "description": "Local compatibility package for the legacy ShurjoPay Laravel 8 integration.",
+    "type": "library",
+    "license": "MIT",
+    "version": "dev-master",
+    "require": {
+        "php": "^8.1",
+        "illuminate/support": "^9.0",
+        "illuminate/http": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "shurjopayv2\\ShurjopayLaravelPackage8\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "shurjopayv2\\ShurjopayLaravelPackage8\\ShurjopayServiceProvider"
+            ]
+        }
+    }
+}

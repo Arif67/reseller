@@ -208,6 +208,14 @@ class OrderController extends Controller
 public function index($slug, Request $request)
 {
     $isTodayFilter = $request->get('date') === 'today';
+    $resolvedDateRange = $this->resolveOrderDateRange($request->get('date'));
+    $activeFilters = [
+        'keyword' => trim((string) $request->get('keyword', '')),
+        'start_date' => $request->get('start_date'),
+        'end_date' => $request->get('end_date'),
+        'date' => $request->get('date'),
+        'date_label' => $resolvedDateRange['label'] ?? null,
+    ];
 
     if ($slug == 'all') {
         $order_status = (object) [
@@ -215,23 +223,14 @@ public function index($slug, Request $request)
             'orders_count' => Order::count(),
         ];
         $show_data = Order::latest()->with('shipping', 'status');
-
-        if ($request->keyword) {
-            $show_data = $show_data->where(function ($query) use ($request) {
-                $query->orWhere('invoice_id', 'LIKE', '%' . $request->keyword . '%')
-                    ->orWhereHas('shipping', function ($subQuery) use ($request) {
-                        $subQuery->where('phone', $request->keyword);
-                    });
-            });
-        }
+        $show_data = $this->applyOrderListFilters($show_data, $request);
 
         if ($isTodayFilter) {
-            $show_data = $show_data->whereDate('created_at', now()->toDateString());
             $order_status->name = "Today's";
         }
 
         $order_status->orders_count = (clone $show_data)->count();
-        $show_data = $show_data->paginate(50);
+        $show_data = $show_data->paginate(50)->withQueryString();
     } else {
         $order_status = OrderStatus::query()
             ->withCount('orders')
@@ -292,23 +291,14 @@ public function index($slug, Request $request)
             : Order::where(['order_status' => $order_status->id]);
 
         $show_data = $show_data->latest()->with('shipping', 'status');
-
-        if ($request->keyword) {
-            $show_data = $show_data->where(function ($query) use ($request) {
-                $query->orWhere('invoice_id', 'LIKE', '%' . $request->keyword . '%')
-                    ->orWhereHas('shipping', function ($subQuery) use ($request) {
-                        $subQuery->where('phone', $request->keyword);
-                    });
-            });
-        }
+        $show_data = $this->applyOrderListFilters($show_data, $request);
 
         if ($isTodayFilter) {
-            $show_data = $show_data->whereDate('created_at', now()->toDateString());
             $order_status->name = "Today's " . $order_status->name;
         }
 
         $order_status->orders_count = (clone $show_data)->count();
-        $show_data = $show_data->paginate(50);
+        $show_data = $show_data->paginate(50)->withQueryString();
     }
 
     $users = User::get();
@@ -354,7 +344,67 @@ public function index($slug, Request $request)
         'pathaostore',
         'pathaocities',
         'fraudCheckerConfig',
+        'activeFilters',
     ));
+}
+
+private function applyOrderListFilters($query, Request $request)
+{
+    if ($request->filled('keyword')) {
+        $keyword = trim((string) $request->keyword);
+
+        $query->where(function ($subQuery) use ($keyword) {
+            $subQuery->where('invoice_id', 'LIKE', '%' . $keyword . '%')
+                ->orWhereHas('shipping', function ($shippingQuery) use ($keyword) {
+                    $shippingQuery->where('phone', 'LIKE', '%' . $keyword . '%')
+                        ->orWhere('name', 'LIKE', '%' . $keyword . '%');
+                });
+        });
+    }
+
+    $resolvedDateRange = $this->resolveOrderDateRange($request->get('date'));
+
+    if ($resolvedDateRange) {
+        $query->whereDate('created_at', '>=', $resolvedDateRange['start'])
+            ->whereDate('created_at', '<=', $resolvedDateRange['end']);
+    } else {
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+    }
+
+    return $query;
+}
+
+private function resolveOrderDateRange(?string $preset): ?array
+{
+    return match ($preset) {
+        'today' => [
+            'start' => now()->toDateString(),
+            'end' => now()->toDateString(),
+            'label' => 'Today',
+        ],
+        'yesterday' => [
+            'start' => now()->subDay()->toDateString(),
+            'end' => now()->subDay()->toDateString(),
+            'label' => 'Yesterday',
+        ],
+        'last_7_days' => [
+            'start' => now()->subDays(6)->toDateString(),
+            'end' => now()->toDateString(),
+            'label' => 'Last 7 Days',
+        ],
+        'this_month' => [
+            'start' => now()->startOfMonth()->toDateString(),
+            'end' => now()->endOfMonth()->toDateString(),
+            'label' => 'This Month',
+        ],
+        default => null,
+    };
 }
 
    public function pathaocity(Request $request)
@@ -587,84 +637,99 @@ public function pathaozone(Request $request)
 
     public function order_process(Request $request)
     {
+        try {
+            $link = OrderStatus::find($request->status)->slug;
+            $order = Order::find($request->id);
+            $courier = $order->order_status;
 
-        $link = OrderStatus::find($request->status)->slug;
-        $order = Order::find($request->id);
-        $courier = $order->order_status;
-        $order->order_status = $request->status;
-        $order->admin_note = $request->admin_note;
-        $order->save();
+            DB::transaction(function () use ($request, $order, $courier) {
+                $order->order_status = $request->status;
+                $order->admin_note = $request->admin_note;
+                $order->save();
 
-        $shipping_update = Shipping::where('order_id', $order->id)->first();
-        $shippingfee = ShippingCharge::find($request->area);
-        if ($shippingfee && (float) $order->shipping_charge !== (float) $shippingfee->amount) {
-            if ($order->shipping_charge > $shippingfee->amount) {
-                $total = $order->amount + ($shippingfee->amount - $order->shipping_charge);
-                $order->shipping_charge = $shippingfee->amount;
-                $order->amount = $total;
-                $order->save();
-            } else {
-                $total = $order->amount + ($shippingfee->amount - $order->shipping_charge);
-                $order->shipping_charge = $shippingfee->amount;
-                $order->amount = $total;
-                $order->save();
+                $shipping_update = Shipping::where('order_id', $order->id)->first();
+                $shippingfee = ShippingCharge::find($request->area);
+                if ($shippingfee && (float) $order->shipping_charge !== (float) $shippingfee->amount) {
+                    $total = $order->amount + ($shippingfee->amount - $order->shipping_charge);
+                    $order->shipping_charge = $shippingfee->amount;
+                    $order->amount = $total;
+                    $order->save();
+                }
+
+                $shipping_update->name = $request->name;
+                $shipping_update->phone = $request->phone;
+                $shipping_update->address = $request->address;
+                $shipping_update->area = $shippingfee->name;
+                $shipping_update->save();
+
+                $deliveredStatusIds = array_map('intval', $this->profitLossService->deliveredOrderStatusIds());
+                $isDelivered = in_array((int) $request->status, $deliveredStatusIds, true);
+                $this->inventoryService->syncOrderDelivery($order, $isDelivered);
+                $this->profitLossService->recalculateOrder($order);
+            });
+
+            if ($request->status == 5 && $courier != 5) {
+                $courier_info = Courierapi::where(['status' => 1, 'type' => 'steadfast'])->first();
+                if ($courier_info) {
+                    $consignmentData = [
+                        'invoice' => $order->invoice_id,
+                        'recipient_name' => $order->shipping ? $order->shipping->name : 'InboxHat',
+                        'recipient_phone' => $order->shipping ? $order->shipping->phone : '01750578495',
+                        'recipient_address' => $order->shipping ? $order->shipping->address : '01750578495',
+                        'cod_amount' => $order->amount
+                    ];
+                    $client = new Client();
+                    $response = $client->post('$courier_info->url', [
+                        'json' => $consignmentData,
+                        'headers' => [
+                            'Api-Key' => '$courier_info->api_key',
+                            'Secret-Key' => '$courier_info->secret_key',
+                            'Accept' => 'application/json',
+                        ],
+                    ]);
+
+                    $responseData = json_decode($response->getBody(), true);
+                }
             }
-        }
 
-        $shipping_update->name = $request->name;
-        $shipping_update->phone = $request->phone;
-        $shipping_update->address = $request->address;
-        $shipping_update->area = $shippingfee->name;
-        $shipping_update->save();
+            Toastr::success('Success', 'Order status change successfully');
 
-        if ($request->status == 5 && $courier != 5) {
-            $courier_info = Courierapi::where(['status' => 1, 'type' => 'steadfast'])->first();
-            if ($courier_info) {
-                $consignmentData = [
-                    'invoice' => $order->invoice_id,
-                    'recipient_name' => $order->shipping ? $order->shipping->name : 'InboxHat',
-                    'recipient_phone' => $order->shipping ? $order->shipping->phone : '01750578495',
-                    'recipient_address' => $order->shipping ? $order->shipping->address : '01750578495',
-                    'cod_amount' => $order->amount
-                ];
-                $client = new Client();
-                $response = $client->post('$courier_info->url', [
-                    'json' => $consignmentData,
-                    'headers' => [
-                        'Api-Key' => '$courier_info->api_key',
-                        'Secret-Key' => '$courier_info->secret_key',
-                        'Accept' => 'application/json',
-                    ],
+            if ($request->filled('workspace_invoice_id')) {
+                return redirect()->route('admin.order.workspace', [
+                    'invoice_id' => $request->workspace_invoice_id,
+                    'tab' => 'manage',
                 ]);
-
-                $responseData = json_decode($response->getBody(), true);
             }
+
+            return redirect('admin/order/' . $link);
+        } catch (\Throwable $exception) {
+            Toastr::error($exception->getMessage(), 'Failed!');
+            return redirect()->back()->withInput();
         }
-        $deliveredStatusIds = array_map('intval', $this->profitLossService->deliveredOrderStatusIds());
-        $wasDelivered = in_array((int) $courier, $deliveredStatusIds, true);
-        $isDelivered = in_array((int) $request->status, $deliveredStatusIds, true);
-        $this->inventoryService->syncOrderDelivery($order, $isDelivered);
-
-        $this->profitLossService->recalculateOrder($order);
-
-        Toastr::success('Success', 'Order status change successfully');
-
-        if ($request->filled('workspace_invoice_id')) {
-            return redirect()->route('admin.order.workspace', [
-                'invoice_id' => $request->workspace_invoice_id,
-                'tab' => 'manage',
-            ]);
-        }
-
-        return redirect('admin/order/' . $link);
     }
 
     public function destroy(Request $request)
     {
-        $order = Order::where('id', $request->id)->delete();
-        $order_details = OrderDetails::where('order_id', $request->id)->delete();
-        $shipping = Shipping::where('order_id', $request->id)->delete();
-        $payment = Payment::where('order_id', $request->id)->delete();
+        $order = Order::find($request->id);
+
+        if (! $order) {
+            Toastr::error('Order not found', 'Failed!');
+            return redirect()->back();
+        }
+
+        $deliveredStatusIds = array_map('intval', $this->profitLossService->deliveredOrderStatusIds());
+
+        DB::transaction(function () use ($order, $deliveredStatusIds) {
+            if (in_array((int) $order->order_status, $deliveredStatusIds, true)) {
+                $this->inventoryService->syncOrderDelivery($order, false);
+            }
+
+            OrderDetails::where('order_id', $order->id)->delete();
+            Shipping::where('order_id', $order->id)->delete();
+            Payment::where('order_id', $order->id)->delete();
+            $order->delete();
+        });
+
         Toastr::success('Success', 'Order delete success successfully');
         return redirect()->back();
     }
@@ -677,29 +742,55 @@ public function pathaozone(Request $request)
 
     public function order_status(Request $request)
     {
-        $orders = Order::whereIn('id', $request->input('order_ids'))->update(['order_status' => $request->order_status]);
+        try {
+            $orders = Order::whereIn('id', $request->input('order_ids'))->get();
 
-        $orders = Order::whereIn('id', $request->input('order_ids'))->get();
+            $deliveredStatusIds = array_map('intval', $this->profitLossService->deliveredOrderStatusIds());
+            $isDelivered = in_array((int) $request->order_status, $deliveredStatusIds, true);
 
-        $deliveredStatusIds = array_map('intval', $this->profitLossService->deliveredOrderStatusIds());
-        $isDelivered = in_array((int) $request->order_status, $deliveredStatusIds, true);
+            DB::transaction(function () use ($orders, $request, $isDelivered) {
+                foreach ($orders as $order) {
+                    $order->order_status = $request->order_status;
+                    $order->save();
+                    $this->inventoryService->syncOrderDelivery($order, $isDelivered);
+                    $this->profitLossService->recalculateOrder($order);
+                }
+            });
 
-        foreach ($orders as $order) {
-            $this->inventoryService->syncOrderDelivery($order, $isDelivered);
-            $this->profitLossService->recalculateOrder($order);
+            return response()->json(['status' => 'success', 'message' => 'Order status change successfully']);
+        } catch (\Throwable $exception) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => $exception->getMessage(),
+            ], 422);
         }
-        return response()->json(['status' => 'success', 'message' => 'Order status change successfully']);
     }
 
     public function bulk_destroy(Request $request)
     {
         $orders_id = $request->order_ids;
-        foreach ($orders_id as $order_id) {
-            $order = Order::where('id', $order_id)->delete();
-            $order_details = OrderDetails::where('order_id', $order_id)->delete();
-            $shipping = Shipping::where('order_id', $order_id)->delete();
-            $payment = Payment::where('order_id', $order_id)->delete();
-        }
+
+        $deliveredStatusIds = array_map('intval', $this->profitLossService->deliveredOrderStatusIds());
+
+        DB::transaction(function () use ($orders_id, $deliveredStatusIds) {
+            foreach ($orders_id as $order_id) {
+                $order = Order::find($order_id);
+
+                if (! $order) {
+                    continue;
+                }
+
+                if (in_array((int) $order->order_status, $deliveredStatusIds, true)) {
+                    $this->inventoryService->syncOrderDelivery($order, false);
+                }
+
+                OrderDetails::where('order_id', $order_id)->delete();
+                Shipping::where('order_id', $order_id)->delete();
+                Payment::where('order_id', $order_id)->delete();
+                $order->delete();
+            }
+        });
+
         return response()->json(['status' => 'success', 'message' => 'Order delete successfully']);
     }
     public function order_print(Request $request)
@@ -1394,7 +1485,8 @@ public function pathaozone(Request $request)
 
         $cartContent = Cart::instance($cartInstance)->content();
 
-        DB::transaction(function () use ($request, $subtotal, $shippingfee, $shippingarea, $discount, $order, $cartContent) {
+        try {
+            DB::transaction(function () use ($request, $subtotal, $shippingfee, $shippingarea, $discount, $order, $cartContent) {
             $customer = Customer::find($order->customer_id);
             $matchingCustomer = Customer::where('phone', $request->phone)
                 ->select('id', 'phone')
@@ -1490,7 +1582,17 @@ public function pathaozone(Request $request)
             }
 
             $this->profitLossService->recalculateOrder($order);
-        });
+                $deliveredStatusIds = array_map('intval', $this->profitLossService->deliveredOrderStatusIds());
+                $order->refresh();
+
+                if (in_array((int) $order->order_status, $deliveredStatusIds, true)) {
+                    $this->inventoryService->resyncOrderDelivery($order);
+                }
+            });
+        } catch (\Throwable $exception) {
+            Toastr::error($exception->getMessage(), 'Failed!');
+            return redirect()->back()->withInput();
+        }
 
         $this->clearCartState($context);
         Toastr::success('Thanks, Your order place successfully', 'Success!');

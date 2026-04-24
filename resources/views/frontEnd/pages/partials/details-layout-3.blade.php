@@ -506,6 +506,21 @@
                     @endforeach
                 </div>
             </section>
+
+            @if (($recentlyViewedProducts ?? collect())->isNotEmpty())
+            <section class="related-product-section">
+                <div class="layout3-related-head">
+                    <div class="section-kicker">Continue browsing</div>
+                    <h2>Recently Viewed Products</h2>
+                    <p>Products you checked recently.</p>
+                </div>
+                <div class="product-inner owl-carousel recently_viewed_details_slider">
+                    @foreach ($recentlyViewedProducts as $value)
+                        @include('frontEnd.partials.product-card', ['product' => $value, 'titleLimit' => 56])
+                    @endforeach
+                </div>
+            </section>
+            @endif
         </div>
     </div>
 </div>

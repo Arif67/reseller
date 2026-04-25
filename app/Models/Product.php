@@ -20,11 +20,15 @@ class Product extends Model
     }
     public function image()
     {
-        return $this->hasOne(Productimage::class, 'product_id')->select('id','image','product_id');
+        return $this->hasOne(Productimage::class, 'product_id')
+            ->select('productimages.id', 'productimages.image', 'productimages.product_id')
+            ->oldestOfMany();
     }
     public function images()
     {
-        return $this->hasMany(Productimage::class, 'product_id')->select('id','image','product_id');
+        return $this->hasMany(Productimage::class, 'product_id')
+            ->select('productimages.id', 'productimages.image', 'productimages.product_id')
+            ->orderBy('productimages.id');
     }
 
     public function media()
@@ -37,23 +41,27 @@ class Product extends Model
     public function getPrimaryMediaImageAttribute(): ?string
     {
         $media = $this->relationLoaded('media') ? $this->media : $this->media()->get();
+        $orderedImages = $this->relationLoaded('images')
+            ? $this->images->sortBy('id')->values()
+            : $this->images()->get();
 
-        return $media->first()?->path ?? $this->image?->image;
+        return $media->pluck('path')->filter()->first()
+            ?? $orderedImages->pluck('image')->filter()->first()
+            ?? $this->image?->image;
     }
 
     public function getHoverMediaImageAttribute(): ?string
     {
         $primary = $this->primary_media_image;
         $media = $this->relationLoaded('media') ? $this->media : $this->media()->get();
-        $secondaryMedia = $media->pluck('path')->filter(fn ($path) => $path && $path !== $primary)->first();
 
-        if ($secondaryMedia) {
-            return $secondaryMedia;
-        }
-
-        $images = $this->relationLoaded('images') ? $this->images : $this->images()->get();
-
-        return $images->pluck('image')->filter(fn ($path) => $path && $path !== $primary)->first();
+        // Only use explicitly ordered product media for hover state.
+        // Legacy productimages can contain stale rows from older edits and
+        // should not trigger an alternate hover image on catalog cards.
+        return $media->pluck('path')
+            ->filter()
+            ->unique()
+            ->first(fn ($path) => $path !== $primary);
     }
 
     public function getDisplayOldPriceAttribute()
@@ -108,6 +116,14 @@ class Product extends Model
     {
         return $this->hasOne(Category::class,'id','category_id')->select('id','name','slug');
     }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'product_categories')
+            ->withTimestamps()
+            ->select('categories.id', 'categories.name', 'categories.slug');
+    }
+
     public function subcategory()
     {
         return $this->hasOne(Subcategory::class,'id','subcategory_id')->select('id','subcategoryName','slug');
@@ -135,5 +151,18 @@ class Product extends Model
     public function allVariables()
     {
         return $this->hasMany(ProductVariable::class, 'product_id');
+    }
+
+    public function scopeForCategory($query, int|string|null $categoryId)
+    {
+        $categoryId = (int) $categoryId;
+
+        if ($categoryId <= 0) {
+            return $query;
+        }
+
+        return $query->whereHas('categories', function ($relationQuery) use ($categoryId) {
+            $relationQuery->where('categories.id', $categoryId);
+        });
     }
 }

@@ -95,16 +95,22 @@ class Category extends Model
 
     public function homeproducts()
     {
-        return $this->hasMany(Product::class, 'category_id');
+        return $this->belongsToMany(Product::class, 'product_categories')
+            ->withTimestamps();
     }
     public function menuproducts()
     {
-        return $this->hasMany(Product::class, 'category_id')->limit(8);
+        return $this->belongsToMany(Product::class, 'product_categories')
+            ->withTimestamps()
+            ->limit(8);
     }
 
     public function products()
     {
-        return $this->hasMany(Product::class, 'category_id')->select('id', 'name', 'slug', 'category_id', 'new_price', 'old_price')->orderBy('id','DESC');
+        return $this->belongsToMany(Product::class, 'product_categories')
+            ->withTimestamps()
+            ->select('products.id', 'products.name', 'products.slug', 'products.category_id', 'products.new_price', 'products.old_price')
+            ->orderBy('products.id', 'DESC');
     }
 
 

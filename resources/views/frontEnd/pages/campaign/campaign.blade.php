@@ -5,6 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{{ $generalsetting->name }}</title>
         <link rel="shortcut icon" href="{{asset($generalsetting->favicon)}}" type="image/x-icon" />
+        @php
+            $facebookPixel = collect($pixels ?? [])->first(function ($pixel) {
+                return ($pixel->provider ?? 'facebook') === 'facebook' && !empty($pixel->code);
+            });
+        @endphp
         <!-- fot awesome -->
         <link rel="stylesheet" href="{{ asset('frontEnd/campaign/css') }}/all.css" />
         <!-- core css -->
@@ -16,11 +21,34 @@
         <!-- owl carousel -->
         <link rel="stylesheet" href="{{ asset('frontEnd/campaign/css') }}/style.css" />
         <link rel="stylesheet" href="{{ asset('frontEnd/campaign/css') }}/responsive.css" />
-        @foreach($pixels as $pixel)
-        <!-- Facebook Pixel Code -->
-        
-        <!-- End Facebook Pixel Code -->
-        @endforeach
+        @if($facebookPixel)
+        <script>
+            !function(f,b,e,v,n,t,s)
+            {
+                if(f.fbq)return;
+                n=f.fbq=function(){
+                    n.callMethod ? n.callMethod.apply(n,arguments) : n.queue.push(arguments);
+                };
+                if(!f._fbq)f._fbq=n;
+                n.push=n;
+                n.loaded=!0;
+                n.version='2.0';
+                n.queue=[];
+                t=b.createElement(e);
+                t.async=!0;
+                t.src=v;
+                s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s);
+            }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+
+            fbq('init', '{{ $facebookPixel->code }}');
+            fbq('track', 'PageView');
+        </script>
+        <noscript>
+            <img height="1" width="1" style="display:none"
+                src="https://www.facebook.com/tr?id={{ $facebookPixel->code }}&ev=PageView&noscript=1" />
+        </noscript>
+        @endif
         
         <meta name="app-url" content="{{route('campaign',$campaign->slug)}}" />
         <meta name="robots" content="index, follow" />

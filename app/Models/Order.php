@@ -102,7 +102,8 @@ class Order extends Model
     }
     public function product()
     {
-        return $this->belongsTo(OrderDetails::class, 'id', 'order_id')->select('id','order_id','product_id');
+        return $this->belongsTo(OrderDetails::class, 'id', 'order_id')
+            ->select('order_details.id', 'order_details.order_id', 'order_details.product_id');
     }
     public function status()
     {

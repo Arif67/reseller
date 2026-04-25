@@ -20,17 +20,19 @@ class OrderDetails extends Model
 
     public function image()
     {
-        return $this->belongsTo(Productimage::class, 'product_id', 'product_id')->select('id', 'product_id', 'image');
+        return $this->belongsTo(Productimage::class, 'product_id', 'product_id')
+            ->select('productimages.id', 'productimages.product_id', 'productimages.image');
     }
 
     public function shipping()
     {
-        return $this->belongsTo(Shipping::class, 'order_id', 'order_id')->select('id', 'order_id', 'name', 'phone', 'address');
+        return $this->belongsTo(Shipping::class, 'order_id', 'order_id')
+            ->select('shippings.id', 'shippings.order_id', 'shippings.name', 'shippings.phone', 'shippings.address');
     }
 
     public function order()
     {
-        return $this->belongsTo(Order::class, 'order_id')->select('id', 'invoice_id');
+        return $this->belongsTo(Order::class, 'order_id')->select('orders.id', 'orders.invoice_id');
     }
 
     public function product()

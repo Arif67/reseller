@@ -216,6 +216,18 @@ class CategoryService
                 ->pluck('category_id')
                 ->all();
 
+            $pivotLinkedCategoryIds = DB::table('product_categories')
+                ->whereIn('category_id', $ids)
+                ->distinct()
+                ->pluck('category_id')
+                ->all();
+
+            $linkedCategoryIds = collect($linkedCategoryIds)
+                ->merge($pivotLinkedCategoryIds)
+                ->unique()
+                ->values()
+                ->all();
+
             if (! empty($linkedCategoryIds)) {
                 $linkedCategoryNames = Category::query()
                     ->whereIn('id', $linkedCategoryIds)

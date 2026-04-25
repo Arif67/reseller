@@ -206,7 +206,7 @@ class HomePageService
                 $products = Product::query()
                     ->select('id', 'name', 'slug', 'category_id', 'new_price', 'old_price', 'description', 'type', 'variation_pricing_mode', 'stock')
                     ->where('status', 1)
-                    ->where('category_id', $category->id)
+                    ->forCategory($category->id)
                     ->latest('id')
                     ->with('image', 'images', 'media', 'variable')
                     ->withSum('allVariables as total_variable_stock', 'stock')

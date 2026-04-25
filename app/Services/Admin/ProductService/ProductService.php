@@ -35,14 +35,14 @@ class ProductService
     public function getIndexData(Request $request): array|JsonResponse
     {
         try {
-            $query = Product::query()->orderBy('id', 'DESC')->with('image', 'media', 'category', 'brand', 'variables');
+            $query = Product::query()->orderBy('id', 'DESC')->with('image', 'media', 'category', 'categories', 'brand', 'variables');
 
             if ($request->keyword) {
                 $query->where('name', 'LIKE', '%' . $request->keyword . '%');
             }
 
             if ($request->filled('category_id')) {
-                $query->where('category_id', $request->category_id);
+                $query->forCategory($request->category_id);
             }
 
             if ($request->filled('brand_id')) {
@@ -89,7 +89,7 @@ class ProductService
                             . '</div>';
                     })
                     ->addColumn('category_name', function (Product $product): string {
-                        return e($product->category?->name ?? '');
+                        return e($product->categories->pluck('name')->filter()->implode(', '));
                     })
                     ->addColumn('image_preview', function (Product $product): string {
                         $primaryImage = $product->primary_media_image ?? optional($product->image)->image ?? 'uploads/logo.png';
@@ -146,6 +146,8 @@ class ProductService
             $selectedAttributeIds = old('selected_attribute_ids', []);
             $selectedMediaIds = old('selected_media_ids', []);
             $selectedVariableMediaIds = old('selected_variable_media_ids', []);
+            $selectedCategoryIds = old('category_ids', []);
+            $primaryCategoryId = old('primary_category_id');
             $mediaLibrary = $this->loadMediaLibrary(array_merge(
                 $selectedMediaIds,
                 ...array_values($selectedVariableMediaIds ?: [])
@@ -155,6 +157,8 @@ class ProductService
                 'categories' => Category::where('status', 1)->select('id', 'name', 'status')->get(),
                 'brands' => Brand::where('status', 1)->select('id', 'name', 'status')->get(),
                 'attributes' => $this->productAttributeService->getActiveAttributes(),
+                'primaryCategoryId' => $primaryCategoryId,
+                'selectedCategoryIds' => $selectedCategoryIds,
                 'selectedAttributeIds' => $selectedAttributeIds,
                 'mediaLibrary' => $mediaLibrary,
                 'selectedMediaIds' => $selectedMediaIds,
@@ -173,6 +177,7 @@ class ProductService
             $nextProductId = (Product::max('id') ?? 0) + 1;
             $input = $this->buildProductInput($request, $nextProductId);
             $product = Product::create($input);
+            $this->syncProductCategories($product, $this->resolveCategoryIds($request));
 
             $uploadedProductMediaIds = $this->saveGalleryImages($product, $request->file('image'));
             $this->syncProductMedia($product, array_merge(
@@ -199,7 +204,7 @@ class ProductService
     public function getEditData(int|string $id, Request $request): array
     {
         try {
-            $editData = Product::with('images', 'media')->findOrFail($id);
+            $editData = Product::with('images', 'media', 'categories')->findOrFail($id);
             $categoryId = $editData->category_id;
             $subcategoryId = $editData->subcategory_id;
             $variables = ProductVariable::with('selectedValues.attribute', 'media')->where('product_id', $id)->get();
@@ -214,6 +219,8 @@ class ProductService
             $selectedAttributeIds = old('selected_attribute_ids', $editData->selected_attribute_ids ?? []);
             $selectedMediaIds = old('selected_media_ids', $editData->media->pluck('id')->all());
             $selectedVariableMediaIds = old('selected_variable_media_ids', []);
+            $selectedCategoryIds = old('category_ids', $editData->categories->pluck('id')->all());
+            $primaryCategoryId = old('primary_category_id', $editData->category_id);
 
             if (empty($selectedAttributeIds)) {
                 $selectedAttributeIds = collect($variableSelections)
@@ -238,6 +245,8 @@ class ProductService
                 'brands' => Brand::where('status', 1)->select('id', 'name', 'status')->get(),
                 'variables' => $variables,
                 'attributes' => $this->productAttributeService->getActiveAttributes(),
+                'primaryCategoryId' => $primaryCategoryId,
+                'selectedCategoryIds' => $selectedCategoryIds,
                 'selectedAttributeIds' => $selectedAttributeIds,
                 'variableSelections' => $variableSelections,
                 'mediaLibrary' => $mediaLibrary,
@@ -256,8 +265,9 @@ class ProductService
             $this->validateProductRequest($request);
 
             $product = Product::findOrFail($request->id);
-            $before = $this->snapshotProduct($product->loadMissing(['media', 'allVariables']));
+            $before = $this->snapshotProduct($product->loadMissing(['media', 'allVariables', 'categories']));
             $product->update($this->buildProductInput($request, $product->id));
+            $this->syncProductCategories($product, $this->resolveCategoryIds($request));
 
             $uploadedProductMediaIds = $this->saveGalleryImages($product, $request->file('image'));
             $this->syncProductMedia($product, array_merge(
@@ -273,7 +283,7 @@ class ProductService
                 (int) $product->id,
                 (string) $product->name,
                 $before,
-                $this->snapshotProduct($product->fresh(['media', 'allVariables']))
+                $this->snapshotProduct($product->fresh(['media', 'allVariables', 'categories']))
             );
 
             return $this->response(['product' => $product])->success('Data update successfully');
@@ -337,7 +347,7 @@ class ProductService
     public function copyProduct(int|string $id): array
     {
         try {
-            $sourceProduct = Product::with(['images', 'media', 'variables.selectedValues', 'variables.media'])->findOrFail($id);
+            $sourceProduct = Product::with(['images', 'media', 'categories', 'variables.selectedValues', 'variables.media'])->findOrFail($id);
 
             $copiedProduct = DB::transaction(function () use ($sourceProduct) {
                 $nextProductId = (Product::max('id') ?? 0) + 1;
@@ -366,6 +376,7 @@ class ProductService
                 }
 
                 $this->syncProductMedia($newProduct, $sourceProduct->media->pluck('id')->all());
+                $this->syncProductCategories($newProduct, $sourceProduct->categories->pluck('id')->all());
 
                 foreach ($sourceProduct->variables as $variable) {
                     $newVariable = $variable->replicate([
@@ -462,7 +473,7 @@ class ProductService
     public function deleteProduct(int|string $id): array
     {
         try {
-            $deleteData = Product::with('variables.media', 'media', 'images')->findOrFail($id);
+            $deleteData = Product::with('variables.media', 'media', 'images', 'categories')->findOrFail($id);
             $before = $this->snapshotProduct($deleteData->loadMissing('allVariables'));
 
             foreach ($deleteData->variables as $variable) {
@@ -472,6 +483,7 @@ class ProductService
             }
 
             $deleteData->media()->detach();
+            $deleteData->categories()->detach();
 
             foreach ($deleteData->images as $pimage) {
                 $pimage->delete();
@@ -540,7 +552,9 @@ class ProductService
     {
         $rules = [
             'name' => 'required',
-            'category_id' => 'required',
+            'primary_category_id' => 'required|integer|exists:categories,id',
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'required|integer|exists:categories,id',
             'description' => 'required',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
@@ -580,6 +594,9 @@ class ProductService
         $rules['up_barcodes.*'] = 'nullable|string|max:255';
 
         $request->validate($rules, [
+            'primary_category_id.required' => 'Select a primary category.',
+            'category_ids.required' => 'Select at least one category.',
+            'category_ids.min' => 'Select at least one category.',
             'selected_attribute_ids.required' => 'Select at least one attribute for variable products.',
             'selected_attribute_ids.min' => 'Select at least one attribute for variable products.',
         ]);
@@ -597,12 +614,17 @@ class ProductService
             ? $product->media->pluck('id')->values()->all()
             : $product->media()->pluck('media.id')->values()->all();
 
+        $categoryIds = $product->relationLoaded('categories')
+            ? $product->categories->pluck('id')->values()->all()
+            : $product->categories()->pluck('categories.id')->values()->all();
+
         return [
             'id' => (int) $product->id,
             'name' => (string) $product->name,
             'slug' => (string) $product->slug,
             'status' => (int) ($product->status ?? 0),
             'category_id' => (int) ($product->category_id ?? 0),
+            'category_ids' => $categoryIds,
             'subcategory_id' => (int) ($product->subcategory_id ?? 0),
             'childcategory_id' => (int) ($product->childcategory_id ?? 0),
             'brand_id' => (int) ($product->brand_id ?? 0),
@@ -620,6 +642,8 @@ class ProductService
     {
         $input = $request->except([
             'image',
+            'primary_category_id',
+            'category_ids',
             'product_type',
             'files',
             'selected_media_ids',
@@ -642,6 +666,9 @@ class ProductService
             'up_barcodes',
         ]);
 
+        $categoryIds = $this->resolveCategoryIds($request);
+
+        $input['category_id'] = (int) $request->input('primary_category_id');
         $input['slug'] = strtolower(preg_replace('/[\/\s]+/', '-', $request->name . '-' . $productId));
         $input['meta_title'] = $request->filled('meta_title') ? $request->meta_title : $request->name;
         $input['meta_description'] = $this->resolveMetaDescription($request);
@@ -659,6 +686,29 @@ class ProductService
         }
 
         return $input;
+    }
+
+    private function resolveCategoryIds(Request $request): array
+    {
+        return collect($request->input('category_ids', []))
+            ->prepend($request->input('primary_category_id'))
+            ->filter(fn ($value) => filled($value))
+            ->map(fn ($value) => (int) $value)
+            ->filter(fn ($value) => $value > 0)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function syncProductCategories(Product $product, array $categoryIds): void
+    {
+        $payload = [];
+
+        foreach (array_values(array_unique(array_filter($categoryIds))) as $categoryId) {
+            $payload[(int) $categoryId] = [];
+        }
+
+        $product->categories()->sync($payload);
     }
 
     private function resolveMetaDescription(Request $request): string

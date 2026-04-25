@@ -41,8 +41,9 @@ class ProductCatalogService
 
         $query = $this->buildListingQuery([
             'status' => 1,
-            'category_id' => $category->id,
         ], ['id', 'name', 'slug', 'new_price', 'old_price', 'type', 'category_id']);
+
+        $query->forCategory($category->id);
 
         return $this->buildListingPageData($query, $request, 10, [
             'category' => $category,
@@ -96,7 +97,8 @@ class ProductCatalogService
         return [
             'details' => $details,
             'products' => Product::query()
-                ->where(['category_id' => $details->category_id, 'status' => 1])
+                ->where('status', 1)
+                ->forCategory($details->category_id)
                 ->with('image', 'images', 'media')
                 ->select('id', 'name', 'description', 'slug', 'status', 'category_id', 'new_price', 'old_price', 'type', 'variation_pricing_mode')
                 ->withCount('variable')
@@ -172,7 +174,7 @@ class ProductCatalogService
             ->withCount('variable')
             ->with('image', 'images', 'media')
             ->when($request->keyword, fn (Builder $query) => $query->where('name', 'like', '%' . $request->keyword . '%'))
-            ->when($request->category, fn (Builder $query) => $query->where('category_id', $request->category))
+            ->when($request->category, fn (Builder $query) => $query->forCategory($request->category))
             ->get();
     }
 
@@ -184,7 +186,7 @@ class ProductCatalogService
             ->select('id', 'name', 'slug', 'status', 'category_id', 'new_price', 'old_price', 'type', 'variation_pricing_mode')
             ->withCount('variable')
             ->when($request->keyword, fn (Builder $query) => $query->where('name', 'like', '%' . $request->keyword . '%'))
-            ->when($request->category, fn (Builder $query) => $query->where('category_id', $request->category))
+            ->when($request->category, fn (Builder $query) => $query->forCategory($request->category))
             ->paginate(10);
 
         return [

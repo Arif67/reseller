@@ -8,9 +8,13 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('order_tracking_events')) {
+            return;
+        }
+
         Schema::create('order_tracking_events', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->nullable()->constrained('orders')->nullOnDelete();
+            $table->unsignedInteger('order_id')->nullable();
             $table->string('invoice_id')->nullable()->index();
             $table->string('event_name')->index();
             $table->unsignedBigInteger('previous_status_id')->nullable();
@@ -20,6 +24,11 @@ return new class extends Migration
             $table->string('source')->nullable()->index();
             $table->json('payload')->nullable();
             $table->timestamps();
+
+            $table->foreign('order_id')
+                ->references('id')
+                ->on('orders')
+                ->nullOnDelete();
         });
     }
 

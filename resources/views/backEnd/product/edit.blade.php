@@ -836,16 +836,33 @@
                   @enderror
                 </div>
               </div>
-              <div class="col-sm-6">
+              <div class="col-sm-3">
                 <div class="form-group mb-3">
-                  <label for="category_id" class="form-label">Categories *</label>
-                  <select class="form-control select2 @error('category_id') is-invalid @enderror" name="category_id" id="category_id" required>
+                  <label for="primary_category_id" class="form-label">Primary Category *</label>
+                  <select class="form-control select2 @error('primary_category_id') is-invalid @enderror" name="primary_category_id" id="primary_category_id" required>
                     <option value="">Select...</option>
                     @foreach($categories as $category)
-                    <option value="{{$category->id}}" @selected($edit_data->category_id == $category->id)>{{$category->name}}</option>
+                    <option value="{{$category->id}}" @selected(($primaryCategoryId ?? $edit_data->category_id) == $category->id)>{{$category->name}}</option>
                     @endforeach
                   </select>
-                  @error('category_id')
+                  @error('primary_category_id')
+                  <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                  @enderror
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="form-group mb-3">
+                  <label for="category_ids" class="form-label">Extra Categories</label>
+                  <select class="form-control select2 @error('category_ids') is-invalid @enderror @error('category_ids.*') is-invalid @enderror" name="category_ids[]" id="category_ids" multiple>
+                    @foreach($categories as $category)
+                    <option value="{{$category->id}}" @selected(collect($selectedCategoryIds ?? [])->contains($category->id))>{{$category->name}}</option>
+                    @endforeach
+                  </select>
+                  <small class="text-muted">Primary category ছাড়াও এই product যেসব category-তে দেখাতে চান সেগুলো এখানে দিন।</small>
+                  @error('category_ids')
+                  <span class="invalid-feedback d-block" role="alert"><strong>{{ $message }}</strong></span>
+                  @enderror
+                  @error('category_ids.*')
                   <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
                   @enderror
                 </div>
@@ -1568,7 +1585,7 @@
     $('.select2').select2();
   });
 
-  $('#category_id').on('change', function() {
+  $('#primary_category_id').on('change', function() {
     var ajaxId = $(this).val();
     if (ajaxId) {
       $.ajax({

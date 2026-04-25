@@ -1422,14 +1422,14 @@
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const product = {
-                id: "{{ $details?->id }}",
-                name: "{{ $details?->name }}",
-                brand: "{{ $details?->brand ? $details?->brand->name : 'N/A' }}",
-                category: "{{ $details?->category?->name ?? 'N/A' }}",
-                price: {{ $details?->display_new_price ?? 0 }},
-                currency: "BDT"
-            };
+            const product = @json([
+                'id' => (string) ($details?->id ?? ''),
+                'name' => $details?->name ?? '',
+                'brand' => $details?->brand?->name ?? 'N/A',
+                'category' => $details?->category?->name ?? 'N/A',
+                'price' => (float) ($details?->display_new_price ?? 0),
+                'currency' => 'BDT',
+            ]);
             const metaConfig = window.frontendConfig?.meta || {};
             const marketingConfig = window.frontendConfig?.marketing || {};
             const marketingRoutes = window.frontendConfig?.marketingRoutes || {};
@@ -1560,14 +1560,14 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const product = {
-                id: "{{ $details?->id }}",
-                name: "{{ $details?->name }}",
-                brand: "{{ $details?->brand ? $details?->brand->name : 'N/A' }}",
-                category: "{{ $details?->category?->name ?? 'N/A' }}",
-                price: {{ $details?->display_new_price ?? 0 }},
-                currency: "BDT"
-            };
+            const product = @json([
+                'id' => (string) ($details?->id ?? ''),
+                'name' => $details?->name ?? '',
+                'brand' => $details?->brand?->name ?? 'N/A',
+                'category' => $details?->category?->name ?? 'N/A',
+                'price' => (float) ($details?->display_new_price ?? 0),
+                'currency' => 'BDT',
+            ]);
             const metaConfig = window.frontendConfig?.meta || {};
             const marketingConfig = window.frontendConfig?.marketing || {};
             const marketingRoutes = window.frontendConfig?.marketingRoutes || {};

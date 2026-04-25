@@ -411,10 +411,11 @@
                 <h5 class="modal-title">Assign User</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{route('admin.order.assign')}}" id="order_assign">
+            <form action="{{route('admin.order.assign')}}" id="order_assign" method="POST">
+                @csrf
                 <div class="modal-body">
                     <div class="form-group">
-                        <select name="user_id" id="user_id" class="form-control">
+                        <select name="user_id" id="user_id" class="form-control" required>
                             <option value="">Select..</option>
                             @foreach($users as $key=>$value)
                             <option value="{{$value->id}}">{{$value->name}}</option>
@@ -719,8 +720,9 @@
         // order assign
         $(document).on('submit', 'form#order_assign', function(e) {
             e.preventDefault();
-            var url = $(this).attr('action');
-            var method = $(this).attr('method');
+            var form = $(this);
+            var url = form.attr('action');
+            var method = form.attr('method') || 'POST';
             let user_id = $(document).find('select#user_id').val();
 
             var order = $('input.checkbox:checked').map(function() {
@@ -728,15 +730,21 @@
             });
             var order_ids = order.get();
 
+            if (!user_id) {
+                toastr.error('Please select a user first!');
+                return;
+            }
+
             if (order_ids.length == 0) {
                 toastr.error('Please Select An Order First !');
                 return;
             }
 
             $.ajax({
-                type: 'GET',
+                type: method,
                 url: url,
                 data: {
+                    _token: form.find('input[name="_token"]').val(),
                     user_id,
                     order_ids
                 },
@@ -746,8 +754,11 @@
                         window.location.reload();
 
                     } else {
-                        toastr.error('Failed something wrong');
+                        toastr.error(res.message || 'Order assign failed');
                     }
+                },
+                error: function(xhr) {
+                    toastr.error(xhr.responseJSON?.message || 'Order assign failed');
                 }
             });
 

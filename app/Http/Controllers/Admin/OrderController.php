@@ -736,8 +736,39 @@ public function pathaozone(Request $request)
 
     public function order_assign(Request $request)
     {
-        $products = Order::whereIn('id', $request->input('order_ids'))->update(['user_id' => $request->user_id]);
-        return response()->json(['status' => 'success', 'message' => 'Order user id assign']);
+        try {
+            $validated = $request->validate([
+                'user_id' => 'required|exists:users,id',
+                'order_ids' => 'required|array|min:1',
+                'order_ids.*' => 'integer|exists:orders,id',
+            ]);
+
+            $updatedCount = Order::whereIn('id', $validated['order_ids'])
+                ->update(['user_id' => $validated['user_id']]);
+
+            if ($updatedCount === 0) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'No orders were assigned.',
+                ], 422);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Orders assigned successfully.',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $exception) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => collect($exception->errors())->flatten()->first() ?: 'Validation failed.',
+                'errors' => $exception->errors(),
+            ], 422);
+        } catch (\Throwable $exception) {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Order assignment failed.',
+            ], 500);
+        }
     }
 
     public function order_status(Request $request)

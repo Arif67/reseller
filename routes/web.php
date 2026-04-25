@@ -563,7 +563,7 @@ Route::group(['namespace'=>'Admin','middleware' => ['auth','lock','check_refer']
     Route::get('order/process/{invoice_id}', [OrderController::class,'process'])->name('admin.order.process');
     Route::post('order/change', [OrderController::class,'order_process'])->name('admin.order_change');
     Route::post('order/destroy', [OrderController::class,'destroy'])->name('admin.order.destroy');
-    Route::get('order-assign', [OrderController::class,'order_assign'])->name('admin.order.assign');
+    Route::post('order-assign', [OrderController::class,'order_assign'])->name('admin.order.assign');
     Route::get('order-status', [OrderController::class,'order_status'])->name('admin.order.status');
     Route::get('order-bulk-destroy', [OrderController::class,'bulk_destroy'])->name('admin.order.bulk_destroy');
     Route::get('order-print', [OrderController::class,'order_print'])->name('admin.order.order_print');

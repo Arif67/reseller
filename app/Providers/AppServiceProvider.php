@@ -60,14 +60,29 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Group all shared frontend data into one cached array
-        $sharedData = Cache::remember('shared_view_data_v3', 3600, function () {
+        $sharedData = Cache::remember('shared_view_data_v4', 3600, function () {
+            $categorySelect = ['id', 'name', 'slug', 'status', 'image', 'serial'];
+
             return [
                 'generalsetting' => GeneralSetting::where('status', 1)->first(),
                 'topheader'=> Topheader::orderBy('id', 'DESC')->get(),
                 'themeCustomization' => Schema::hasTable('theme_customizations') ? ThemeCustomization::query()->first() : null,
 
-                'sidecategories' => Category::where('status', 1)->select('id', 'name', 'slug', 'status', 'image')->get(),
-                'menucategories' => Category::where('status', 1)->select('id', 'name', 'slug', 'status', 'image')->get(),
+                'sidecategories' => Category::query()
+                    ->where('status', 1)
+                    ->select($categorySelect)
+                    ->orderBy('serial')
+                    ->orderBy('id')
+                    ->get(),
+                'menucategories' => Category::query()
+                    ->where('status', 1)
+                    ->select($categorySelect)
+                    ->with([
+                        'menusubcategories' => fn ($query) => $query->with('menuchildcategories'),
+                    ])
+                    ->orderBy('serial')
+                    ->orderBy('id')
+                    ->get(),
                 'contact' => Contact::where('status', 1)->first(),
                 'socialicons' => SocialMedia::where('status', 1)->get(),
                 'cmnmenu' => CreatePage::where('status', 1)->get(),

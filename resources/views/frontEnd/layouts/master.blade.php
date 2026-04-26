@@ -302,21 +302,21 @@
                         <img src="{{ asset($scategory->image) }}" alt="" class="side_cat_img" />
                         {{ $scategory->name }}
                     </a>
-                    @if ($scategory?->subcategories->count() > 0)
+                    @if ($scategory?->menusubcategories->count() > 0)
                         <span class="menu-category-toggle">
                             <i class="fa fa-chevron-down"></i>
                         </span>
                     @endif
                     <ul class="second-nav submenu-collapsed">
-                        @foreach ($scategory?->subcategories as $subcategory)
+                        @foreach ($scategory?->menusubcategories as $subcategory)
                             <li class="parent-subcategory">
                                 <a href="{{ url('subcategory/' . $subcategory?->slug) }}"
                                     class="menu-subcategory-name">{{ $subcategory->subcategoryName }}</a>
-                                @if ($subcategory?->childcategories->count() > 0)
+                                @if ($subcategory?->menuchildcategories->count() > 0)
                                     <span class="menu-subcategory-toggle"><i class="fa fa-chevron-down"></i></span>
                                 @endif
                                 <ul class="third-nav submenu-collapsed">
-                                    @foreach ($subcategory?->childcategories as $childcat)
+                                    @foreach ($subcategory?->menuchildcategories as $childcat)
                                         <li class="childcategory"><a href="{{ url('products/' . $childcat->slug) }}"
                                                 class="menu-childcategory-name">{{ $childcat->childcategoryName }}</a>
                                         </li>
@@ -494,7 +494,7 @@
                                                                     height="20" />
                                                                 {{ $scategory->name }}
                                                             </a>
-                                                            @if ($scategory->subcategories->count() > 0)
+                                                            @if ($scategory->menusubcategories->count() > 0)
                                                                 <span class="text-muted drawer-trigger" role="button"
                                                                     data-submenu-toggle>
                                                                     <i class="fa fa-chevron-down small"></i>
@@ -502,9 +502,9 @@
                                                             @endif
                                                         </div>
 
-                                                        @if ($scategory->subcategories->count() > 0)
+                                                        @if ($scategory->menusubcategories->count() > 0)
                                                             <ul class="list-group list-group-flush ms-3 mt-2 bg-white rounded submenu-collapsed drawer-submenu drawer-submenu-level-2">
-                                                                @foreach ($scategory->subcategories as $subcategory)
+                                                                @foreach ($scategory->menusubcategories as $subcategory)
                                                                     <li class="list-group-item py-1 px-2 border-0 drawer-submenu-item">
                                                                         <div
                                                                             class="d-flex justify-content-between align-items-center drawer-item-head">
@@ -512,7 +512,7 @@
                                                                                 class="text-decoration-none text-dark small drawer-sublink">
                                                                                 {{ $subcategory->subcategoryName }}
                                                                             </a>
-                                                                            @if ($subcategory->childcategories->count() > 0)
+                                                                            @if ($subcategory->menuchildcategories->count() > 0)
                                                                                 <span class="text-muted drawer-trigger"
                                                                                     role="button"
                                                                                     data-submenu-toggle>
@@ -522,9 +522,9 @@
                                                                             @endif
                                                                         </div>
 
-                                                                        @if ($subcategory->childcategories->count() > 0)
+                                                                        @if ($subcategory->menuchildcategories->count() > 0)
                                                                             <ul class="list-group list-group-flush ms-3 mt-2 bg-white submenu-collapsed drawer-submenu drawer-submenu-level-3">
-                                                                                @foreach ($subcategory->childcategories as $childcat)
+                                                                                @foreach ($subcategory->menuchildcategories as $childcat)
                                                                                     <li
                                                                                         class="list-group-item py-1 ps-3 pe-2 border-0 drawer-child-item">
                                                                                         <a href="{{ url('products/' . $childcat->slug) }}"
@@ -554,24 +554,24 @@
                                             <a class="text-dark menu-category-link"
                                                 href="{{ url('category/' . $scategory->slug) }}">
                                                 <span class="cat_head">{{ $scategory->name }}</span>
-                                                @if ($scategory->subcategories->count() > 0)
+                                                @if ($scategory->menusubcategories->count() > 0)
                                                     <i class="fa-solid fa-angle-down cat_down"></i>
                                                 @endif
                                             </a>
-                                            @if ($scategory->subcategories->count() > 0)
+                                            @if ($scategory->menusubcategories->count() > 0)
                                                 <ul class="Cat_menu desktop-submenu">
-                                                    @foreach ($scategory->subcategories as $subcat)
+                                                    @foreach ($scategory->menusubcategories as $subcat)
                                                         <li class="Cat_list cat_list_hover desktop-submenu-item">
                                                             <a class="text-dark desktop-submenu-link"
                                                                 href="{{ url('subcategory/' . $subcat->slug) }}">
                                                                 <span>{{ Str::limit($subcat->subcategoryName, 25) }}</span>
-                                                                @if ($subcat->childcategories->count() > 0)
+                                                                @if ($subcat->menuchildcategories->count() > 0)
                                                                     <i class="fa-solid fa-chevron-right cat_down"></i>
                                                                 @endif
                                                             </a>
-                                                            @if ($subcat->childcategories->count() > 0)
+                                                            @if ($subcat->menuchildcategories->count() > 0)
                                                                 <ul class="child_menu desktop-child-menu">
-                                                                    @foreach ($subcat->childcategories as $childcat)
+                                                                    @foreach ($subcat->menuchildcategories as $childcat)
                                                                         <li class="child_main desktop-child-item">
                                                                             <a class="text-dark desktop-child-link"
                                                                                 href="{{ url('products/' . $childcat->slug) }}">

@@ -16,6 +16,7 @@ class CategoryRequest extends FormRequest
         return [
             'id' => 'nullable|integer|exists:categories,id',
             'name' => 'required|string|max:255',
+            'serial' => 'nullable|integer|min:0',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
             'status' => 'required|integer|in:0,1',

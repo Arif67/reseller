@@ -44,6 +44,7 @@
                                     <th style="width:2%;"><input type="checkbox" class="form-check-input" id="categoryCheckAllTable"></th>
                                     <th>SL</th>
                                     <th>Name</th>
+                                    <th>Serial</th>
                                     <th>Image</th>
                                     <th>Icon</th>
                                     <th>Status</th>
@@ -96,6 +97,7 @@
                 {data: 'checkbox', name: 'checkbox', orderable: false, searchable: false},
                 {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
                 {data: 'name', name: 'name'},
+                {data: 'serial', name: 'serial'},
                 {data: 'image_preview', name: 'image', orderable: false, searchable: false},
                 {data: 'icon_preview', name: 'icon', orderable: false, searchable: false},
                 {data: 'status_badge', name: 'status'},

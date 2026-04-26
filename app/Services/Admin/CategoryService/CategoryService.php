@@ -28,8 +28,9 @@ class CategoryService
         try {
             if (request()->ajax()) {
                 $categories = Category::query()
-                    ->select('id', 'name', 'front_view', 'image', 'icon', 'status')
-                    ->latest('id');
+                    ->select('id', 'name', 'serial', 'front_view', 'image', 'icon', 'status')
+                    ->orderBy('serial')
+                    ->orderBy('id');
 
                 $tableData = DataTables::eloquent($categories)
                     ->addIndexColumn()
@@ -45,6 +46,7 @@ class CategoryService
 
                         return '<span>' . $name . '</span>';
                     })
+                    ->editColumn('serial', fn (Category $category): string => (string) ((int) ($category->serial ?? 0)))
                     ->addColumn('image_preview', function (Category $category): string {
                         if ($category->image_url === '') {
                             return '<span class="text-muted">No image</span>';
@@ -273,6 +275,7 @@ class CategoryService
 
         return [
             'name' => $name,
+            'serial' => (int) ($payload['serial'] ?? 0),
             'slug' => Str::slug($name),
             'meta_title' => $payload['meta_title'] ?? null,
             'meta_description' => $payload['meta_description'] ?? null,
@@ -321,6 +324,7 @@ class CategoryService
         return [
             'id' => (int) $category->id,
             'name' => (string) $category->name,
+            'serial' => (int) ($category->serial ?? 0),
             'slug' => (string) $category->slug,
             'status' => (int) ($category->status ?? 0),
             'front_view' => (int) ($category->front_view ?? 0),

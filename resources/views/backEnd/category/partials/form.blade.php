@@ -22,6 +22,25 @@
 </div>
 
 <div class="col-sm-12">
+    <div class="form-group mb-3">
+        <label for="serial" class="form-label">Serial</label>
+        <input
+            type="number"
+            min="0"
+            class="form-control @error('serial') is-invalid @enderror"
+            name="serial"
+            value="{{ old('serial', $row->serial ?? 0) }}"
+            id="serial"
+        >
+        @error('serial')
+            <span class="invalid-feedback" role="alert">
+                <strong>{{ $message }}</strong>
+            </span>
+        @enderror
+    </div>
+</div>
+
+<div class="col-sm-12">
     @include('backEnd.category.partials.media-field', [
         'field' => 'image',
         'label' => 'Category Image',

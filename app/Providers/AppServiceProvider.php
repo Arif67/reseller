@@ -78,7 +78,9 @@ class AppServiceProvider extends ServiceProvider
                     ->where('status', 1)
                     ->select($categorySelect)
                     ->with([
-                        'menusubcategories' => fn ($query) => $query->with('menuchildcategories'),
+                        'menusubcategories' => function ($query) {
+                            $query->with('menuchildcategories');
+                        },
                     ])
                     ->orderBy('serial')
                     ->orderBy('id')

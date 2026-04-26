@@ -591,6 +591,16 @@
 
 li.cat_bar {
     margin-right: 0;
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+}
+
+li.cat_bar.home-toggle-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 40px;
 }
 
 li.cat_bar > a {
@@ -624,6 +634,8 @@ li.cat_bar:hover > a {
 .menu-home-link {
     background: transparent !important;
     color: #111827 !important;
+    margin: 0;
+    line-height: 1;
 }
 
 .menu-home-link,
@@ -657,6 +669,51 @@ li.cat_bar:hover > a {
 .menu-home-link:hover {
     background: transparent !important;
     opacity: 0.8;
+}
+
+.home-toggle-item .action-toggle > a,
+.home-toggle-item .menu-toggle-link {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.home-toggle-item .menu-home-toggle {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+}
+
+.home-toggle-item .menu-home-link {
+    display: inline-flex;
+    align-items: center;
+    height: 40px;
+    padding: 0 10px 0 8px;
+}
+
+.home-toggle-item .menu-home-link i {
+    line-height: 1;
+}
+
+.home-toggle-item .action-toggle > a:hover,
+.home-toggle-item .menu-toggle-link:hover {
+    transform: translateY(-1px);
+    opacity: 0.8;
+    background: transparent;
+    box-shadow: none;
+}
+
+.home-toggle-item .wd-tools-icon::before {
+    font-size: 22px;
+    margin-right: 0;
 }
 
 .menu-category-link i,

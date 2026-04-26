@@ -452,14 +452,6 @@
                                                         Now </a>
                                                 </div>
                                             </div>
-                                            <div class="action-item1 action-toggle">
-                                                <a class="btn"
-                                                    type="button" data-bs-toggle="offcanvas"
-                                                    data-bs-target="#sidebar" aria-controls="sidebar">
-                                                    <span class="wd-tools-icon"></span>
-                                                </a>
-                                            </div>
-
                                         </div>
                                     </div>
                                 </div>
@@ -474,7 +466,7 @@
                         <div class="col-sm-12 d-flex justify-content-between">
                             <div class="catagory_menu ">
                                 <ul>
-                                    <div class="offcanvas offcanvas-end shadow-sm offcanvas-sidebar" tabindex="-1" id="sidebar">
+                                    <div class="offcanvas offcanvas-start shadow-sm offcanvas-sidebar" tabindex="-1" id="sidebar">
                                         <div class="offcanvas-header py-2 px-3 border-bottom">
                                             <h6 class="offcanvas-title mb-0 text-uppercase">Categories</h6>
                                             <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
@@ -544,7 +536,13 @@
                                             </ul>
                                         </div>
                                     </div>{{-- end offcanvas --}}
-                                    <li class="cat_bar text-dark">
+                                    <li class="cat_bar text-dark home-toggle-item">
+                                        <div class="action-item1 action-toggle menu-home-toggle">
+                                            <a class="menu-toggle-link" type="button" data-bs-toggle="offcanvas"
+                                                data-bs-target="#sidebar" aria-controls="sidebar">
+                                                <span class="wd-tools-icon"></span>
+                                            </a>
+                                        </div>
                                         <a class="text-dark menu-home-link" href="{{ route('home') }}"> <i
                                                 class="fas fa-home"></i> Home </a>
                                     </li>

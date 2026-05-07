@@ -242,7 +242,6 @@
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
         fbq('init','{{ $facebookPixelId }}');
-        fbq('track', 'PageView');
     </script>
     <noscript>
         <img height="1" width="1" class="meta-pixel-noscript"
@@ -463,10 +462,9 @@
             <div class="menu-area">
                 <div class="custom-container">
                     <div class="row">
-                        <div class="col-sm-12 d-flex justify-content-between">
-                            <div class="catagory_menu ">
-                                <ul>
-                                    <div class="offcanvas offcanvas-start shadow-sm offcanvas-sidebar" tabindex="-1" id="sidebar">
+                        <div class="col-sm-12">
+                            <div class="catagory_menu">
+                                <div class="offcanvas offcanvas-start shadow-sm offcanvas-sidebar" tabindex="-1" id="sidebar">
                                         <div class="offcanvas-header py-2 px-3 border-bottom">
                                             <h6 class="offcanvas-title mb-0 text-uppercase">Categories</h6>
                                             <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
@@ -536,14 +534,19 @@
                                             </ul>
                                         </div>
                                     </div>{{-- end offcanvas --}}
-                                    <li class="cat_bar text-dark home-toggle-item">
-                                        <div class="action-item1 action-toggle menu-home-toggle">
-                                            <a class="menu-toggle-link" type="button" data-bs-toggle="offcanvas"
+                                <ul class="menu-list">
+                                    <li class="cat_bar desktop-category-item">
+                                      
+                                            <a style="margin-top: -13px;" class="text-dark menu-category-link" type="button" data-bs-toggle="offcanvas"
                                                 data-bs-target="#sidebar" aria-controls="sidebar">
                                                 <span class="wd-tools-icon"></span>
                                             </a>
-                                        </div>
-                                        <a class="text-dark menu-home-link" href="{{ route('home') }}"> <i
+                                         
+                                        
+                                    </li>
+                                    <li class="cat_bar desktop-category-item">
+                                     
+                                        <a class="text-dark menu-category-link" href="{{ route('home') }}"> <i
                                                 class="fas fa-home"></i> Home </a>
                                     </li>
 

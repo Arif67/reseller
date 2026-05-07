@@ -6,9 +6,9 @@
      tests/-এ এখন basically শুধু example tests আছে। order flow, checkout, payment callback, product search,
      customer auth, admin reports এগুলোর feature test দরকার। এই app-এর জন্য test ছাড়া change risky.
   3. Performance
-     Homepage service-এ caching আছে, কিন্তু app/Services/Frontend/HomePageService.php:165-এ category loop-এর
+     page service-এ caching আছে, কিন্তু app/Services/Frontend/PageService.php:165-এ category loop-এর
      ভিতরে product query হচ্ছে।
-     এটা eager loading / batched query দিয়ে optimize করলে homepage faster হবে.
+     এটা eager loading / batched query দিয়ে optimize করলে page faster হবে.
   4. Blade cleanup
      resources/views/frontEnd/layouts/master.blade.php:9-এ অনেক business/SEO/theme logic head section-এ আছে।
      এগুলো view composer / presenter / dedicated SEO service-এ নিলে maintain করা অনেক সহজ হবে.
@@ -37,5 +37,5 @@
   আমি চাইলে এখনই ৩টার যেকোনো একটা শুরু করতে পারি:
 
   1. public debug/artisan routes secure করা
-  2. homepage query optimization
+  2. page query optimization
   3. checkout/order flow-এর real feature te

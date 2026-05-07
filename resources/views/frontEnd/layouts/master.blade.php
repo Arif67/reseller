@@ -537,6 +537,8 @@
                                 <ul class="menu-list">
                                     <li class="cat_bar desktop-category-item">
                                       
+
+                                        
                                             <a style="margin-top: -13px;" class="text-dark menu-category-link" type="button" data-bs-toggle="offcanvas"
                                                 data-bs-target="#sidebar" aria-controls="sidebar">
                                                 <span class="wd-tools-icon"></span>

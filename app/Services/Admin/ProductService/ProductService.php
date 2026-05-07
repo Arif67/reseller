@@ -623,6 +623,7 @@ class ProductService
             'name' => (string) $product->name,
             'slug' => (string) $product->slug,
             'status' => (int) ($product->status ?? 0),
+            'is_catalog' => (int) ($product->is_catalog ?? 0),
             'category_id' => (int) ($product->category_id ?? 0),
             'category_ids' => $categoryIds,
             'subcategory_id' => (int) ($product->subcategory_id ?? 0),
@@ -677,6 +678,7 @@ class ProductService
         $input['pro_barcode'] = $this->normalizeBarcode($request->input('pro_barcode'));
         $input['selected_attribute_ids'] = $this->sanitizeAttributeIds($request->input('selected_attribute_ids', []));
         $input['status'] = $request->status ? 1 : 0;
+        $input['is_catalog'] = $request->is_catalog ? 1 : 0;
         $input['topsale'] = $request->topsale ? 1 : 0;
         $input['feature_product'] = $request->feature_product ? 1 : 0;
         $input['free_shipping'] = $request->free_shipping ? 1 : 0;

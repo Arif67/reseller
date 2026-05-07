@@ -1339,6 +1339,12 @@
               </div>
               <div class="col-sm-3 mb-3 product-switch-card">
                 <div class="form-group">
+                  <label for="is_catalog" class="d-block">Facebook Catalog</label>
+                  <label class="switch"><input type="checkbox" value="1" name="is_catalog" @if($edit_data->is_catalog==1) checked @endif><span class="slider round"></span></label>
+                </div>
+              </div>
+              <div class="col-sm-3 mb-3 product-switch-card">
+                <div class="form-group">
                   <label for="topsale" class="d-block">Hot Deals</label>
                   <label class="switch"><input type="checkbox" value="1" name="topsale" @if($edit_data->topsale==1) checked @endif><span class="slider round"></span></label>
                 </div>

@@ -148,6 +148,44 @@
             font-size: 18px;
             font-weight: 800;
             color: #0f172a;
+        }
+
+        /* Product Preview Styles */
+        .product-preview-panel { padding: 6px; }
+        .product-preview-image { border-radius: 22px; overflow: hidden; background: linear-gradient(180deg, #f7f8fb 0%, #eef2ff 100%); aspect-ratio: 1 / 1; box-shadow: 0 18px 40px rgba(15, 23, 42, 0.10); }
+        .product-preview-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .product-preview-gallery { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+        .product-preview-gallery-item { padding: 0; border: 0; border-radius: 12px; overflow: hidden; aspect-ratio: 1 / 1; background: #f3f4f6; }
+        .product-preview-gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .product-preview-desc { color: #4b5563; line-height: 1.7; }
+        .product-preview-section-title { font-weight: 700; margin-bottom: 10px; }
+        .preview-variant-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .preview-variant-item { position: relative; text-align: left; white-space: normal; padding: 10px 12px; border-radius: 16px; }
+        .preview-variant-item.is-selected { border-color: #2563eb !important; background: #eff6ff; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10); }
+        .preview-variant-item.is-selected .variant-selected-indicator { opacity: 1; transform: scale(1); }
+        .variant-selected-indicator { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #2563eb; color: #fff; font-size: 0.72rem; box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22); opacity: 0; transform: scale(0.85); transition: all 0.15s ease; }
+        .variant-attribute-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 6px; }
+        .variant-attr-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 999px; background: #f8fafc; border: 1px solid rgba(148, 163, 184, 0.25); color: #475569; font-size: 0.76rem; font-weight: 600; }
+        .variant-meta-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin: 2px 0 4px; }
+        .variant-color-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(15, 23, 42, 0.14); display: inline-block; }
+        .preview-qty-wrap { min-width: 100px; }
+        .preview-qty-input { width: 110px; border-radius: 14px; }
+        .product-preview-hero { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-radius: 18px; background: linear-gradient(135deg, #0f172a 0%, #334155 100%); color: #fff; margin-bottom: 16px; }
+        .product-preview-hero .product-preview-title { color: #fff; font-size: 1.35rem; margin-bottom: 4px; }
+        .product-preview-hero .product-preview-price { color: #fff; margin-top: 2px; }
+        .product-preview-hero del { opacity: .72; }
+        .product-preview-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .product-preview-badges .badge { padding: 8px 10px; border-radius: 999px; }
+        .product-preview-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+        .product-preview-actions .btn { border-radius: 14px; padding: 10px 14px; }
+        .product-preview-modal .modal-content { border: 0; border-radius: 24px; overflow: hidden; box-shadow: 0 30px 90px rgba(15, 23, 42, 0.32); }
+        .product-preview-modal .modal-header { border-bottom: 0; padding: 18px 22px 0; }
+        .product-preview-modal .modal-body { padding: 18px 22px 22px; background: radial-gradient(circle at top right, rgba(99, 102, 241, .08), transparent 28%), radial-gradient(circle at left, rgba(16, 185, 129, .06), transparent 24%), #fff; }
+        .product-preview-sticky { position: sticky; bottom: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 18px; padding: 14px 16px; border-radius: 18px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(148, 163, 184, 0.22); box-shadow: 0 14px 30px rgba(15, 23, 42, 0.10); }
+        .product-preview-sticky-text { color: #334155; font-weight: 600; }
+        .product-preview-modal .modal-title { font-weight: 800; letter-spacing: -0.02em; }
+
+        .workspace-panel {
             background: #f8fbff;
         }
 
@@ -1070,13 +1108,21 @@
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td>{{ $value->price }}</td>
+                                                    <td>
+                                                        <div class="discount">
+                                                            <input type="text" inputmode="decimal" class="product_price" value="{{ $value->price }}"
+                                                                placeholder="0.00" data-id="{{ $value->rowId }}" />
+                                                        </div>
+                                                    </td>
                                                     <td class="discount">
                                                         <input type="text" inputmode="decimal" class="product_discount" value="{{ $value->options->product_discount ?? 0 }}"
                                                             placeholder="0.00" data-id="{{ $value->rowId }}" />
                                                     </td>
                                                     <td>{{ ($value->price - ($value->options->product_discount ?? 0)) * $value->qty }}</td>
                                                     <td>
+                                                        @if ($value->options->type == 0)
+                                                            <button type="button" class="btn btn-primary btn-xs js-product-preview" data-id="{{ $value->id }}" data-update-row-id="{{ $value->rowId }}" title="Edit Attribute"><i class="fa fa-edit"></i></button>
+                                                        @endif
                                                         <button type="button" class="btn btn-danger btn-xs cart_remove" data-id="{{ $value->rowId }}"><i class="fa fa-times"></i></button>
                                                     </td>
                                                 </tr>
@@ -1350,7 +1396,9 @@
                     return;
                 }
 
-                var $input = $('.product_discount[data-id="' + state.rowId + '"]');
+                var $input = state.type === 'price' 
+                    ? $('.product_price[data-id="' + state.rowId + '"]')
+                    : $('.product_discount[data-id="' + state.rowId + '"]');
 
                 if (!$input.length) {
                     return;
@@ -1390,7 +1438,8 @@
                 $.ajax({
                     type: "GET",
                     data: {
-                        keyword: ''
+                        keyword: '',
+                        context: 'workspace'
                     },
                     url: "{{ route('admin.livesearch') }}",
                     success: function(products) {
@@ -1411,17 +1460,27 @@
                 }
             });
 
-            $(".cart_add").on("click", function() {
-                var id = $(this).data("id");
+            $(document).on("click", ".cart_add", function(e) {
+                e.preventDefault();
+                var $target = $(this);
+                var id = $target.data("id");
 
                 if (id) {
+                    var payload = {
+                        id: id,
+                        context: 'workspace'
+                    };
+
+                    if ($target.data("size")) payload.size = $target.data("size");
+                    if ($target.data("color")) payload.color = $target.data("color");
+                    if ($target.data("model")) payload.model = $target.data("model");
+                    if ($target.data("weight")) payload.weight = $target.data("weight");
+                    if ($target.data("variantBarcode")) payload.variant_barcode = $target.data("variantBarcode");
+
                     $.ajax({
                         cache: false,
                         type: "GET",
-                        data: {
-                            id: id,
-                            context: 'workspace'
-                        },
+                        data: payload,
                         url: "{{ route('admin.order.cart_add') }}",
                         dataType: "json",
                         success: function() {
@@ -1512,7 +1571,8 @@
                 var focusState = {
                     rowId: rowId,
                     value: discount,
-                    caret: caret
+                    caret: caret,
+                    type: 'discount'
                 };
 
                 clearTimeout(productDiscountTimers[rowId]);
@@ -1565,6 +1625,72 @@
                 syncProductDiscount(this, true);
             });
 
+            const productPriceTimers = {};
+            const syncedProductPrices = {};
+
+            function syncProductPrice(input, forceImmediate) {
+                var $input = $(input);
+                var rowId = $input.data("id");
+                var price = $input.val();
+                var caret = input.selectionStart;
+                var normalizedPrice = String(price ?? "");
+                var focusState = {
+                    rowId: rowId,
+                    value: price,
+                    caret: caret,
+                    type: 'price'
+                };
+
+                clearTimeout(productPriceTimers[rowId]);
+
+                if (forceImmediate && syncedProductPrices[rowId] === normalizedPrice) {
+                    return;
+                }
+
+                var request = function() {
+                    $.ajax({
+                        cache: false,
+                        type: "GET",
+                        data: {
+                            id: rowId,
+                            price: price,
+                            context: 'workspace'
+                        },
+                        url: "{{ route('admin.order.product_price') }}",
+                        dataType: "json",
+                        success: function(response) {
+                            var nextRowId = response.rowId || rowId;
+                            delete syncedProductPrices[rowId];
+                            syncedProductPrices[nextRowId] = normalizedPrice;
+                            focusState.rowId = nextRowId;
+                            refreshCartUI(focusState);
+                        }
+                    });
+                };
+
+                if (forceImmediate) {
+                    request();
+                    return;
+                }
+
+                productPriceTimers[rowId] = setTimeout(request, productDiscountDelay);
+            }
+
+            $(document).on("input", ".product_price", function() {
+                syncProductPrice(this, false);
+            });
+
+            $(document).on("keydown", ".product_price", function(e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    syncProductPrice(this, true);
+                }
+            });
+
+            $(document).on("blur", ".product_price", function() {
+                syncProductPrice(this, true);
+            });
+
             $("#process_area").on("change", function() {
                 var id = $(this).val();
 
@@ -1581,6 +1707,114 @@
                     }
                 });
             });
+
+            // Product Preview & Attribute Editing
+            function closeProductPreviewModal() {
+                if (window.bootstrap && bootstrap.Modal) {
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById("productPreviewModal")).hide();
+                } else {
+                    $("#productPreviewModal").hide();
+                }
+            }
+
+            $(document).on("click", ".js-product-preview", function(e) {
+                e.preventDefault();
+                var productId = $(this).data("id");
+                var updateRowId = $(this).data("update-row-id") || "";
+                if (!productId) return;
+
+                var previewUrl = "{{ route('admin.order.product_preview') }}" + "?id=" + encodeURIComponent(productId);
+                $("#productPreviewBody").html('<div class="text-center py-5 text-muted">Loading preview...</div>');
+
+                $.ajax({
+                    type: "GET",
+                    url: previewUrl,
+                    dataType: "html",
+                    success: function(html) {
+                        $("#productPreviewBody").html(html);
+                        if (updateRowId) {
+                            $("#productPreviewBody").attr("data-update-row-id", updateRowId);
+                            $("#productPreviewBody .js-preview-close").text("Cancel Update");
+                        }
+                        if (window.bootstrap && bootstrap.Modal) {
+                            bootstrap.Modal.getOrCreateInstance(document.getElementById("productPreviewModal")).show();
+                        } else {
+                            $("#productPreviewModal").show();
+                        }
+                    },
+                    error: function() {
+                        $("#productPreviewBody").html('<div class="text-danger">Preview load failed.</div>');
+                    }
+                });
+            });
+
+            $(document).on("click", ".js-cart-add", function(e) {
+                e.preventDefault();
+                var $button = $(this);
+                var updateRowId = $("#productPreviewBody").attr("data-update-row-id") || "";
+
+                var payload = {
+                    id: $button.data("id"),
+                    context: 'workspace',
+                    update_row_id: updateRowId
+                };
+
+                if ($button.data("size")) payload.size = $button.data("size");
+                if ($button.data("color")) payload.color = $button.data("color");
+                if ($button.data("model")) payload.model = $button.data("model");
+                if ($button.data("weight")) payload.weight = $button.data("weight");
+                if ($button.data("variantBarcode")) payload.variant_barcode = $button.data("variantBarcode");
+
+                var isPreviewVariant = $button.closest("#productPreviewBody").length > 0;
+
+                $.ajax({
+                    cache: false,
+                    type: "GET",
+                    data: payload,
+                    url: "{{ route('admin.order.cart_add') }}",
+                    dataType: "json",
+                    success: function() {
+                        refreshCartUI();
+                        search_clear();
+                        if (isPreviewVariant) {
+                            closeProductPreviewModal();
+                            $("#productPreviewBody").removeAttr("data-update-row-id");
+                        }
+                    }
+                });
+            });
+
+            $(document).on("click", ".js-preview-gallery-item", function() {
+                var image = $(this).data("previewImage");
+                if (!image) return;
+                var $mainImage = $("#productPreviewBody").find("[data-preview-main-image]").first();
+                if ($mainImage.length) $mainImage.attr("src", image);
+            });
+
+            $(document).on("click", ".js-preview-scroll-variants", function() {
+                var variantBlock = document.querySelector("#productPreviewBody .preview-variant-list");
+                if (variantBlock && typeof variantBlock.scrollIntoView === "function") {
+                    variantBlock.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+            });
+
+            $(document).on("click", ".js-preview-close", function() {
+                closeProductPreviewModal();
+                $("#productPreviewBody").removeAttr("data-update-row-id");
+            });
         </script>
+        <div class="modal fade product-preview-modal" id="productPreviewModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Product Options</h5>
+                        <button type="button" class="btn-close js-preview-close" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="productPreviewBody">
+                        <div class="text-center py-5 text-muted">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
 @endsection

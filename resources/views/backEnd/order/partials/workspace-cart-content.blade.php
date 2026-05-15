@@ -33,13 +33,21 @@
                 </div>
             </div>
         </td>
-        <td>{{ $value->price }}</td>
+        <td>
+            <div class="discount">
+                <input type="text" inputmode="decimal" class="product_price" value="{{ $value->price }}"
+                    placeholder="0.00" data-id="{{ $value->rowId }}" />
+            </div>
+        </td>
         <td class="discount">
             <input type="text" inputmode="decimal" class="product_discount" value="{{ $value->options->product_discount ?? 0 }}"
                 placeholder="0.00" data-id="{{ $value->rowId }}" />
         </td>
         <td>{{ ($value->price - ($value->options->product_discount ?? 0)) * $value->qty }}</td>
         <td>
+            @if ($value->options->type == 0)
+                <button type="button" class="btn btn-primary btn-xs js-product-preview" data-id="{{ $value->id }}" data-update-row-id="{{ $value->rowId }}" title="Edit Attribute"><i class="fa fa-edit"></i></button>
+            @endif
             <button type="button" class="btn btn-danger btn-xs cart_remove" data-id="{{ $value->rowId }}"><i class="fa fa-times"></i></button>
         </td>
     </tr>

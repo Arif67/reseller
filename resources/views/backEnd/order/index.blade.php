@@ -519,7 +519,7 @@
 
                         <tr>
                             <td><input type="checkbox" class="checkbox" value="{{$value->id}}"></td>
-                            <td>{{$loop->iteration}}</td>
+                            <td>{{ ($show_data->currentPage() - 1) * $show_data->perPage() + $loop->iteration }}</td>
                             <td>
                                 @php($totalQty = $value->orderdetails->sum('qty'))
                                 @php($firstDetail = $value->orderdetails->first())

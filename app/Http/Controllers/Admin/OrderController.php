@@ -152,15 +152,16 @@ class OrderController extends Controller
         $this->middleware('permission:order-invoice', ['only' => ['invoice', 'invoice_print']]);
         $this->middleware('permission:order-process', ['only' => ['process', 'order_process', 'order_steadfast', 'pathaocity', 'pathaozone', 'updatePathaoStatus', 'updatePathaoStatusWebhook', 'updateSteadfastStatus', 'updateSteadfastStatusWebhook', 'recalculate_profit_loss_snapshots']]);
     }
-   public function search(Request $request)
+    public function search(Request $request)
 {
     $keyword = trim((string) $request->keyword);
+    $context = $request->get('context', 'pos');
     $products = collect();
     $exactProduct = null;
     $exactVariant = null;
 
     if ($keyword === '') {
-        return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword'));
+        return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword', 'context'));
     }
 
     $exactVariant = ProductVariable::query()
@@ -169,7 +170,7 @@ class OrderController extends Controller
         ->first();
 
     if ($exactVariant && $exactVariant->product && (int) $exactVariant->product->status === 1) {
-        return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword'));
+        return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword', 'context'));
     }
 
     $exactVariant = null;
@@ -184,7 +185,7 @@ class OrderController extends Controller
         ->first();
 
     if ($exactProduct) {
-        return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword'));
+        return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword', 'context'));
     }
 
     $products = Product::query()
@@ -200,7 +201,7 @@ class OrderController extends Controller
         })
         ->get();
 
-    return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword'));
+    return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword', 'context'));
 }
 
     
@@ -237,7 +238,7 @@ public function index($slug, Request $request)
         }
 
         $order_status->orders_count = (clone $show_data)->count();
-        $show_data = $show_data->paginate(50)->withQueryString();
+        $show_data = $show_data->paginate(12)->withQueryString();
     } else {
         $order_status = OrderStatus::query()
             ->withCount('orders')
@@ -312,7 +313,7 @@ public function index($slug, Request $request)
         }
 
         $order_status->orders_count = (clone $show_data)->count();
-        $show_data = $show_data->paginate(50)->withQueryString();
+        $show_data = $show_data->paginate(12)->withQueryString();
     }
 
     $users = User::get();
@@ -1343,6 +1344,10 @@ public function pathaozone(Request $request)
         ];
         $var_product = null;
 
+        $updateRowId = $request->input('update_row_id');
+        $preservedQty = null;
+        $preservedSortKey = null;
+
         if ($request->filled('variant_barcode')) {
             $var_product = ProductVariable::query()
                 ->with('selectedValues.attribute', 'media')
@@ -1371,8 +1376,16 @@ public function pathaozone(Request $request)
             return response()->json(['status' => 'notfound', 'message' => 'Product not found'], 404);
         }
 
+        if ($updateRowId) {
+            $existingItem = Cart::instance($cartInstance)->get($updateRowId);
+            if ($existingItem) {
+                $preservedQty = $existingItem->qty;
+                $preservedSortKey = $existingItem->options->sort_key ?? null;
+            }
+        }
+
         $selectedAttributes = $this->productAttributeService->summarizeSelections($selectedValueIds, $resolvedSelections);
-        $qty = max(1, (int) $request->input('qty', 1));
+        $qty = $request->filled('qty') ? max(1, (int) $request->input('qty')) : ($preservedQty ?? 1);
         if ($product->type == 0) {
             $purchase_price = $product->variation_pricing_mode === 'same' ? $product->purchase_price : ($var_product?->purchase_price ?? 0);
             $old_price = $product->variation_pricing_mode === 'same' ? $product->old_price : ($var_product?->old_price ?? 0);
@@ -1385,7 +1398,11 @@ public function pathaozone(Request $request)
             $stock = $product->stock;
         }
 
-        $cartitem = Cart::instance($cartInstance)->content()->first(function ($item) use ($product, $var_product, $selectedAttributes) {
+        $cartitem = Cart::instance($cartInstance)->content()->first(function ($item) use ($product, $var_product, $selectedAttributes, $updateRowId) {
+            if ($updateRowId && $item->rowId === $updateRowId) {
+                return false;
+            }
+
             if ((int) $item->id !== (int) $product->id) {
                 return false;
             }
@@ -1405,6 +1422,11 @@ public function pathaozone(Request $request)
             Toastr::error('Product stock limit over', 'Failed!');
             return response()->json(['status' => 'limitover', 'message' => 'Your stock limit is over']);
         }
+
+        if ($updateRowId && Cart::instance($cartInstance)->get($updateRowId)) {
+            Cart::instance($cartInstance)->remove($updateRowId);
+        }
+
         $cartinfo = Cart::instance($cartInstance)->add([
             'id' => $product->id,
             'name' => $product->name,
@@ -1423,7 +1445,7 @@ public function pathaozone(Request $request)
                 'product_variable_id' => $var_product?->id,
                 'selected_attributes' => $selectedAttributes,
                 'type' => $product->type,
-                'sort_key' => (int) round(microtime(true) * 1000000),
+                'sort_key' => $preservedSortKey ?? (int) round(microtime(true) * 1000000),
             ],
         ]);
         //dd($cartinfo);
@@ -1510,6 +1532,25 @@ public function pathaozone(Request $request)
 
         return response()->json([
             'rowId' => $updatedCart->rowId ?? $request->id,
+        ]);
+    }
+
+    public function product_price(Request $request)
+    {
+        $context = $this->cartContext($request);
+        $cartInstance = $this->cartInstanceName($context);
+        $cart = Cart::instance($cartInstance)->content()->where('rowId', $request->id)->first();
+
+        if (! $cart) {
+            return response()->json(['message' => 'Cart item not found'], 404);
+        }
+
+        Cart::instance($cartInstance)->update($request->id, [
+            'price' => $request->price,
+        ]);
+
+        return response()->json([
+            'rowId' => $request->id,
         ]);
     }
     private function resolveOrderDetailVariant(OrderDetails $orderDetail): ?ProductVariable

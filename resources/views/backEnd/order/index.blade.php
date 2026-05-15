@@ -471,7 +471,8 @@
                 <h5 class="modal-title">Pathao Courier - {{$value->invoice_id}}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{route('admin.order.pathao')}}" id="order_sendto_pathao">
+            <form action="{{route('admin.order.pathao')}}" method="POST" id="order_sendto_pathao">
+                @csrf
 
                 <div class="modal-body">
                     <div class="form-group">

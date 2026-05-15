@@ -150,7 +150,7 @@ class OrderController extends Controller
         $this->middleware('permission:order-edit', ['only' => ['order_edit', 'order_update', 'order_pathao', 'fraud_check']]);
         $this->middleware('permission:order-delete', ['only' => ['destroy', 'bulk_destroy']]);
         $this->middleware('permission:order-invoice', ['only' => ['invoice', 'invoice_print']]);
-        $this->middleware('permission:order-process', ['only' => ['process', 'order_process', 'order_steadfast', 'getPathaoZones', 'getPathaoAreas', 'updatePathaoStatus', 'updatePathaoStatusWebhook', 'updateSteadfastStatus', 'updateSteadfastStatusWebhook', 'recalculate_profit_loss_snapshots']]);
+        $this->middleware('permission:order-process', ['only' => ['process', 'order_process', 'order_steadfast', 'pathaocity', 'pathaozone', 'updatePathaoStatus', 'updatePathaoStatusWebhook', 'updateSteadfastStatus', 'updateSteadfastStatusWebhook', 'recalculate_profit_loss_snapshots']]);
     }
    public function search(Request $request)
 {

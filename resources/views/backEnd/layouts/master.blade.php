@@ -1435,60 +1435,67 @@
     <!--patho courier-->
     <script type="text/javascript">
         $(document).ready(function() {
-            $('.pathaocity').change(function() {
+            $(document).on('change', '.pathaocity', function() {
                 var id = $(this).val();
+                var form = $(this).closest('form');
+                var zone_select = form.find('.pathaozone');
+                var area_select = form.find('.pathaoarea');
+
                 if (id) {
                     $.ajax({
                         type: "GET",
                         url: "{{ url('admin/pathao-city') }}?city_id=" + id,
                         success: function(res) {
                             if (res && res.data && res.data.data) {
-                                $(".pathaozone").empty();
-                                $(".pathaozone").append('<option value="">Select..</option>');
+                                zone_select.empty();
+                                zone_select.append('<option value="">Select..</option>');
                                 $.each(res.data.data, function(index, zone) {
-                                    $(".pathaozone").append('<option value="' + zone
+                                    zone_select.append('<option value="' + zone
                                         .zone_id + '">' + zone.zone_name +
                                         '</option>');
-                                    $('.pathaozone').trigger("chosen:updated");
                                 });
+                                zone_select.trigger("chosen:updated");
                             } else {
-                                $(".pathaoarea").empty();
-                                $(".pathaozone").empty();
+                                area_select.empty();
+                                zone_select.empty();
                             }
                         }
                     });
                 } else {
-                    $(".pathaoarea").empty();
-                    $(".pathaozone").empty();
+                    area_select.empty();
+                    zone_select.empty();
                 }
             });
         });
     </script>
     <script type="text/javascript">
         $(document).ready(function() {
-            $('.pathaozone').change(function() {
+            $(document).on('change', '.pathaozone', function() {
                 var id = $(this).val();
+                var form = $(this).closest('form');
+                var area_select = form.find('.pathaoarea');
+
                 if (id) {
                     $.ajax({
                         type: "GET",
                         url: "{{ url('admin/pathao-zone') }}?zone_id=" + id,
                         success: function(res) {
                             if (res && res.data && res.data.data) {
-                                $(".pathaoarea").empty();
-                                $(".pathaoarea").append('<option value="">Select..</option>');
+                                area_select.empty();
+                                area_select.append('<option value="">Select..</option>');
                                 $.each(res.data.data, function(index, area) {
-                                    $(".pathaoarea").append('<option value="' + area
+                                    area_select.append('<option value="' + area
                                         .area_id + '">' + area.area_name +
                                         '</option>');
-                                    $('.pathaoarea').trigger("chosen:updated");
                                 });
+                                area_select.trigger("chosen:updated");
                             } else {
-                                $(".pathaoarea").empty();
+                                area_select.empty();
                             }
                         }
                     });
                 } else {
-                    $(".pathaoarea").empty();
+                    area_select.empty();
                 }
             });
         });

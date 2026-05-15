@@ -284,8 +284,6 @@ Route::group(['namespace'=>'Admin','middleware' => ['auth','lock','check_refer']
     Route::post('order-pathao', [OrderController::class,'order_pathao'])->name('admin.order.pathao');
     Route::post('order/fraud-check', [OrderController::class,'fraud_check'])->name('admin.order.fraud_check');
     Route::get('order-steadfast/{order_id}', [OrderController::class,'order_steadfast'])->name('admin.order.steadfast');
-    Route::get('/pathao-zones', [OrderController::class, 'getPathaoZones'])->name('getPathaoZones');
-    Route::get('/pathao-areas', [OrderController::class, 'getPathaoAreas'])->name('getPathaoAreas');
     Route::get('/pathao-update-status', [OrderController::class, 'updatePathaoStatus'])->name('updatePathaoStatus');
     Route::post('/pathao-update-status-webhook', [OrderController::class, 'updatePathaoStatusWebhook'])->name('updatePathaoStatusWebhook');
     Route::get('/steadfast-update-status', [OrderController::class, 'updateSteadfastStatus'])->name('updateSteadfastStatus');

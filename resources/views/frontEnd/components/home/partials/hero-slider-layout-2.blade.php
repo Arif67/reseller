@@ -228,7 +228,7 @@
                 </div>
             </div>
 
-            <div class="col-sm-4 col-12">
+            <div class="col-sm-4 d-none d-sm-block">
                 <div class="row layout2-row layout2-side-grid h-100">
                     @if ($topRightSlider)
                         <div class="col-12">

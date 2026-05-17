@@ -7,23 +7,26 @@ $(document).ready(function () {
         return fallback;
     }
 
-    $(".main_slider").owlCarousel({
-        items: 1,
-        loop: true,
-        dots: true,
-        autoplay: true,
-        nav: true,
-        navText: [
-            '<i class="fa-solid fa-arrow-left"></i>',
-            '<i class="fa-solid fa-arrow-right"></i>'
-        ],
-        autoplayHoverPause: true,
-        margin: 0,
-        mouseDrag: true,
-        smartSpeed: 900,
-        autoplayTimeout: 5000,
-        animateOut: "fadeOut"
-    });
+    const $mainSlider = $(".main_slider");
+    if ($mainSlider.length) {
+        const itemCount = $mainSlider.children().length;
+        $mainSlider.owlCarousel({
+            items: 1,
+            loop: itemCount > 1,
+            dots: itemCount > 1,
+            autoplay: itemCount > 1,
+            nav: itemCount > 1,
+            navText: [
+                '<i class="fa-solid fa-arrow-left"></i>',
+                '<i class="fa-solid fa-arrow-right"></i>'
+            ],
+            autoplayHoverPause: true,
+            margin: 0,
+            mouseDrag: true,
+            smartSpeed: 900,
+            autoplayTimeout: 5000
+        });
+    }
 
     const hotDealsSliderItems = sliderItems("hotdeals_slider", { mobile: 3, tablet: 3, desktop: 6 });
     $(".hotdeals-slider").owlCarousel({

@@ -133,38 +133,6 @@
             border-top: 4px solid #f97316;
         }
 
-        .layout2-flash {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            padding: 9px 12px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
-            color: #fff;
-            margin-bottom: 12px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .layout2-flash strong {
-            font-size: 13px;
-            letter-spacing: 0.02em;
-        }
-
-        .layout2-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 10px;
-            border-radius: 999px;
-            background: #fff7ed;
-            color: #c2410c;
-            font-size: 11px;
-            font-weight: 800;
-            margin-bottom: 10px;
-        }
-
         .layout2-title {
             font-size: 26px;
             line-height: 1.22;
@@ -198,16 +166,16 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            padding: 14px 16px;
+            padding: 8px 16px;
             border-radius: 16px;
             background: linear-gradient(135deg, #fff7ed 0%, #fff1e6 100%);
             border: 1px solid #fdba74;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
         }
 
         .layout2-price .new_price,
         .layout2-price .details-price {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 900;
             color: #ea580c;
             margin: 0;
@@ -217,7 +185,7 @@
         .layout2-price .old_price,
         .layout2-price del {
             color: #94a3b8;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
         }
 
@@ -225,11 +193,11 @@
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
         }
 
         .layout2-summary-card {
-            padding: 12px;
+            padding: 10px;
             border: 1px solid #e2e8f0;
             border-radius: 14px;
             background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
@@ -237,21 +205,25 @@
 
         .layout2-summary-card span {
             display: block;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: #94a3b8;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .layout2-summary-card strong {
             color: #0f172a;
-            font-size: 13px;
+            font-size: 12px;
+        }
+
+        .layout2-shipbox .layout2-summary-grid {
+            grid-template-columns: 1fr;
         }
 
         .layout2-group {
-            padding: 14px 0;
+            padding: 4px 0;
             border-top: 1px solid #f1f5f9;
         }
 
@@ -264,7 +236,7 @@
             font-size: 13px;
             font-weight: 800;
             color: #334155;
-            margin-bottom: 10px;
+            margin-bottom: 4px;
         }
 
         .layout2-option-row {
@@ -359,10 +331,41 @@
             margin-top: 10px;
             min-height: 46px;
             border-radius: 14px;
-            background: #fff;
-            border: 1px solid #f1f5f9;
+            background: #1e40af;
+            border: 1px solid #1e40af;
             font-weight: 700;
-            color: #0f172a;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .layout2-phone:hover {
+            background: #1e3a8a;
+            color: #fff;
+        }
+
+        .layout2-whatsapp {
+            width: 100%;
+            margin-top: 10px;
+            min-height: 46px;
+            border-radius: 14px;
+            background: #25d366;
+            border: 1px solid #25d366;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .layout2-whatsapp:hover {
+            background: #22c55e;
+            color: #fff;
         }
 
         .layout2-shipbox {
@@ -496,14 +499,6 @@
 
 <div class="layout2-page">
     <div class="container layout2-shell">
-        <div class="layout2-breadcrumb">
-            <a href="{{ url('/') }}">Home</a>
-            <span>/</span>
-            <a href="{{ url('/category/' . $details?->category?->slug) }}">{{ $details?->category?->name }}</a>
-            <span>/</span>
-            <span>{{ $details?->name }}</span>
-        </div>
-
         <div class="layout2-grid">
             <div class="layout2-gallery">
                 @php($mainImage = $galleryImages->first())
@@ -527,14 +522,6 @@
             </div>
 
             <div class="layout2-buybox">
-                <div class="layout2-flash">
-                    <strong>FLASH SALE</strong>
-                    <span>Limited stock available</span>
-                </div>
-
-                <div class="layout2-tag">
-                    <i class="fa-solid fa-bolt"></i> Daraz style layout
-                </div>
                 <h1 class="layout2-title">{{ $details?->name }}</h1>
 
                 <div class="layout2-meta">
@@ -554,21 +541,6 @@
                     <span class="stock-pill">{{ $details?->variable_count > 0 && $details?->type == 0 ? 'Choose options' : 'Ready to order' }}</span>
                 </div>
 
-                <div class="layout2-summary-grid">
-                    <div class="layout2-summary-card">
-                        <span>Category</span>
-                        <strong>{{ $details?->category?->name ?? 'N/A' }}</strong>
-                    </div>
-                    <div class="layout2-summary-card">
-                        <span>Support</span>
-                        <strong>Cash on delivery available</strong>
-                    </div>
-                    <div class="layout2-summary-card">
-                        <span>Delivery</span>
-                        <strong>Pickup & home delivery</strong>
-                    </div>
-                </div>
-
                 <form action="{{ route('cart.store') }}" method="POST" name="formName">
                     @csrf
                     <input type="hidden" name="id" value="{{ $details?->id }}">
@@ -576,7 +548,7 @@
                     <div class="layout2-group">
                         <div class="layout2-label">Options</div>
                         @foreach ($productAttributeGroups as $attributeGroup)
-                            <div class="mb-3 product-attribute-group" data-attribute-group="{{ $attributeGroup['attribute_id'] }}">
+                            <div class="mb-1 product-attribute-group" data-attribute-group="{{ $attributeGroup['attribute_id'] }}">
                                 <div class="layout2-option-row">
                                     <p class="layout2-label mb-0">{{ $attributeGroup['title'] }}</p>
                                     <small>Select one</small>
@@ -629,7 +601,12 @@
                         </button>
                     </div>
 
-                    <button type="button" class="layout2-phone">Order by phone (01832-883232)</button>
+                    <a href="tel:{{ $contact?->hotline }}" class="layout2-phone">
+                        <i class="fa-solid fa-phone"></i> Order by phone ({{ $contact?->hotline }})
+                    </a>
+                    <a href="https://api.whatsapp.com/send?phone=88{{ $contact?->hotline }}&text=Hello, I want to order {{ $details?->name }}" target="_blank" class="layout2-whatsapp">
+                        <i class="fa-brands fa-whatsapp"></i> Order by WhatsApp
+                    </a>
                 </form>
 
                 <div class="store-note-card mt-3">
@@ -643,6 +620,21 @@
             </div>
 
             <aside class="layout2-shipbox">
+                <div class="layout2-summary-grid mb-3">
+                    <div class="layout2-summary-card">
+                        <span>Category</span>
+                        <strong>{{ $details?->category?->name ?? 'N/A' }}</strong>
+                    </div>
+                    <div class="layout2-summary-card">
+                        <span>Support</span>
+                        <strong>Cash on delivery available</strong>
+                    </div>
+                    <div class="layout2-summary-card">
+                        <span>Delivery</span>
+                        <strong>Pickup & home delivery</strong>
+                    </div>
+                </div>
+
                 <h6>Delivery & Service</h6>
                 <div class="layout2-ship-row">
                     <i class="fa-solid fa-truck-fast"></i>

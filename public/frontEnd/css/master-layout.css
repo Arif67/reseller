@@ -1150,3 +1150,30 @@ li.cat_bar:hover > a {
         width: min(340px, 94vw);
     }
 }
+
+/* Cart count visibility fix */
+.menu-bag .mobilecart-qty, #cart-qty a span {
+    background-color: #ff0000 !important;
+    color: #ffffff !important;
+    display: flex !important;
+    width: 18px !important;
+    height: 18px !important;
+    border-radius: 50% !important;
+    text-align: center !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 10px !important;
+    position: absolute !important;
+    top: -5px !important;
+    right: -5px !important;
+    z-index: 99 !important;
+}
+b.mobilecart-qty {
+    background: transparent !important;
+    color: inherit !important;
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    display: inline !important;
+}
+

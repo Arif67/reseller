@@ -756,7 +756,15 @@
                 </div>
                 <div class="workspace-stat-card">
                     <div class="workspace-stat-label">Phone</div>
-                    <div class="workspace-stat-value">{{ $order->shipping?->phone ?: 'N/A' }}</div>
+                    <div class="workspace-stat-value">
+                        {{ $order->shipping?->phone ?: 'N/A' }}
+                        @if($order->shipping?->phone)
+                        <div class="mt-1">
+                            <a href="https://api.whatsapp.com/send?phone=88{{ $order->shipping->phone }}" target="_blank" class="btn btn-xs btn-success" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                            <a href="tel:{{ $order->shipping->phone }}" class="btn btn-xs btn-primary" title="Call"><i class="fe-phone"></i></a>
+                        </div>
+                        @endif
+                    </div>
                 </div>
                 <div class="workspace-stat-card">
                     <div class="workspace-stat-label">Payment</div>

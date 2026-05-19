@@ -222,7 +222,14 @@ public function index($slug, Request $request)
             'name' => 'All',
             'orders_count' => Order::count(),
         ];
-        $show_data = Order::latest()->with('shipping', 'status');
+        $show_data = Order::latest()->with([
+            'shipping',
+            'status',
+            'orderdetails.product.image',
+            'orderdetails.product.media',
+            'orderdetails.productVariable.media',
+            'orderdetails.image'
+        ]);
         $show_data = $this->applyOrderListFilters($show_data, $request);
 
         if ($isTodayFilter) {
@@ -290,7 +297,14 @@ public function index($slug, Request $request)
             ? Order::whereIn('order_status', $order_status->status_ids)
             : Order::where(['order_status' => $order_status->id]);
 
-        $show_data = $show_data->latest()->with('shipping', 'status');
+        $show_data = $show_data->latest()->with([
+            'shipping',
+            'status',
+            'orderdetails.product.image',
+            'orderdetails.product.media',
+            'orderdetails.productVariable.media',
+            'orderdetails.image'
+        ]);
         $show_data = $this->applyOrderListFilters($show_data, $request);
 
         if ($isTodayFilter) {
@@ -591,7 +605,7 @@ public function pathaozone(Request $request)
             'recipient_area'    => $request->pathaoarea,
             'delivery_type'     => 48,
             'item_type'         => 2,
-            'special_instruction' => 'Product must be checked before delivery',
+            'special_instruction' => substr($order->note ?? 'Product must be checked before delivery', 0, 500),
             'item_quantity'     => $order_count,
             'item_weight'       => 0.5,
             'amount_to_collect' => round($order->amount),
@@ -834,6 +848,10 @@ public function pathaozone(Request $request)
 {
     $courier_info = Courierapi::where(['status' => 1, 'type' => $slug])->first();
 
+    if ($slug === 'pathao') {
+        return $this->processPathaoBulk($courier_info, $request);
+    }
+
     if (! $courier_info || ! $courier_info->api_key || ! $courier_info->secret_key || ! $courier_info->url) {
         return response()->json([
             'status' => 'failed',
@@ -933,6 +951,143 @@ public function pathaozone(Request $request)
         'results' => $finalResponse,
     ]);
 }
+
+    private function processPathaoBulk($courier_info, Request $request)
+    {
+        if (! $courier_info) {
+            return response()->json(['status' => 'failed', 'message' => 'Pathao configuration not found']);
+        }
+
+        $token = $this->ensurePathaoToken($courier_info);
+        if (! $token) {
+            return response()->json(['status' => 'failed', 'message' => 'Pathao token generation failed']);
+        }
+
+        $orders_id = $request->order_ids;
+        $store_id = $request->store_id;
+
+        if (! is_array($orders_id) || count($orders_id) == 0) {
+            return response()->json(['status' => 'failed', 'message' => 'No orders selected']);
+        }
+
+        if (! $store_id) {
+            return response()->json(['status' => 'failed', 'message' => 'Please select a Pathao store']);
+        }
+
+        $pathaoOrders = [];
+        $selectedOrders = Order::with('shipping', 'orderdetails')->whereIn('id', $orders_id)->get();
+
+        foreach ($selectedOrders as $order) {
+            if ((int) $order->order_status === 5) {
+                continue;
+            }
+
+            $itemCount = $order->orderdetails->sum('qty');
+            $phone = $order->shipping?->phone ?? '';
+
+            $pathaoOrders[] = [
+                "store_id"          => (int) $store_id,
+                "merchant_order_id" => (string) $order->invoice_id,
+                "recipient_name"    => substr($order->shipping?->name ?? 'Customer', 0, 100),
+                "recipient_phone"   => $phone,
+                "recipient_address" => substr($order->shipping?->address ?? '', 0, 500),
+                "delivery_type"     => 48,
+                "item_type"         => 2,
+                "special_instruction" => substr($order->note ?? 'Product must be checked before delivery', 0, 500),
+                "item_quantity"     => (int) $itemCount,
+                "item_weight"       => "0.5",
+                "amount_to_collect" => (int) round($order->amount),
+                "item_description"  => "Order for invoice #" . $order->invoice_id,
+            ];
+        }
+
+        if (empty($pathaoOrders)) {
+            return response()->json(['status' => 'failed', 'message' => 'No eligible orders found for Pathao bulk dispatch']);
+        }
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'Content-Type'  => 'application/json',
+            'Accept'        => 'application/json',
+        ])->post('https://api-hermes.pathao.com/aladdin/api/v1/orders/bulk', [
+            'orders' => $pathaoOrders
+        ]);
+
+        $responseData = $response->json();
+        \Log::info('Pathao Bulk API Response', ['response' => $responseData, 'status' => $response->status()]);
+
+        if ($response->successful()) {
+            $results = $responseData['data'] ?? [];
+            $successCount = 0;
+            $failedOrders = [];
+
+            if ($results === true) {
+                // Large batches are accepted asynchronously by Pathao
+                foreach ($selectedOrders as $order) {
+                    $order->order_status = 5;
+                    $order->courier = 'pathao';
+                    $order->save();
+                }
+
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => 'Pathao bulk order request accepted. Please wait some time for processing.',
+                    'response' => $responseData
+                ]);
+            }
+
+            if (! is_array($results)) {
+                \Log::error('Pathao bulk API results is not an array', ['results' => $results]);
+                return response()->json([
+                    'status'  => 'failed',
+                    'message' => 'Pathao bulk API returned unexpected data format',
+                    'response' => $responseData
+                ]);
+            }
+
+            foreach ($results as $result) {
+                if (isset($result['consignment_id'])) {
+                    $order = Order::where('invoice_id', $result['merchant_order_id'])->first();
+                    if ($order) {
+                        $order->order_status = 5;
+                        $order->courier = 'pathao';
+                        $order->tracking_id = $result['consignment_id'];
+                        $order->save();
+                        $successCount++;
+                    }
+                } else {
+                    $failedOrders[] = [
+                        'invoice' => $result['merchant_order_id'] ?? 'Unknown',
+                        'message' => $result['message'] ?? 'Failed'
+                    ];
+                }
+            }
+
+            if ($successCount > 0) {
+                $msg = $successCount . ' orders sent to Pathao successfully.';
+                if (count($failedOrders) > 0) {
+                    $msg .= ' ' . count($failedOrders) . ' orders failed.';
+                }
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $msg,
+                    'failed'  => $failedOrders
+                ]);
+            } else {
+                return response()->json([
+                    'status'  => 'failed',
+                    'message' => 'All selected orders failed to send to Pathao.',
+                    'failed'  => $failedOrders
+                ]);
+            }
+        }
+
+        return response()->json([
+            'status'  => 'failed',
+            'message' => $responseData['message'] ?? 'Pathao bulk API failed'
+        ]);
+    }
+
 
     public function order_create()
     {

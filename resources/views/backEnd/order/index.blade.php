@@ -214,6 +214,183 @@
             width: 100%;
         }
     }
+
+    /* Order Image Styles */
+    .order-image-wrapper {
+        position: relative;
+        width: 45px;
+        height: 45px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .order-image-wrapper:hover {
+        transform: scale(1.1);
+    }
+    .order-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+    }
+    .order-count-badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        background: #ef4444;
+        color: white;
+        border-radius: 50%;
+        min-width: 18px;
+        height: 18px;
+        font-size: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        border: 2px solid #fff;
+        padding: 0 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .modal-image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
+
+    @media (min-width: 992px) {
+        .modal-image-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+    }
+
+    .modal-image-item {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    .modal-image-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    .modal-image-item img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        display: block;
+        cursor: pointer;
+    }
+
+    @media (min-width: 992px) {
+        .modal-image-item img {
+            height: 300px;
+        }
+    }
+    .modal-image-item .item-qty {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: rgba(15, 23, 42, 0.9);
+        color: #fff;
+        font-size: 14px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 800;
+        backdrop-filter: blur(4px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .modal-image-item .item-name {
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 700;
+        color: #0f172a;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        background: #fff;
+        border-top: 1px solid #f1f5f9;
+    }
+    .order-items-modal .modal-content {
+        border-radius: 24px;
+        border: none;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    .order-items-modal .modal-header {
+        border-bottom: 1px solid #f1f5f9;
+        padding: 24px 30px;
+        background: #fff;
+        border-radius: 24px 24px 0 0;
+    }
+    .order-items-modal .modal-title {
+        font-weight: 900;
+        color: #0f172a;
+        letter-spacing: -0.025em;
+        font-size: 20px;
+    }
+    .modal-shipping-info {
+        padding: 20px 30px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 16px;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-weight: 600;
+        line-height: 1.5;
+    }
+    .modal-shipping-info i {
+        font-size: 22px;
+        color: #3b82f6;
+    }
+    .modal-pricing-summary {
+        padding: 30px;
+        background: #fff;
+        border-top: 1px solid #e2e8f0;
+        border-radius: 0 0 24px 24px;
+        display: flex;
+        justify-content: flex-end;
+    }
+    .pricing-table {
+        min-width: 350px;
+    }
+    .pricing-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        font-size: 16px;
+        color: #475569;
+        font-weight: 500;
+    }
+    .pricing-row.total {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px solid #f1f5f9;
+        font-weight: 900;
+        color: #2563eb;
+        font-size: 24px;
+    }
+    .item-meta {
+        position: absolute;
+        bottom: 50px;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(8px);
+        padding: 8px;
+        font-size: 13px;
+        font-weight: 800;
+        color: #1e293b;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        border-top: 1px solid #f1f5f9;
+    }
 </style>
 @endsection
 @section('content')
@@ -261,6 +438,7 @@
                                 <li><a href="{{route('admin.order.bulk_destroy')}}" class="btn rounded-pill btn-danger order_delete"><i class="fe-plus"></i> Delete All</a></li>
                                 <li><a href="{{route('admin.order.order_print')}}" class="btn rounded-pill btn-info multi_order_print"><i class="fe-printer"></i> Print</a></li>
                                 <li><a href="{{route('admin.bulk_courier', 'steadfast')}}" class="btn rounded-pill btn-warning multi_order_courier"><i class="fe-truck"></i> State Courier</a></li>
+                                <li><a data-bs-toggle="modal" data-bs-target="#bulkPathao" class="btn rounded-pill btn-success"><i class="fe-truck"></i> Pathao Courier</a></li>
                             </ul>
                             <div class="order-preset-group">
                                 @foreach ($datePresets as $presetValue => $presetLabel)
@@ -312,11 +490,15 @@
                             <thead>
                                 <tr>
                                     <th style="width:2%">
-                                        <div class="form-check"><label class="form-check-label"><input type="checkbox" class="form-check-input checkall" value=""></label>
+                                        <div class="form-check">
+                                            <label class="form-check-label">
+                                                <input type="checkbox" class="form-check-input checkall" value="">
+                                            </label>
+                                        </div>
+                                    </th>
                                     <th style="width:2%">SL</th>
-                    </div>
-                    </th>
-                    <th style="width:8%">Action</th>
+                                    <th style="width:5%">Image</th>
+                                    <th style="width:8%">Action</th>
                     <th style="width:8%">Invoice</th>
                     <th style="width:8%">Ip Address</th>
                     <th style="width:10%">Date</th>
@@ -338,6 +520,35 @@
                         <tr>
                             <td><input type="checkbox" class="checkbox" value="{{$value->id}}"></td>
                             <td>{{$loop->iteration}}</td>
+                            <td>
+                                @php($totalQty = $value->orderdetails->sum('qty'))
+                                @php($firstDetail = $value->orderdetails->first())
+                                @php($firstImage = $firstDetail ? ($firstDetail->productVariable?->primary_media_image ?? $firstDetail->product?->primary_media_image ?? $firstDetail->image?->image ?? 'uploads/logo.png') : 'uploads/logo.png')
+                                <div class="order-image-wrapper order-image-trigger" 
+                                     data-invoice="{{$value->invoice_id}}"
+                                     data-details="{{ json_encode($value->orderdetails->map(function($detail) {
+                                         return [
+                                             'image' => asset($detail->productVariable?->primary_media_image ?? $detail->product?->primary_media_image ?? $detail->image?->image ?? 'uploads/logo.png'),
+                                             'name' => $detail->product_name,
+                                             'qty' => $detail->qty,
+                                             'size' => $detail->product_size,
+                                             'color' => $detail->product_color,
+                                             'price' => $detail->sale_price
+                                         ];
+                                     })) }}"
+                                     data-summary="{{ json_encode([
+                                         'address' => $value->shipping ? ($value->shipping->name . ' | ' . $value->shipping->phone . ' | ' . $value->shipping->address . ' | ' . $value->shipping->area) : 'N/A',
+                                         'subtotal' => $value->orderdetails->sum(function($d) { return $d->sale_price * $d->qty; }),
+                                         'shipping' => $value->shipping_charge,
+                                         'discount' => $value->discount,
+                                         'total' => $value->amount
+                                     ]) }}">
+                                    <img src="{{ asset($firstImage) }}" alt="">
+                                    @if($totalQty > 1)
+                                        <span class="order-count-badge">{{ $totalQty }}</span>
+                                    @endif
+                                </div>
+                            </td>
                             <td>
                                 <div class="button-list custom-btn-list">
                                     <a href="{{route('admin.order.workspace',['invoice_id'=>$value->invoice_id, 'tab' => 'invoice'])}}" title="Invoice"><i class="fe-eye"></i></a>
@@ -362,7 +573,12 @@
                             <td><strong>{{$value->shipping?$value->shipping->name:''}}</strong>
                                 <p>{{$value->shipping?$value->shipping->address:''}}</p>
                             </td>
-                            <td>{{$value->shipping?$value->shipping->phone:''}}</td>
+                            <td>{{$value->shipping?$value->shipping->phone:''}}
+                                <div class="mt-1">
+                                    <a href="https://api.whatsapp.com/send?phone=88{{$value->shipping?$value->shipping->phone:''}}" target="_blank" class="text-success" style="font-size: 18px;" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                                    <a href="tel:{{$value->shipping?$value->shipping->phone:''}}" class="text-primary" style="font-size: 16px; margin-left: 5px;" title="Call"><i class="fe-phone"></i></a>
+                                </div>
+                            </td>
                             <td>{{$value->user?$value->user->name:''}}</td>
                             <td>৳{{$value->amount}}</td>
                             <td>
@@ -462,6 +678,40 @@
 </div>
 <!-- Assign User End-->
 
+<!-- Bulk Pathao Start -->
+<div class="modal fade" id="bulkPathao" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Bulk Pathao Courier</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{route('admin.bulk_courier', 'pathao')}}" id="bulk_pathao_form" method="GET">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="bulk_pathaostore" class="form-label">Select Pathao Store</label>
+                        <select name="store_id" id="bulk_pathaostore" class="form-control" required>
+                            <option value="">Select Store...</option>
+                            @if(isset($pathaostore['data']['data']))
+                                @foreach($pathaostore['data']['data'] as $store)
+                                    <option value="{{$store['store_id']}}">{{$store['store_name']}}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+                    <p class="mt-2 text-muted">Selected orders will be sent to Pathao. Make sure they have valid addresses and phone numbers.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Submit Bulk Orders</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Bulk Pathao End -->
+
 <!-- pathao coureir start -->
 @foreach($show_data as $key=>$value)
 <div class="modal fade" id="pathao{{$value->id}}" tabindex="-1">
@@ -545,6 +795,61 @@
     </div>
 </div>
 @endforeach
+<!-- Order Images Modal Start -->
+<div class="modal fade order-items-modal" id="orderImagesModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fe-shopping-bag me-2 text-primary"></i>
+                    Order Items - <span class="text-primary">#<span id="modalInvoiceId"></span></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div id="modalShippingInfo" class="modal-shipping-info">
+                <i class="fe-map-pin"></i>
+                <span id="modalAddressText"></span>
+            </div>
+            <div class="modal-body p-0" style="max-height: 60vh; overflow-y: auto;">
+                <div id="modalImageGrid" class="modal-image-grid"></div>
+            </div>
+            <div class="modal-pricing-summary">
+                <div class="pricing-table">
+                    <div class="pricing-row">
+                        <span>Subtotal</span>
+                        <span id="modalSubtotal">৳0</span>
+                    </div>
+                    <div class="pricing-row">
+                        <span>Shipping</span>
+                        <span id="modalShipping">৳0</span>
+                    </div>
+                    <div class="pricing-row">
+                        <span>Discount</span>
+                        <span id="modalDiscount">৳0</span>
+                    </div>
+                    <div class="pricing-row total">
+                        <span>Grand Total</span>
+                        <span id="modalTotal">৳0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Zoom Modal -->
+<div class="modal fade" id="imageZoomModal" tabindex="-1" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body p-0 text-center">
+                <img id="zoomedImage" src="" alt="" style="max-width: 100%; max-height: 90vh; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Order Images Modal End -->
+
 <!-- Fraud Checker Modal Start -->
 <div id="fraudModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
     <div style="background:#fff; border-radius:8px; max-width:760px; width:92%; padding:20px; position:relative; box-shadow:0 4px 15px rgba(0,0,0,0.3);">
@@ -583,6 +888,47 @@
     $(document).ready(function() {
         $(".checkall").on('change', function() {
             $(".checkbox").prop('checked', $(this).is(":checked"));
+        });
+
+        // Order Image Modal Logic
+        $('.order-image-trigger').on('click', function() {
+            const invoiceId = $(this).data('invoice');
+            const details = $(this).data('details');
+            const summary = $(this).data('summary');
+            const grid = $('#modalImageGrid');
+            
+            $('#modalInvoiceId').text(invoiceId);
+            $('#modalAddressText').text(summary.address);
+            $('#modalSubtotal').text('৳' + summary.subtotal);
+            $('#modalShipping').text('৳' + summary.shipping);
+            $('#modalDiscount').text('৳' + summary.discount);
+            $('#modalTotal').text('৳' + summary.total);
+            
+            grid.empty();
+
+            details.forEach(item => {
+                const sizeInfo = item.size ? `<span>Size: ${item.size}</span>` : '';
+                const colorInfo = item.color ? `<span>Color: ${item.color}</span>` : '';
+                const metaHtml = (sizeInfo || colorInfo) ? `<div class="item-meta">${sizeInfo}${colorInfo}</div>` : '';
+
+                grid.append(`
+                    <div class="modal-image-item">
+                        <img src="${item.image}" alt="${item.name}" class="zoom-trigger" title="${item.name}">
+                        <div class="item-qty">Qty: ${item.qty}</div>
+                        ${metaHtml}
+                        <div class="item-name">${item.name}</div>
+                    </div>
+                `);
+            });
+
+            $('#orderImagesModal').modal('show');
+        });
+
+        // Zoom Logic
+        $(document).on('click', '.zoom-trigger', function() {
+            const src = $(this).attr('src');
+            $('#zoomedImage').attr('src', src);
+            $('#imageZoomModal').modal('show');
         });
 
         const fraudCheckerConfig = @json([
@@ -895,6 +1241,48 @@
                 }
             });
 
+        });
+
+        // bulk pathao
+        $(document).on('submit', 'form#bulk_pathao_form', function(e) {
+            e.preventDefault();
+            var url = $(this).attr('action');
+            let store_id = $(this).find('select[name="store_id"]').val();
+
+            var order = $('input.checkbox:checked').map(function() {
+                return $(this).val();
+            });
+            var order_ids = order.get();
+
+            if (order_ids.length == 0) {
+                toastr.error('Please Select An Order First !');
+                return;
+            }
+
+            if (!store_id) {
+                toastr.error('Please Select A Store!');
+                return;
+            }
+
+            $.ajax({
+                type: 'GET',
+                url: url,
+                data: {
+                    store_id,
+                    order_ids
+                },
+                success: function(res) {
+                    if (res.status == 'success') {
+                        toastr.success(res.message);
+                        window.location.reload();
+                    } else {
+                        toastr.error(res.message || 'Failed something wrong');
+                    }
+                },
+                error: function(xhr) {
+                    toastr.error(xhr.responseJSON?.message || 'Bulk Pathao failed');
+                }
+            });
         });
     })
 </script>

@@ -142,7 +142,7 @@
 .dz-logo img { height: 48px; max-width: 160px; object-fit: contain; display: block; }
 
 /* search */
-.dz-search { flex: 1 1 0; min-width: 0; max-width: 520px; }
+.dz-search { flex: 1 1 0; min-width: 0; max-width: 720px; }
 .dz-search-form {
     display: flex;
     border: 2px solid var(--dz-orange);

@@ -29,7 +29,7 @@
 @endpush
 @section('content')
  <section class="homeproduct product-section">
-        <div class="container">
+        <div class="custom-container">
             <div class="sorting-section">
                 <div class="row">
                     <div class="col-sm-6">

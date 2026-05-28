@@ -30,9 +30,10 @@ class MarketingController extends Controller
 
         abort_if(! $config || ! $config->merchant_feed_enabled, 404);
 
-        $products = Product::with(['image', 'brand'])
-            ->select('id', 'name', 'slug', 'meta_description', 'new_price', 'stock', 'brand_id', 'status')
+        $products = Product::with(['image', 'brand', 'category'])
+            ->select('id', 'name', 'slug', 'meta_description', 'new_price', 'stock', 'brand_id', 'status', 'category_id', 'is_catalog')
             ->where('status', 1)
+            ->where('is_catalog', 1)
             ->latest('id')
             ->get();
 

@@ -1536,6 +1536,21 @@
             <!-- col end -->
             <div class="col-sm-3 mb-3 product-switch-card">
               <div class="form-group">
+                <label for="is_catalog" class="d-block">Facebook Catalog</label>
+                <label class="switch">
+                  <input type="checkbox" value="1" name="is_catalog" checked />
+                  <span class="slider round"></span>
+                </label>
+                @error('is_catalog')
+                <span class="invalid-feedback" role="alert">
+                  <strong>{{ $message }}</strong>
+                </span>
+                @enderror
+              </div>
+            </div>
+            <!-- col end -->
+            <div class="col-sm-3 mb-3 product-switch-card">
+              <div class="form-group">
                 <label for="topsale" class="d-block">Hot Deals</label>
                 <label class="switch">
                   <input type="checkbox" value="1" name="topsale" />

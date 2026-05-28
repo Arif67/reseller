@@ -85,7 +85,6 @@
 @endsection
 
 @push('script')
-<script src="{{ asset('frontEnd/js/owl.carousel.min.js') }}"></script>
 <script src="{{ asset('frontEnd/js/jquery.syotimer.min.js') }}"></script>
-<script src="{{ asset('frontEnd/js/home.js?v=1.0.0') }}"></script>
+<script src="{{ asset('frontEnd/js/home.js?v=1.0.1') }}"></script>
 @endpush

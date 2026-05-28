@@ -1,8 +1,9 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    
     <!-- Meta Pixel Code -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -285,16 +286,14 @@
         </ul>
     </div>
     <header id="navbar_top">
+        {{-- Mobile Header --}}
         <div class="mobile-header navbar navbar-light fixed-top shadow-sm">
             <div class="mobile-logo">
                 <div class="menu-bar">
-                    <a class="toggle">
-                        <i class="fa-solid fa-bars"></i>
-                    </a>
+                    <a class="toggle"><i class="fa-solid fa-bars"></i></a>
                 </div>
                 <div class="menu-logo">
-                    <a href="{{ route('home') }}"><img src="{{ asset($generalsetting?->white_logo) }}"
-                            alt="" /></a>
+                    <a href="{{ route('home') }}"><img src="{{ asset($generalsetting?->white_logo) }}" alt="" /></a>
                 </div>
                 <div class="menu-bag">
                     <a href="{{ route('customer.checkout') }}" class="margin-shopping">
@@ -307,11 +306,11 @@
 
         <div class="mobile-search mobile-search-offset">
             <form id="searchForm" action="{{ route('search') }}">
-                <input type="text" placeholder="Search Product ... " value=""
+                <input type="text" placeholder="Search Product..." value=""
                     class="msearch_keyword msearch_click src" name="keyword" />
                 <button type="submit" class="search-submit-btn" aria-label="Search">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
             </form>
             <div class="search_result"></div>
         </div>

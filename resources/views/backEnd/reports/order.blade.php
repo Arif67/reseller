@@ -129,7 +129,12 @@
                             <tr>
                                 <td>{{$value->order?$value->order->invoice_id:''}}</td>
                                 <td>{{$value->shipping?$value->shipping->name:''}}</td>
-                                <td>{{$value->shipping?$value->shipping->phone:''}}</td>
+                                <td>{{$value->shipping?$value->shipping->phone:''}}
+                                    <div class="mt-1 no-print">
+                                        <a href="https://api.whatsapp.com/send?phone=88{{$value->shipping?$value->shipping->phone:''}}" target="_blank" class="text-success" style="font-size: 16px;" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                                        <a href="tel:{{$value->shipping?$value->shipping->phone:''}}" class="text-primary" style="font-size: 14px; margin-left: 5px;" title="Call"><i class="fe-phone"></i></a>
+                                    </div>
+                                </td>
                                 <td>{{$value->product_name}}</td>
                                 <td>{{$value->purchase_price}}</td>
                                 <td>{{$value->sale_price}}</td>

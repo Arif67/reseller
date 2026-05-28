@@ -291,8 +291,6 @@ Route::group(['namespace'=>'Admin','middleware' => ['auth','lock','check_refer']
     Route::post('order-pathao', [OrderController::class,'order_pathao'])->name('admin.order.pathao');
     Route::post('order/fraud-check', [OrderController::class,'fraud_check'])->name('admin.order.fraud_check');
     Route::get('order-steadfast/{order_id}', [OrderController::class,'order_steadfast'])->name('admin.order.steadfast');
-    Route::get('/pathao-zones', [OrderController::class, 'getPathaoZones'])->name('getPathaoZones');
-    Route::get('/pathao-areas', [OrderController::class, 'getPathaoAreas'])->name('getPathaoAreas');
     Route::get('/pathao-update-status', [OrderController::class, 'updatePathaoStatus'])->name('updatePathaoStatus');
     Route::post('/pathao-update-status-webhook', [OrderController::class, 'updatePathaoStatusWebhook'])->name('updatePathaoStatusWebhook');
     Route::get('/steadfast-update-status', [OrderController::class, 'updateSteadfastStatus'])->name('updateSteadfastStatus');
@@ -565,6 +563,7 @@ Route::group(['namespace'=>'Admin','middleware' => ['auth','lock','check_refer']
     Route::get('order/cart-decrement', [OrderController::class,'cart_decrement'])->name('admin.order.cart_decrement');
     Route::get('order/cart-remove', [OrderController::class,'cart_remove'])->name('admin.order.cart_remove');
     Route::get('order/cart-product-discount', [OrderController::class,'product_discount'])->name('admin.order.product_discount');
+    Route::get('order/cart-product-price', [OrderController::class,'product_price'])->name('admin.order.product_price');
     Route::get('order/cart-details', [OrderController::class,'cart_details'])->name('admin.order.cart_details');
     Route::get('order/cart-shipping', [OrderController::class,'cart_shipping'])->name('admin.order.cart_shipping');
     Route::get('order/cart-clear', [OrderController::class,'cart_clear'])->name('admin.order.cart_clear');

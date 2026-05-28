@@ -597,7 +597,6 @@
             }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js'));
 
             window.fbq('init', config.meta.facebookPixelId);
-            window.fbq('track', 'PageView');
         }
     }
 
@@ -607,6 +606,13 @@
         }
 
         const eventId = 'pageview_' + Date.now() + '_' + Math.random().toString(36).slice(2, 10);
+
+        if (config.meta.facebookPixelId && typeof window.fbq === 'function') {
+            window.fbq('track', 'PageView', {}, {
+                eventID: eventId
+            });
+        }
+
         const payload = {
             event_id: eventId,
             event_source_url: window.location.href,

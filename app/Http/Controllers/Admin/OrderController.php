@@ -150,17 +150,18 @@ class OrderController extends Controller
         $this->middleware('permission:order-edit', ['only' => ['order_edit', 'order_update', 'order_pathao', 'fraud_check']]);
         $this->middleware('permission:order-delete', ['only' => ['destroy', 'bulk_destroy']]);
         $this->middleware('permission:order-invoice', ['only' => ['invoice', 'invoice_print']]);
-        $this->middleware('permission:order-process', ['only' => ['process', 'order_process', 'order_steadfast', 'getPathaoZones', 'getPathaoAreas', 'updatePathaoStatus', 'updatePathaoStatusWebhook', 'updateSteadfastStatus', 'updateSteadfastStatusWebhook', 'recalculate_profit_loss_snapshots']]);
+        $this->middleware('permission:order-process', ['only' => ['process', 'order_process', 'order_steadfast', 'pathaocity', 'pathaozone', 'updatePathaoStatus', 'updatePathaoStatusWebhook', 'updateSteadfastStatus', 'updateSteadfastStatusWebhook', 'recalculate_profit_loss_snapshots']]);
     }
-   public function search(Request $request)
+    public function search(Request $request)
 {
     $keyword = trim((string) $request->keyword);
+    $context = $request->get('context', 'pos');
     $products = collect();
     $exactProduct = null;
     $exactVariant = null;
 
     if ($keyword === '') {
-        return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword'));
+        return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword', 'context'));
     }
 
     $exactVariant = ProductVariable::query()
@@ -169,7 +170,7 @@ class OrderController extends Controller
         ->first();
 
     if ($exactVariant && $exactVariant->product && (int) $exactVariant->product->status === 1) {
-        return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword'));
+        return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword', 'context'));
     }
 
     $exactVariant = null;
@@ -184,7 +185,7 @@ class OrderController extends Controller
         ->first();
 
     if ($exactProduct) {
-        return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword'));
+        return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword', 'context'));
     }
 
     $products = Product::query()
@@ -200,7 +201,7 @@ class OrderController extends Controller
         })
         ->get();
 
-    return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword'));
+    return view('backEnd.order.search', compact('products', 'exactProduct', 'exactVariant', 'keyword', 'context'));
 }
 
     
@@ -222,7 +223,14 @@ public function index($slug, Request $request)
             'name' => 'All',
             'orders_count' => Order::count(),
         ];
-        $show_data = Order::latest()->with('shipping', 'status');
+        $show_data = Order::latest()->with([
+            'shipping',
+            'status',
+            'orderdetails.product.image',
+            'orderdetails.product.media',
+            'orderdetails.productVariable.media',
+            'orderdetails.image'
+        ]);
         $show_data = $this->applyOrderListFilters($show_data, $request);
 
         if ($isTodayFilter) {
@@ -230,7 +238,7 @@ public function index($slug, Request $request)
         }
 
         $order_status->orders_count = (clone $show_data)->count();
-        $show_data = $show_data->paginate(50)->withQueryString();
+        $show_data = $show_data->paginate(12)->withQueryString();
     } else {
         $order_status = OrderStatus::query()
             ->withCount('orders')
@@ -290,7 +298,14 @@ public function index($slug, Request $request)
             ? Order::whereIn('order_status', $order_status->status_ids)
             : Order::where(['order_status' => $order_status->id]);
 
-        $show_data = $show_data->latest()->with('shipping', 'status');
+        $show_data = $show_data->latest()->with([
+            'shipping',
+            'status',
+            'orderdetails.product.image',
+            'orderdetails.product.media',
+            'orderdetails.productVariable.media',
+            'orderdetails.image'
+        ]);
         $show_data = $this->applyOrderListFilters($show_data, $request);
 
         if ($isTodayFilter) {
@@ -298,7 +313,7 @@ public function index($slug, Request $request)
         }
 
         $order_status->orders_count = (clone $show_data)->count();
-        $show_data = $show_data->paginate(50)->withQueryString();
+        $show_data = $show_data->paginate(12)->withQueryString();
     }
 
     $users = User::get();
@@ -591,7 +606,7 @@ public function pathaozone(Request $request)
             'recipient_area'    => $request->pathaoarea,
             'delivery_type'     => 48,
             'item_type'         => 2,
-            'special_instruction' => 'Product must be checked before delivery',
+            'special_instruction' => substr($order->note ?? 'Product must be checked before delivery', 0, 500),
             'item_quantity'     => $order_count,
             'item_weight'       => 0.5,
             'amount_to_collect' => round($order->amount),
@@ -834,6 +849,10 @@ public function pathaozone(Request $request)
 {
     $courier_info = Courierapi::where(['status' => 1, 'type' => $slug])->first();
 
+    if ($slug === 'pathao') {
+        return $this->processPathaoBulk($courier_info, $request);
+    }
+
     if (! $courier_info || ! $courier_info->api_key || ! $courier_info->secret_key || ! $courier_info->url) {
         return response()->json([
             'status' => 'failed',
@@ -933,6 +952,143 @@ public function pathaozone(Request $request)
         'results' => $finalResponse,
     ]);
 }
+
+    private function processPathaoBulk($courier_info, Request $request)
+    {
+        if (! $courier_info) {
+            return response()->json(['status' => 'failed', 'message' => 'Pathao configuration not found']);
+        }
+
+        $token = $this->ensurePathaoToken($courier_info);
+        if (! $token) {
+            return response()->json(['status' => 'failed', 'message' => 'Pathao token generation failed']);
+        }
+
+        $orders_id = $request->order_ids;
+        $store_id = $request->store_id;
+
+        if (! is_array($orders_id) || count($orders_id) == 0) {
+            return response()->json(['status' => 'failed', 'message' => 'No orders selected']);
+        }
+
+        if (! $store_id) {
+            return response()->json(['status' => 'failed', 'message' => 'Please select a Pathao store']);
+        }
+
+        $pathaoOrders = [];
+        $selectedOrders = Order::with('shipping', 'orderdetails')->whereIn('id', $orders_id)->get();
+
+        foreach ($selectedOrders as $order) {
+            if ((int) $order->order_status === 5) {
+                continue;
+            }
+
+            $itemCount = $order->orderdetails->sum('qty');
+            $phone = $order->shipping?->phone ?? '';
+
+            $pathaoOrders[] = [
+                "store_id"          => (int) $store_id,
+                "merchant_order_id" => (string) $order->invoice_id,
+                "recipient_name"    => substr($order->shipping?->name ?? 'Customer', 0, 100),
+                "recipient_phone"   => $phone,
+                "recipient_address" => substr($order->shipping?->address ?? '', 0, 500),
+                "delivery_type"     => 48,
+                "item_type"         => 2,
+                "special_instruction" => substr($order->note ?? 'Product must be checked before delivery', 0, 500),
+                "item_quantity"     => (int) $itemCount,
+                "item_weight"       => "0.5",
+                "amount_to_collect" => (int) round($order->amount),
+                "item_description"  => "Order for invoice #" . $order->invoice_id,
+            ];
+        }
+
+        if (empty($pathaoOrders)) {
+            return response()->json(['status' => 'failed', 'message' => 'No eligible orders found for Pathao bulk dispatch']);
+        }
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+            'Content-Type'  => 'application/json',
+            'Accept'        => 'application/json',
+        ])->post('https://api-hermes.pathao.com/aladdin/api/v1/orders/bulk', [
+            'orders' => $pathaoOrders
+        ]);
+
+        $responseData = $response->json();
+        \Log::info('Pathao Bulk API Response', ['response' => $responseData, 'status' => $response->status()]);
+
+        if ($response->successful()) {
+            $results = $responseData['data'] ?? [];
+            $successCount = 0;
+            $failedOrders = [];
+
+            if ($results === true) {
+                // Large batches are accepted asynchronously by Pathao
+                foreach ($selectedOrders as $order) {
+                    $order->order_status = 5;
+                    $order->courier = 'pathao';
+                    $order->save();
+                }
+
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => 'Pathao bulk order request accepted. Please wait some time for processing.',
+                    'response' => $responseData
+                ]);
+            }
+
+            if (! is_array($results)) {
+                \Log::error('Pathao bulk API results is not an array', ['results' => $results]);
+                return response()->json([
+                    'status'  => 'failed',
+                    'message' => 'Pathao bulk API returned unexpected data format',
+                    'response' => $responseData
+                ]);
+            }
+
+            foreach ($results as $result) {
+                if (isset($result['consignment_id'])) {
+                    $order = Order::where('invoice_id', $result['merchant_order_id'])->first();
+                    if ($order) {
+                        $order->order_status = 5;
+                        $order->courier = 'pathao';
+                        $order->tracking_id = $result['consignment_id'];
+                        $order->save();
+                        $successCount++;
+                    }
+                } else {
+                    $failedOrders[] = [
+                        'invoice' => $result['merchant_order_id'] ?? 'Unknown',
+                        'message' => $result['message'] ?? 'Failed'
+                    ];
+                }
+            }
+
+            if ($successCount > 0) {
+                $msg = $successCount . ' orders sent to Pathao successfully.';
+                if (count($failedOrders) > 0) {
+                    $msg .= ' ' . count($failedOrders) . ' orders failed.';
+                }
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $msg,
+                    'failed'  => $failedOrders
+                ]);
+            } else {
+                return response()->json([
+                    'status'  => 'failed',
+                    'message' => 'All selected orders failed to send to Pathao.',
+                    'failed'  => $failedOrders
+                ]);
+            }
+        }
+
+        return response()->json([
+            'status'  => 'failed',
+            'message' => $responseData['message'] ?? 'Pathao bulk API failed'
+        ]);
+    }
+
 
     public function order_create()
     {
@@ -1188,6 +1344,10 @@ public function pathaozone(Request $request)
         ];
         $var_product = null;
 
+        $updateRowId = $request->input('update_row_id');
+        $preservedQty = null;
+        $preservedSortKey = null;
+
         if ($request->filled('variant_barcode')) {
             $var_product = ProductVariable::query()
                 ->with('selectedValues.attribute', 'media')
@@ -1216,8 +1376,16 @@ public function pathaozone(Request $request)
             return response()->json(['status' => 'notfound', 'message' => 'Product not found'], 404);
         }
 
+        if ($updateRowId) {
+            $existingItem = Cart::instance($cartInstance)->get($updateRowId);
+            if ($existingItem) {
+                $preservedQty = $existingItem->qty;
+                $preservedSortKey = $existingItem->options->sort_key ?? null;
+            }
+        }
+
         $selectedAttributes = $this->productAttributeService->summarizeSelections($selectedValueIds, $resolvedSelections);
-        $qty = max(1, (int) $request->input('qty', 1));
+        $qty = $request->filled('qty') ? max(1, (int) $request->input('qty')) : ($preservedQty ?? 1);
         if ($product->type == 0) {
             $purchase_price = $product->variation_pricing_mode === 'same' ? $product->purchase_price : ($var_product?->purchase_price ?? 0);
             $old_price = $product->variation_pricing_mode === 'same' ? $product->old_price : ($var_product?->old_price ?? 0);
@@ -1230,7 +1398,11 @@ public function pathaozone(Request $request)
             $stock = $product->stock;
         }
 
-        $cartitem = Cart::instance($cartInstance)->content()->first(function ($item) use ($product, $var_product, $selectedAttributes) {
+        $cartitem = Cart::instance($cartInstance)->content()->first(function ($item) use ($product, $var_product, $selectedAttributes, $updateRowId) {
+            if ($updateRowId && $item->rowId === $updateRowId) {
+                return false;
+            }
+
             if ((int) $item->id !== (int) $product->id) {
                 return false;
             }
@@ -1250,6 +1422,11 @@ public function pathaozone(Request $request)
             Toastr::error('Product stock limit over', 'Failed!');
             return response()->json(['status' => 'limitover', 'message' => 'Your stock limit is over']);
         }
+
+        if ($updateRowId && Cart::instance($cartInstance)->get($updateRowId)) {
+            Cart::instance($cartInstance)->remove($updateRowId);
+        }
+
         $cartinfo = Cart::instance($cartInstance)->add([
             'id' => $product->id,
             'name' => $product->name,
@@ -1268,7 +1445,7 @@ public function pathaozone(Request $request)
                 'product_variable_id' => $var_product?->id,
                 'selected_attributes' => $selectedAttributes,
                 'type' => $product->type,
-                'sort_key' => (int) round(microtime(true) * 1000000),
+                'sort_key' => $preservedSortKey ?? (int) round(microtime(true) * 1000000),
             ],
         ]);
         //dd($cartinfo);
@@ -1355,6 +1532,25 @@ public function pathaozone(Request $request)
 
         return response()->json([
             'rowId' => $updatedCart->rowId ?? $request->id,
+        ]);
+    }
+
+    public function product_price(Request $request)
+    {
+        $context = $this->cartContext($request);
+        $cartInstance = $this->cartInstanceName($context);
+        $cart = Cart::instance($cartInstance)->content()->where('rowId', $request->id)->first();
+
+        if (! $cart) {
+            return response()->json(['message' => 'Cart item not found'], 404);
+        }
+
+        Cart::instance($cartInstance)->update($request->id, [
+            'price' => $request->price,
+        ]);
+
+        return response()->json([
+            'rowId' => $request->id,
         ]);
     }
     private function resolveOrderDetailVariant(OrderDetails $orderDetail): ?ProductVariable

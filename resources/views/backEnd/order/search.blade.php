@@ -110,7 +110,8 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 function cart_content() {
-    fetch("{{route('admin.order.cart_content')}}")
+    const context = "{{ $context }}";
+    fetch("{{route('admin.order.cart_content')}}?context=" + context)
         .then(res => res.text())
         .then(html => {
             document.getElementById("cartTable").innerHTML = html;
@@ -118,7 +119,8 @@ function cart_content() {
 }
 
 function cart_details() {
-    fetch("{{route('admin.order.cart_details')}}")
+    const context = "{{ $context }}";
+    fetch("{{route('admin.order.cart_details')}}?context=" + context)
         .then(res => res.text())
         .then(html => {
             document.getElementById("cart_details").innerHTML = html;
@@ -126,7 +128,8 @@ function cart_details() {
 }
 
 function search_clear() {
-    fetch("{{route('admin.livesearch')}}?keyword=")
+    const context = "{{ $context }}";
+    fetch("{{route('admin.livesearch')}}?keyword=&context=" + context)
         .then(res => res.text())
         .then(html => {
             document.querySelector(".search_result").innerHTML = html;
@@ -147,8 +150,9 @@ window.__cartAddHandler = function (e) {
     const weight = target.dataset.weight || '';
     const model = target.dataset.model || '';
     const variantBarcode = target.dataset.variantBarcode || '';
+    const context = "{{ $context }}";
 
-    fetch(`{{route('admin.order.cart_add')}}?id=${id}&color=${encodeURIComponent(color)}&size=${encodeURIComponent(size)}&weight=${encodeURIComponent(weight)}&model=${encodeURIComponent(model)}&variant_barcode=${encodeURIComponent(variantBarcode)}`)
+    fetch(`{{route('admin.order.cart_add')}}?id=${id}&context=${context}&color=${encodeURIComponent(color)}&size=${encodeURIComponent(size)}&weight=${encodeURIComponent(weight)}&model=${encodeURIComponent(model)}&variant_barcode=${encodeURIComponent(variantBarcode)}`)
         .then(res => res.json())
         .then(() => {
             cart_content();

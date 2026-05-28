@@ -491,10 +491,17 @@
             </div>
            </div>
           </td>
-          <td>{{$value->price}}</td>
+          <td>
+           <div class="discount">
+            <input type="text" inputmode="decimal" class="product_price" value="{{$value->price}}" placeholder="0.00" data-id="{{$value->rowId}}">
+           </div>
+          </td>
           <td class="discount"><input type="text" inputmode="decimal" class="product_discount" value="{{$value->options->product_discount ?? 0}}" placeholder="0.00" data-id="{{$value->rowId}}" data-price="{{$value->price}}" data-qty="{{$value->qty}}" /></td>
           <td class="line_subtotal">{{ ($value->price - ($value->options->product_discount ?? 0)) * $value->qty }}</td>
           <td>
+           @if($value->options->type == 0)
+            <button type="button" class="btn btn-primary btn-xs js-product-preview" data-id="{{$value->id}}" data-update-row-id="{{$value->rowId}}" title="Edit Attribute"><i class="fa fa-edit"></i></button>
+           @endif
            <button type="button" class="btn btn-danger btn-xs cart_remove" data-id="{{$value->rowId}}"><i class="fa fa-times"></i></button>
           </td>
          </tr>
@@ -691,7 +698,9 @@
    return;
   }
 
-  var $input = $('.product_discount[data-id="' + state.rowId + '"]');
+  var $input = state.type === 'price' 
+    ? $('.product_price[data-id="' + state.rowId + '"]')
+    : $('.product_discount[data-id="' + state.rowId + '"]');
 
  if (!$input.length) {
    return;
@@ -909,7 +918,8 @@
   var focusState = {
    rowId: rowId,
    value: discount,
-   caret: caret
+   caret: caret,
+   type: 'discount'
   };
 
   clearTimeout(productDiscountTimers[rowId]);
@@ -957,6 +967,68 @@
  $(document).on("blur", ".product_discount", function () {
   syncProductDiscount(this, true);
  });
+
+ const productPriceTimers = {};
+ const syncedProductPrices = {};
+
+ function syncProductPrice(input, forceImmediate) {
+  var $input = $(input);
+  var rowId = $input.data("id");
+  var price = $input.val();
+  var caret = input.selectionStart;
+  var normalizedPrice = String(price ?? "");
+  var focusState = {
+   rowId: rowId,
+   value: price,
+   caret: caret,
+   type: 'price'
+  };
+
+  clearTimeout(productPriceTimers[rowId]);
+
+  if (forceImmediate && syncedProductPrices[rowId] === normalizedPrice) {
+   return;
+  }
+
+  var request = function () {
+   $.ajax({
+    cache: false,
+    type: "GET",
+    data: { id: rowId, price: price },
+    url: "{{route('admin.order.product_price')}}",
+    dataType: "json",
+    success: function (response) {
+     var nextRowId = response.rowId || rowId;
+     delete syncedProductPrices[rowId];
+     syncedProductPrices[nextRowId] = normalizedPrice;
+     focusState.rowId = nextRowId;
+     refreshCartUI(focusState);
+    },
+   });
+  };
+
+  if (forceImmediate) {
+   request();
+   return;
+  }
+
+  productPriceTimers[rowId] = setTimeout(request, productDiscountDelay);
+ }
+
+ $(document).on("input", ".product_price", function () {
+  syncProductPrice(this, false);
+ });
+
+ $(document).on("keydown", ".product_price", function (e) {
+  if (e.key === "Enter") {
+   e.preventDefault();
+   syncProductPrice(this, true);
+  }
+ });
+
+ $(document).on("blur", ".product_price", function () {
+  syncProductPrice(this, true);
+ });
  $(".cartclear").click(function (e) {
   $.ajax({
    cache: false,
@@ -990,6 +1062,10 @@
  function addToCart(payload, closePreview) {
   var qty = parseInt($("#productPreviewBody").find(".preview-qty-input").val(), 10) || 1;
   payload.qty = Math.max(1, qty);
+  var updateRowId = $("#productPreviewBody").attr("data-update-row-id") || "";
+  if (updateRowId) {
+      payload.update_row_id = updateRowId;
+  }
   $.ajax({
    cache: false,
    type: "GET",
@@ -1001,6 +1077,7 @@
      search_clear();
      if (closePreview) {
       closeProductPreviewModal();
+      $("#productPreviewBody").removeAttr("data-update-row-id");
      }
    },
   });
@@ -1065,6 +1142,7 @@
  $(document).on("click", ".js-product-preview", function (e) {
   e.preventDefault();
   var productId = $(this).data("id");
+  var updateRowId = $(this).data("update-row-id") || "";
   if (!productId) {
    return;
   }
@@ -1078,6 +1156,10 @@
    dataType: "html",
    success: function (html) {
     $("#productPreviewBody").html(html);
+    if (updateRowId) {
+        $("#productPreviewBody").attr("data-update-row-id", updateRowId);
+        $("#productPreviewBody .js-preview-close").text("Cancel Update");
+    }
     if (window.bootstrap && bootstrap.Modal) {
      bootstrap.Modal.getOrCreateInstance(document.getElementById("productPreviewModal")).show();
     } else {
@@ -1112,6 +1194,7 @@
  });
  $(document).on("click", ".js-preview-close", function () {
   closeProductPreviewModal();
+  $("#productPreviewBody").removeAttr("data-update-row-id");
  });
  $(document).on("input change", "#paid_amount", function () {
   updatePaymentSummary();

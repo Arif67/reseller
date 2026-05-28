@@ -39,14 +39,14 @@
             </p>
 
             @if($product->variable_count > 0 && $product->type == 0)
-            <a href="{{ route('product', $product->slug) }}" class="np-action-btn">Order Now</a>
+            <a href="{{ route('product', $product->slug) }}" class="np-action-btn">অর্ডার করুন</a>
             @else
             <form action="{{ route('cart.store') }}" method="POST" class="np-action-form">
                 @csrf
                 <input type="hidden" name="id" value="{{ $product->id }}">
                 <input type="hidden" name="qty" value="1">
-                <input type="hidden" name="order_now" value="Order Now">
-                <button class="np-action-btn" type="submit">Order Now</button>
+                <input type="hidden" name="order_now" value="অর্ডার করুন">
+                <button class="np-action-btn" type="submit">অর্ডার করুন</button>
             </form>
             @endif
         </div>

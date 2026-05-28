@@ -319,11 +319,21 @@
         }
 
         .layout2-add {
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            font-size: 13px;
+            opacity: 0.85;
         }
 
         .layout2-buy {
-            background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            box-shadow: 0 4px 14px rgba(185, 28, 28, 0.4);
+            font-size: 16px;
+            letter-spacing: 0.3px;
+        }
+
+        .layout2-buy:hover {
+            background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+            box-shadow: 0 6px 20px rgba(185, 28, 28, 0.5);
         }
 
         .layout2-phone {
@@ -594,18 +604,18 @@
 
                     <div class="layout2-cta-grid">
                         <button type="submit" name="add_cart" onclick="return sendSuccess();" class="layout2-btn layout2-add">
-                            Add to cart
+                            কার্টে যোগ করুন
                         </button>
                         <button type="submit" name="order_now" value="order_now" onclick="return sendSuccess();" class="layout2-btn layout2-buy">
-                            Buy now
+                            অর্ডার করুন
                         </button>
                     </div>
 
                     <a href="tel:{{ $contact?->hotline }}" class="layout2-phone">
-                        <i class="fa-solid fa-phone"></i> Order by phone ({{ $contact?->hotline }})
+                        <i class="fa-solid fa-phone"></i> ফোনে অর্ডার করুন ({{ $contact?->hotline }})
                     </a>
                     <a href="https://api.whatsapp.com/send?phone=88{{ $contact?->hotline }}&text=Hello, I want to order {{ $details?->name }}" target="_blank" class="layout2-whatsapp">
-                        <i class="fa-brands fa-whatsapp"></i> Order by WhatsApp
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp এ অর্ডার করুন
                     </a>
                 </form>
 

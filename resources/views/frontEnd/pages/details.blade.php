@@ -523,23 +523,29 @@
         }
 
         .add_cart_btn {
-            background: #111827;
+            background: #374151;
+            font-size: 13px;
+            opacity: 0.85;
         }
 
         .order_now_btn {
-            background: #b91c1c;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             color: #fff;
-            border: 1px solid #b91c1c;
+            border: 0;
+            font-size: 16px;
+            box-shadow: 0 4px 14px rgba(185, 28, 28, 0.4);
+            letter-spacing: 0.3px;
         }
 
-        .add_cart_btn:hover,
-        .order_now_btn:hover {
+        .add_cart_btn:hover {
+            background: #1f2937;
             transform: translateY(-1px);
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
         }
 
         .order_now_btn:hover {
-            background: #991b1b;
+            background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+            box-shadow: 0 6px 20px rgba(185, 28, 28, 0.5);
+            transform: translateY(-2px);
             color: #fff;
         }
 
@@ -1013,11 +1019,11 @@
                                     <div class="single_product col-12">
                                         <div class="action-row">
                                             <button type="submit" name="add_cart" onclick="return sendSuccess();" class="add_cart_btn">
-                                                Add to cart
+                                                কার্টে যোগ করুন
                                             </button>
 
                                             <button type="submit" name="order_now" value="order_now" onclick="return sendSuccess();" class="order_now_btn">
-                                                Buy now
+                                                অর্ডার করুন
                                             </button>
                                         </div>
                                         <button type="button" class="phone-order-btn">Order by phone (01832-883232)</button>

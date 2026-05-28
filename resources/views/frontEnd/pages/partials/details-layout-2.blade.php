@@ -498,7 +498,7 @@
 @endpush
 
 <div class="layout2-page">
-    <div class="container layout2-shell">
+    <div class="custom-container layout2-shell">
         <div class="layout2-grid">
             <div class="layout2-gallery">
                 @php($mainImage = $galleryImages->first())
@@ -710,7 +710,7 @@
 
         <div class="layout2-related">
             <section class="related-product-section">
-                <div class="container px-0">
+                <div class="custom-container px-0">
                     <div class="row mt-2">
                         <div class="col-12 text-center">
                             <div class="section-kicker">You may also like</div>
@@ -733,7 +733,7 @@
 
             @if (($recentlyViewedProducts ?? collect())->isNotEmpty())
             <section class="related-product-section">
-                <div class="container px-0">
+                <div class="custom-container px-0">
                     <div class="row mt-2">
                         <div class="col-12 text-center">
                             <div class="section-kicker">Continue browsing</div>

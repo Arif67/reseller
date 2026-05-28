@@ -14,6 +14,7 @@ class ThemeCustomizationController extends Controller
     private const HOME_SECTIONS = [
         'home_slider',
         'marketing_banners',
+        'promo_strip',
         'crazy_deal',
         'category_slider',
         'category_products',
@@ -21,6 +22,7 @@ class ThemeCustomizationController extends Controller
         'featured_products',
         'new_popular',
         'service_features',
+        'all_products',
     ];
 
     public function index()
@@ -57,6 +59,8 @@ class ThemeCustomizationController extends Controller
             'view_details_bg_color' => '#f8fafc',
             'view_details_font_color' => '#0f172a',
             'product_details_layout' => 1,
+            'search_button_style' => 'full',
+            'product_card_layout' => 'default',
             'slider_layout' => 1,
             'slider_item_settings' => json_encode($this->defaultSliderItemSettings()),
             'product_category_layout' => 1,
@@ -73,6 +77,7 @@ class ThemeCustomizationController extends Controller
             'show_featured_products' => 1,
             'show_new_popular' => 1,
             'show_service_features' => 1,
+            'show_all_products' => 1,
             'home_section_order' => json_encode($this->defaultHomeSectionOrder('default')),
             'primary_color' => '#0f172a',
             'accent_color' => '#dc2626',
@@ -132,7 +137,9 @@ class ThemeCustomizationController extends Controller
             'view_details_bg_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'view_details_font_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'product_details_layout' => ['required', 'integer', 'in:1,2,3'],
-            'slider_layout' => ['required', 'integer', 'in:1,2'],
+            'search_button_style' => ['required', 'string', 'in:full,compact,icon'],
+            'product_card_layout' => ['required', 'string', 'in:default,daraz'],
+            'slider_layout' => ['required', 'integer', 'in:1,2,3'],
             'slider_item_settings' => ['nullable'],
             'product_category_layout' => ['required', 'integer', 'in:1,2'],
             'product_category_position' => ['required', 'string', 'in:default,after_new_popular'],
@@ -147,6 +154,7 @@ class ThemeCustomizationController extends Controller
             'show_featured_products' => ['nullable', 'boolean'],
             'show_new_popular' => ['nullable', 'boolean'],
             'show_service_features' => ['nullable', 'boolean'],
+            'show_all_products' => ['nullable', 'boolean'],
             'home_section_order' => ['nullable', 'string'],
             'primary_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'accent_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
@@ -182,6 +190,7 @@ class ThemeCustomizationController extends Controller
             'show_featured_products',
             'show_new_popular',
             'show_service_features',
+            'show_all_products',
         ] as $toggleField) {
             $validated[$toggleField] = $request->has($toggleField) ? 1 : 0;
         }
@@ -243,6 +252,7 @@ class ThemeCustomizationController extends Controller
             'featured_products',
             'new_popular',
             'service_features',
+            'all_products',
         ];
 
         if ($productCategoryPosition === 'after_new_popular') {

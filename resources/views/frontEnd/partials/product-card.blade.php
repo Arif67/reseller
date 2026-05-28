@@ -1,3 +1,6 @@
+@if(($themeCustomization?->product_card_layout ?? 'default') === 'daraz')
+    @include('frontEnd.partials.product-card-daraz')
+@else
 @php
     $product = $product ?? $value;
     $titleLimit = $titleLimit ?? 56;
@@ -49,3 +52,4 @@
         </div>
     </article>
 </div>
+@endif

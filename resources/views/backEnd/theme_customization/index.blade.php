@@ -315,18 +315,20 @@
     $hasContainerMaxWidthColumn = \Illuminate\Support\Facades\Schema::hasTable('theme_customizations')
         && \Illuminate\Support\Facades\Schema::hasColumn('theme_customizations', 'container_max_width');
     $sectionOrderLabels = [
-        'home_slider' => ['title' => 'Hero Slider', 'field' => 'show_home_slider'],
-        'marketing_banners' => ['title' => 'Marketing Banners', 'field' => 'show_marketing_banners'],
-        'crazy_deal' => ['title' => 'Crazy Deal', 'field' => 'show_crazy_deal'],
-        'category_slider' => ['title' => 'Category Slider', 'field' => 'show_category_slider'],
-        'category_products' => ['title' => 'Category-wise Products', 'field' => 'show_category_products'],
-        'best_selling_products' => ['title' => 'Best Selling Products', 'field' => 'show_best_selling_products'],
-        'featured_products' => ['title' => 'Featured Products', 'field' => 'show_featured_products'],
-        'new_popular' => ['title' => 'New Popular', 'field' => 'show_new_popular'],
-        'service_features' => ['title' => 'Service Features', 'field' => 'show_service_features'],
+        'home_slider'          => ['title' => 'Hero Slider',                  'field' => 'show_home_slider'],
+        'marketing_banners'    => ['title' => 'Marketing Banners',             'field' => 'show_marketing_banners'],
+        'promo_strip'          => ['title' => 'Promo Strip',                   'field' => null],
+        'crazy_deal'           => ['title' => 'Crazy Deal',                    'field' => 'show_crazy_deal'],
+        'category_slider'      => ['title' => 'Category Slider',               'field' => 'show_category_slider'],
+        'category_products'    => ['title' => 'Category-wise Products',        'field' => 'show_category_products'],
+        'best_selling_products'=> ['title' => 'Best Selling Products',         'field' => 'show_best_selling_products'],
+        'featured_products'    => ['title' => 'Featured Products',             'field' => 'show_featured_products'],
+        'new_popular'          => ['title' => 'New Popular',                   'field' => 'show_new_popular'],
+        'service_features'     => ['title' => 'Service Features',              'field' => 'show_service_features'],
+        'all_products'         => ['title' => 'All Products (Infinite Scroll)','field' => 'show_all_products'],
     ];
     $storedSectionOrder = json_decode(old('home_section_order', $themeCustomization?->home_section_order ?? ''), true);
-    $fallbackSectionOrder = ['home_slider', 'marketing_banners', 'crazy_deal', 'category_slider', 'category_products', 'best_selling_products', 'featured_products', 'new_popular', 'service_features'];
+    $fallbackSectionOrder = ['home_slider', 'marketing_banners', 'crazy_deal', 'category_slider', 'category_products', 'best_selling_products', 'featured_products', 'new_popular', 'service_features', 'all_products'];
     $homeSectionOrder = is_array($storedSectionOrder) ? $storedSectionOrder : $fallbackSectionOrder;
     foreach ($fallbackSectionOrder as $sectionKey) {
         if (! in_array($sectionKey, $homeSectionOrder, true)) {
@@ -508,6 +510,39 @@
             ],
         ],
         [
+            'title' => 'Product Card Layout',
+            'description' => 'Choose the product card style shown across the storefront.',
+            'fields' => [
+                [
+                    'name' => 'product_card_layout',
+                    'label' => 'Card Style',
+                    'default' => 'default',
+                    'type' => 'select',
+                    'options' => [
+                        ['value' => 'default', 'label' => 'Default (with Order Now button)'],
+                        ['value' => 'daraz',   'label' => 'Daraz Style (image + price + rating)'],
+                    ],
+                ],
+            ],
+        ],
+        [
+            'title' => 'Search Button Style',
+            'description' => 'Control the size and style of the search button in the header.',
+            'fields' => [
+                [
+                    'name' => 'search_button_style',
+                    'label' => 'Button Style',
+                    'default' => 'full',
+                    'type' => 'select',
+                    'options' => [
+                        ['value' => 'full',    'label' => 'Full — "SEARCH" text (wide)'],
+                        ['value' => 'compact', 'label' => 'Compact — icon + small text'],
+                        ['value' => 'icon',    'label' => 'Icon only — magnifying glass'],
+                    ],
+                ],
+            ],
+        ],
+        [
             'title' => 'Homepage Slider Layout',
             'description' => 'Choose which homepage hero slider layout should be shown on the storefront.',
             'fields' => [
@@ -519,6 +554,7 @@
                     'options' => [
                         ['value' => 1, 'label' => 'Layout 1'],
                         ['value' => 2, 'label' => 'Layout 2'],
+                        ['value' => 3, 'label' => 'Layout 3 (Daraz Style)'],
                     ],
                 ],
             ],
@@ -570,6 +606,7 @@
                 ['name' => 'show_featured_products', 'label' => 'Show Featured Products', 'type' => 'toggle', 'default' => 1],
                 ['name' => 'show_new_popular', 'label' => 'Show New Popular', 'type' => 'toggle', 'default' => 1],
                 ['name' => 'show_service_features', 'label' => 'Show Service Features', 'type' => 'toggle', 'default' => 1],
+                ['name' => 'show_all_products',     'label' => 'Show All Products (Infinite Scroll)', 'type' => 'toggle', 'default' => 1],
             ],
         ],
         [

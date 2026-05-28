@@ -112,6 +112,13 @@ class Product extends Model
     {
         return $this->hasMany(Review::class, 'product_id')->select('id');
     }
+
+    public function activeReviews()
+    {
+        return $this->hasMany(Review::class, 'product_id')
+            ->where('status', 'active')
+            ->select('id', 'product_id', 'ratting');
+    }
     public function category()
     {
         return $this->hasOne(Category::class,'id','category_id')->select('id','name','slug');

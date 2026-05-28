@@ -1,3 +1,48 @@
+:root {
+    --theme-top-bar-bg: #FF5722;
+    --theme-search-bar-bg: #000000;
+    --theme-navbar-bg: #e6e1e1;
+    --theme-track-order-bg: #677279;
+    --theme-track-order-color: #FFFFFF;
+    --theme-login-bg: #677279;
+    --theme-login-color: #FFFFFF;
+    --theme-cart-bg: #677279;
+    --theme-cart-color: #FFFFFF;
+    --theme-toggle-color: #000000;
+    --theme-search-icon-color: #ffffff;
+    --product-card-btn-bg: #DC2626;
+    --product-card-btn-hover: #B91C1C;
+    --product-card-btn-color: #FFFFFF;
+    --product-card-badge-bg: #DC2626;
+    --product-card-badge-color: #FFFFFF;
+    --product-card-price-color: #111827;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --card-title: #0f172a;
+    --card-old-price: #94a3b8;
+    --card-image-bg: #f8fafc;
+    --theme-container-width: 1520px;
+    --card-radius: 12;
+    --card-body-padding: 12;
+    --card-shadow-opacity: 0.12;
+    --theme-view-details-bg: #f8fafc;
+    --theme-view-details-color: #0f172a;
+    --theme-primary: #0f172a;
+    --theme-accent: #dc2626;
+    --theme-surface: #ffffff;
+    --theme-section-bg: #f8fafc;
+    --theme-text: #0f172a;
+    --theme-muted: #64748b;
+    --theme-footer-top-bg: #020617;
+    --theme-footer-text: #CBD5E1;
+    --theme-footer-heading: #FFFFFF;
+    --theme-footer-link: #F8FAFC;
+    --theme-footer-link-hover: #F59E0B;
+    --theme-footer-accent: #F59E0B;
+    --theme-footer-bottom-bg: #000000;
+    --theme-footer-bottom-text: #E2E8F0;
+}
+
 .custom-container {
     max-width: var(--theme-container-width, 1520px);
     margin: 0 auto;
@@ -686,20 +731,24 @@ li.cat_bar:hover > a {
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.home-toggle-item .menu-home-toggle {
-    display: inline-flex;
-    align-items: center;
-    margin: 0;
-}
-
 .home-toggle-item .menu-home-link {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     height: 40px;
     padding: 0 10px 0 8px;
 }
 
 .home-toggle-item .menu-home-link i {
+    line-height: 1;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.home-toggle-item .wd-tools-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     line-height: 1;
 }
 

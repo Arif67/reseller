@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\ApiIntegrationController;
 use App\Http\Controllers\Admin\AtrributeListController;
 use App\Http\Controllers\Admin\GeneralSettingController;
 use App\Http\Controllers\Admin\SocialMediaController;
+use App\Http\Controllers\Admin\PromoStripController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\BannerCategoryController;
 use App\Http\Controllers\Admin\BannerController;
@@ -171,6 +172,11 @@ Route::post('/tiktok/purchase-capi', [TiktokEventController::class, 'purchase'])
 Route::post('/marketing/abandoned-cart/sync', [MarketingController::class, 'syncAbandonedCart'])->name('marketing.abandoned_cart.sync');
 Route::post('/marketing/visitor-analytics/log', [MarketingController::class, 'logVisitor'])->name('marketing.visitor_analytics.log');
 
+Route::get('/frontEnd/css/theme.css', function () {
+    return response()
+        ->view('frontEnd.layouts.theme-css')
+        ->header('Content-Type', 'text/css');
+})->name('frontend.theme_css');
 
     Route::get('/store',[HomeController::class,'storepage'])->name('storepage');
 
@@ -189,6 +195,7 @@ Route::group(['namespace'=>'Frontend', 'middleware' => ['ipcheck','check_refer']
     Route::post('recently-viewed/clear', [HomeController::class, 'clearRecentlyViewed'])->name('recently_viewed.clear');
     Route::get('quick-view', [FrontendAjaxController::class, 'quickView'])->name('quickview');
     Route::get('/shipping-charge', [FrontendAjaxController::class, 'shippingCharge'])->name('shipping.charge');
+    Route::get('home/all-products', [FrontendAjaxController::class, 'allProducts'])->name('home.all_products');
     Route::get('site/contact-us', [ContentController::class, 'contact'])->name('contact');
     Route::post('contact/submit', [ContentController::class, 'contact_submit'])->name('contact.send');
     Route::get('/page/{slug}', [ContentController::class, 'page'])->name('page');
@@ -525,6 +532,15 @@ Route::group(['namespace'=>'Admin','middleware' => ['auth','lock','check_refer']
     Route::post('banner/inactive', [BannerController::class,'inactive'])->name('banners.inactive');
     Route::post('banner/active', [BannerController::class,'active'])->name('banners.active');
     Route::post('banner/destroy', [BannerController::class,'destroy'])->name('banners.destroy');
+
+    // promo strip routes
+    Route::get('promo-strip/manage',        [PromoStripController::class, 'index'])->name('promo_strip.index');
+    Route::get('promo-strip/create',        [PromoStripController::class, 'create'])->name('promo_strip.create');
+    Route::post('promo-strip/save',         [PromoStripController::class, 'store'])->name('promo_strip.store');
+    Route::get('promo-strip/{id}/edit',     [PromoStripController::class, 'edit'])->name('promo_strip.edit');
+    Route::post('promo-strip/update',       [PromoStripController::class, 'update'])->name('promo_strip.update');
+    Route::post('promo-strip/destroy',      [PromoStripController::class, 'destroy'])->name('promo_strip.destroy');
+    Route::post('promo-strip/toggle',       [PromoStripController::class, 'toggleStatus'])->name('promo_strip.toggle');
 
     // contact route
     Route::get('page/manage', [CreatePageController::class,'index'])->name('pages.index');

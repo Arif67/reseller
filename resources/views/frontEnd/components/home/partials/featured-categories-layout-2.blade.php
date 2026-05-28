@@ -46,14 +46,18 @@
 
         .featured-category-layout2-media {
             aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow: hidden;
             background: #f8fafc;
+            padding: 0;
         }
 
         .featured-category-layout2-media img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             display: block;
         }
 
@@ -95,7 +99,7 @@
                     <div class="item">
                         <a href="{{ route('category', $value->slug) }}" class="featured-category-layout2-card">
                             <div class="featured-category-layout2-media">
-                                <img src="{{ asset($value->image) }}" alt="{{ $value->name }}">
+                                <img src="{{ $value->icon_url ?: $value->image_url }}" alt="{{ $value->name }}">
                             </div>
                             <div class="featured-category-layout2-foot">
                                 <h3 class="featured-category-layout2-name">{{ $value->name }}</h3>

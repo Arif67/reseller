@@ -257,4 +257,138 @@
             padding: 0.48rem 0.52rem;
         }
     }
+
+    /* ══ Daraz Card Layout ══ */
+    .dz-card-item {
+        padding: 2px;
+    }
+    .dz-card {
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        text-decoration: none;
+        border: 1px solid #f0f0f0;
+        transition: box-shadow .2s, transform .2s;
+        height: 100%;
+    }
+    .dz-card:hover {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    /* image */
+    .dz-card-img {
+        position: relative;
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+        background: #f8f8f8;
+    }
+    .dz-card-img-primary,
+    .dz-card-img-secondary {
+        position: absolute;
+        inset: 0;
+        width: 100%; height: 100%;
+        object-fit: cover;
+        transition: opacity .5s ease, transform .6s ease;
+    }
+    .dz-card-img-primary  { opacity: 1; transform: scale(1); }
+    .dz-card-img-secondary { opacity: 0; transform: scale(1.05); }
+    .has-hover-image .dz-card:hover .dz-card-img-primary  { opacity: 0; transform: scale(0.97); }
+    .has-hover-image .dz-card:hover .dz-card-img-secondary { opacity: 1; transform: scale(1.01); }
+    .dz-card:hover .dz-card-img-primary { transform: scale(1.03); }
+
+    /* discount badge */
+    .dz-card-badge {
+        position: absolute;
+        top: 8px; left: 8px;
+        background: #F85606;
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 4px;
+        z-index: 2;
+        line-height: 1.4;
+    }
+
+    /* body */
+    .dz-card-body {
+        padding: 8px 10px 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        flex: 1;
+    }
+
+    /* title */
+    .dz-card-title {
+        font-size: 12px;
+        font-weight: 500;
+        color: #333;
+        line-height: 1.4;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.8em;
+    }
+
+    /* price row — all on one line */
+    .dz-card-price-row {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        flex-wrap: nowrap;
+        overflow: hidden;
+        margin-top: 2px;
+    }
+    .dz-card-price {
+        font-size: 15px;
+        font-weight: 800;
+        color: #F85606;
+        line-height: 1;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .dz-card-old-price {
+        font-size: 11px;
+        color: #bbb;
+        text-decoration: line-through;
+        font-weight: 400;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .dz-card-discount {
+        font-size: 10px;
+        font-weight: 700;
+        color: #fff;
+        background: #F85606;
+        border-radius: 3px;
+        padding: 2px 5px;
+        line-height: 1.3;
+        white-space: nowrap;
+        flex-shrink: 0;
+        margin-left: auto;
+    }
+
+    /* rating */
+    .dz-card-rating {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 2px;
+    }
+    .dz-card-stars { display: flex; align-items: center; gap: 1px; }
+    .dz-card-stars i { font-size: 10px; color: #F85606; }
+    .dz-card-review-count { font-size: 10px; color: #999; }
+
+    @media (max-width: 575.98px) {
+        .dz-card-title   { font-size: 11px; }
+        .dz-card-price   { font-size: 13px; }
+        .dz-card-discount { font-size: 10px; }
+    }
 </style>

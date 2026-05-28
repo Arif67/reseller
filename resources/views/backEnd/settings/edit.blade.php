@@ -217,6 +217,37 @@
 
 
 
+                            <div class="col-12">
+                                <h5 class="mt-3">App Download Settings <small class="text-muted fs-12">(Used in Hero Slider Layout 3)</small></h5>
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <div class="form-group">
+                                    <label for="android_app_link" class="form-label">Google Play Store Link</label>
+                                    <input type="url" class="form-control" name="android_app_link"
+                                        value="{{ $edit_data->android_app_link }}" id="android_app_link"
+                                        placeholder="https://play.google.com/store/apps/details?id=...">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                <div class="form-group">
+                                    <label for="ios_app_link" class="form-label">Apple App Store Link</label>
+                                    <input type="url" class="form-control" name="ios_app_link"
+                                        value="{{ $edit_data->ios_app_link }}" id="ios_app_link"
+                                        placeholder="https://apps.apple.com/app/...">
+                                </div>
+                            </div>
+                            <div class="col-sm-6 mb-3">
+                                @include('backEnd.category.partials.media-field', [
+                                    'field' => 'app_qr_code',
+                                    'label' => 'App QR Code Image',
+                                    'mediaInputName' => 'app_qr_code_media_id',
+                                    'fileInputId' => 'app_qr_code',
+                                    'selectedMediaId' => old('app_qr_code_media_id', null),
+                                    'currentUrl' => $edit_data->app_qr_code ? asset(ltrim($edit_data->app_qr_code, '/')) : '',
+                                    'currentPath' => $edit_data->app_qr_code ?? '',
+                                ])
+                            </div>
+
                              <div class="col-sm-6 mb-3">
                                  <div class="form-group">
                                      <label for="status" class="d-block">Status</label>

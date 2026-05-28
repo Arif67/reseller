@@ -211,6 +211,8 @@ class HomePageService
                     ->with('image', 'images', 'media', 'variable')
                     ->withSum('allVariables as total_variable_stock', 'stock')
                     ->withCount('variable')
+                    ->withAvg(['activeReviews as active_reviews_avg_ratting' => fn ($q) => $q], 'ratting')
+                    ->withCount(['activeReviews as active_reviews_count'])
                     ->limit($productLimit)
                     ->get();
 
@@ -232,6 +234,8 @@ class HomePageService
             ->select('id', 'name', 'slug', 'new_price', 'old_price', 'type', 'variation_pricing_mode', 'stock')
             ->with('image', 'images', 'media', 'variable')
             ->withSum('allVariables as total_variable_stock', 'stock')
-            ->withCount('variable');
+            ->withCount('variable')
+            ->withAvg(['activeReviews as active_reviews_avg_ratting' => fn ($q) => $q], 'ratting')
+            ->withCount(['activeReviews as active_reviews_count']);
     }
 }

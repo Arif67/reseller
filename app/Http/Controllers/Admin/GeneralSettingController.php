@@ -229,9 +229,11 @@ class GeneralSettingController extends Controller
                 'white_logo',
                 'dark_logo',
                 'favicon',
+                'app_qr_code',
                 'white_logo_media_id',
                 'dark_logo_media_id',
                 'favicon_media_id',
+                'app_qr_code_media_id',
             ]);
 
             // White Logo Upload
@@ -292,6 +294,25 @@ class GeneralSettingController extends Controller
                 }
             } else {
                 $input['favicon'] = $update_data->favicon;
+            }
+
+            // App QR Code Upload
+            if ($request->hasFile('app_qr_code')) {
+                $this->fileUploadService->deleteLocalIfNeeded($update_data->app_qr_code);
+                $input['app_qr_code'] = $this->fileUploadService->processAndUploadImage(
+                    $request->file('app_qr_code'),
+                    'uploads/settings',
+                    ['prefix' => 'app-qr']
+                );
+            } elseif (filled($request->input('app_qr_code_media_id'))) {
+                $imagePath = Media::query()->whereKey($request->input('app_qr_code_media_id'))->value('path');
+                if ($imagePath) {
+                    $input['app_qr_code'] = $imagePath;
+                } else {
+                    $input['app_qr_code'] = $update_data->app_qr_code;
+                }
+            } else {
+                $input['app_qr_code'] = $update_data->app_qr_code;
             }
 
             // Set status

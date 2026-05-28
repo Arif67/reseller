@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
 use App\Services\Frontend\CampaignService;
 use App\Services\Frontend\ProductCatalogService;
 use Illuminate\Http\JsonResponse;
@@ -56,5 +57,30 @@ class FrontendAjaxController extends Controller
     public function campaignStock(Request $request): JsonResponse
     {
         return response()->json($this->campaignService->updateCampaignStock($request));
+    }
+
+    public function allProducts(Request $request): JsonResponse
+    {
+        $products = Product::query()
+            ->where('status', 1)
+            ->select('id', 'name', 'slug', 'new_price', 'old_price', 'type', 'variation_pricing_mode', 'stock')
+            ->with('image', 'media', 'variable')
+            ->withSum('allVariables as total_variable_stock', 'stock')
+            ->withCount('variable')
+            ->withAvg(['activeReviews as active_reviews_avg_ratting' => fn ($q) => $q], 'ratting')
+            ->withCount(['activeReviews as active_reviews_count'])
+            ->latest('id')
+            ->paginate(20);
+
+        $html = '';
+        foreach ($products as $product) {
+            $html .= view('frontEnd.partials.product-card', compact('product'))->render();
+        }
+
+        return response()->json([
+            'html'     => $html,
+            'has_more' => $products->hasMorePages(),
+            'next'     => $products->currentPage() + 1,
+        ]);
     }
 }

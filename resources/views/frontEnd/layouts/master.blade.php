@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    
     <!-- Meta Pixel Code -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -163,53 +164,6 @@
     <script type="application/ld+json">
         {!! json_encode($websiteSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
     </script>
-    <style>
-        :root {
-            --theme-top-bar-bg: {{ $themeCustomization?->top_bar_background_color ?? '#FF5722' }};
-            --theme-search-bar-bg: {{ $themeCustomization?->search_bar_background_color ?? '#000000' }};
-            --theme-navbar-bg: {{ $themeCustomization?->navbar_background_color ?? '#e6e1e1' }};
-            --theme-track-order-bg: {{ $themeCustomization?->track_order_background_color ?? '#677279' }};
-            --theme-track-order-color: {{ $themeCustomization?->track_order_font_color ?? '#FFFFFF' }};
-            --theme-login-bg: {{ $themeCustomization?->login_background_color ?? '#677279' }};
-            --theme-login-color: {{ $themeCustomization?->login_font_color ?? '#FFFFFF' }};
-            --theme-cart-bg: {{ $themeCustomization?->cart_background_color ?? '#677279' }};
-            --theme-cart-color: {{ $themeCustomization?->cart_font_color ?? '#FFFFFF' }};
-            --theme-toggle-color: {{ $themeCustomization?->toggle_font_color ?? '#000000' }};
-            --theme-search-icon-color: {{ $resolvedSearchFontColor }};
-            --product-card-btn-bg: {{ $themeCustomization?->product_card_button_background_color ?? '#DC2626' }};
-            --product-card-btn-hover: {{ $themeCustomization?->product_card_button_hover_background_color ?? '#B91C1C' }};
-            --product-card-btn-color: {{ $themeCustomization?->product_card_button_font_color ?? '#FFFFFF' }};
-            --product-card-badge-bg: {{ $themeCustomization?->product_card_badge_background_color ?? '#DC2626' }};
-            --product-card-badge-color: {{ $themeCustomization?->product_card_badge_font_color ?? '#FFFFFF' }};
-            --product-card-price-color: {{ $themeCustomization?->product_card_price_color ?? '#111827' }};
-            --card-bg: {{ $themeCustomization?->card_bg_color ?? '#ffffff' }};
-            --card-border: {{ $themeCustomization?->card_border_color ?? '#e2e8f0' }};
-            --card-title: {{ $themeCustomization?->card_title_color ?? '#0f172a' }};
-            --card-old-price: {{ $themeCustomization?->card_old_price_color ?? '#94a3b8' }};
-            --card-image-bg: {{ $themeCustomization?->card_image_bg_color ?? '#f8fafc' }};
-            --theme-container-width: {{ (int) ($themeCustomization?->container_max_width ?? 1520) }}px;
-            --card-radius: {{ $themeCustomization?->card_radius ?? 12 }};
-            --card-body-padding: {{ $themeCustomization?->card_body_padding ?? 12 }};
-            --card-shadow-opacity: {{ $themeCustomization?->card_shadow_opacity ?? 0.12 }};
-            --theme-view-details-bg: {{ $themeCustomization?->view_details_bg_color ?? '#f8fafc' }};
-            --theme-view-details-color: {{ $themeCustomization?->view_details_font_color ?? '#0f172a' }};
-            --theme-primary: {{ $themeCustomization?->primary_color ?? '#0f172a' }};
-            --theme-accent: {{ $themeCustomization?->accent_color ?? '#dc2626' }};
-            --theme-surface: {{ $themeCustomization?->surface_color ?? '#ffffff' }};
-            --theme-section-bg: {{ $themeCustomization?->section_bg_color ?? '#f8fafc' }};
-            --theme-text: {{ $themeCustomization?->text_color ?? '#0f172a' }};
-            --theme-muted: {{ $themeCustomization?->muted_text_color ?? '#64748b' }};
-            --theme-footer-top-bg: {{ $themeCustomization?->footer_top_background_color ?? '#020617' }};
-            --theme-footer-text: {{ $themeCustomization?->footer_text_color ?? '#CBD5E1' }};
-            --theme-footer-heading: {{ $themeCustomization?->footer_heading_color ?? '#FFFFFF' }};
-            --theme-footer-link: {{ $themeCustomization?->footer_link_color ?? '#F8FAFC' }};
-            --theme-footer-link-hover: {{ $themeCustomization?->footer_link_hover_color ?? '#F59E0B' }};
-            --theme-footer-accent: {{ $themeCustomization?->footer_accent_color ?? '#F59E0B' }};
-            --theme-footer-bottom-bg: {{ $themeCustomization?->footer_bottom_background_color ?? '#000000' }};
-            --theme-footer-bottom-text: {{ $themeCustomization?->footer_bottom_text_color ?? '#E2E8F0' }};
-        }
-    </style>
-
     <link rel="shortcut icon" href="{{ asset($generalsetting?->favicon) }}" alt="{{ $generalsetting?->name }}" />
     @stack('seo')
     @stack('css')
@@ -229,6 +183,7 @@
     <link rel="stylesheet" href="{{ asset('frontEnd/css/responsive.css?v=1.0.22') }}" />
     <link rel="stylesheet" href="{{ asset('frontEnd/css/main.css') }}" />
     <link rel="stylesheet" href="{{ asset('frontEnd/css/master-layout.css') }}?v=1.0.2" />
+    <link rel="stylesheet" href="{{ route('frontend.theme_css') }}?v=1.0.0" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 
     @if ($facebookPixelId)
@@ -361,241 +316,197 @@
             <div class="search_result"></div>
         </div>
 
-        <div class="main-header">
-            <section class="site-top-bar text-white py-2">
-                <div class="container-fluid">
-                    <marquee behavior="scroll" direction="left" scrollamount="6">
-                        @foreach ($topheader as $top)
-                            <a href="{{ $top->link }}" class="text-white text-decoration-none me-5">
-                                {{ $top->title }}
-                            </a>
-                        @endforeach
-                    </marquee>
+        {{-- Desktop Daraz-style Header --}}
+        <div class="main-header d-none d-lg-block">
+            @include('frontEnd.components.common.header')
+        </div>
+
+        {{-- Offcanvas Category Sidebar (Daraz style) --}}
+        <style>
+        /* ── Daraz Sidebar ── */
+        .dz-sidebar { width: 260px !important; }
+        .dz-sidebar-header {
+            background: #F85606;
+            padding: 0 16px;
+            height: 50px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .dz-sidebar-header-title {
+            display: flex; align-items: center; gap: 8px;
+            color: #fff; font-size: 14px; font-weight: 700; letter-spacing: .3px;
+        }
+        .dz-sidebar-header-title i { font-size: 15px; }
+        .dz-sidebar-close {
+            background: rgba(255,255,255,0.2);
+            border: 0; outline: none;
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; cursor: pointer; transition: background .15s;
+            padding: 0;
+        }
+        .dz-sidebar-close:hover { background: rgba(255,255,255,0.35); }
+        .dz-sidebar-close i { font-size: 13px; }
+
+        /* scrollable body */
+        .dz-sidebar-body {
+            overflow-y: auto; overflow-x: hidden;
+            flex: 1; padding: 0; background: #fff;
+        }
+        .dz-sidebar-body::-webkit-scrollbar { width: 4px; }
+        .dz-sidebar-body::-webkit-scrollbar-track { background: #f5f5f5; }
+        .dz-sidebar-body::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+
+        /* category item */
+        .dz-cat-item {
+            border-bottom: 1px solid #f2f2f2;
+        }
+        .dz-cat-row {
+            display: flex; align-items: center;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background .12s;
+            gap: 10px;
+        }
+        .dz-cat-row:hover { background: #fff5f0; }
+        .dz-cat-row:hover .dz-cat-name { color: #F85606; }
+        .dz-cat-item.open > .dz-cat-row { background: #fff5f0; border-left: 3px solid #F85606; }
+        .dz-cat-item.open > .dz-cat-row .dz-cat-name { color: #F85606; }
+        .dz-cat-item.open > .dz-cat-row .dz-cat-chevron { transform: rotate(180deg); color: #F85606; }
+
+        .dz-cat-img {
+            width: 32px; height: 32px; border-radius: 6px;
+            object-fit: cover; flex-shrink: 0;
+            background: #f5f5f5;
+        }
+        .dz-cat-name {
+            flex: 1; font-size: 13px; font-weight: 600; color: #333;
+            text-decoration: none; line-height: 1.3;
+            transition: color .12s;
+        }
+        .dz-cat-chevron {
+            font-size: 10px; color: #bbb;
+            transition: transform .2s, color .12s;
+            flex-shrink: 0;
+        }
+
+        /* sub list */
+        .dz-subcat-list {
+            display: none;
+            background: #fafafa;
+            border-top: 1px solid #f0f0f0;
+            padding: 4px 0;
+        }
+        .dz-cat-item.open > .dz-subcat-list { display: block; }
+
+        .dz-subcat-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 14px 8px 56px;
+            cursor: pointer; gap: 6px;
+            transition: background .12s;
+        }
+        .dz-subcat-row:hover { background: #fff0eb; }
+        .dz-subcat-row:hover .dz-subcat-name { color: #F85606; }
+        .dz-subcat-item.open > .dz-subcat-row .dz-subcat-name { color: #F85606; }
+        .dz-subcat-item.open > .dz-subcat-row .dz-cat-chevron { transform: rotate(180deg); color: #F85606; }
+
+        .dz-subcat-name {
+            flex: 1; font-size: 12px; color: #444;
+            text-decoration: none; transition: color .12s;
+        }
+
+        /* child list */
+        .dz-child-list {
+            display: none;
+            background: #fff;
+            border-top: 1px solid #f0f0f0;
+            padding: 4px 0;
+        }
+        .dz-subcat-item.open > .dz-child-list { display: block; }
+
+        .dz-child-link {
+            display: block;
+            padding: 7px 14px 7px 70px;
+            font-size: 11.5px; color: #555;
+            text-decoration: none;
+            transition: background .12s, color .12s;
+        }
+        .dz-child-link:hover { background: #fff0eb; color: #F85606; }
+        </style>
+
+        <div class="offcanvas offcanvas-start dz-sidebar d-flex flex-column p-0" tabindex="-1" id="sidebar" style="border: none;">
+            {{-- Header --}}
+            <div class="dz-sidebar-header">
+                <div class="dz-sidebar-header-title">
+                    <i class="fa-solid fa-bars"></i>
+                    All Categories
                 </div>
-            </section>
-
-            <div class="logo-area p-3 desktop-brand-bar">
-                <div class="custom-container">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="logo-header desktop-brand-grid">
-                                <div class="main-logo desktop-brand-logo">
-                                    <a href="{{ route('home') }}"><img
-                                            src="{{ asset($generalsetting?->white_logo) }}" alt="" /></a>
-                                </div>
-                                <div class="main-search desktop-brand-search">
-                                    <form id="MainSearch" class="desktop-brand-form" action="{{ route('search') }}">
-                                        <input type="text" placeholder="Search Product..."
-                                            class="search_keyword search_click mainsrc" name="keyword" />
-
-                                        <button type="submit" class="search-submit-btn" aria-label="Search">
-                                            <i class="fa-solid fa-magnifying-glass"></i>
-                                        </button>
-                                    </form>
-
-                                    <div class="search_result"></div>
-                                </div>
-
-                                <div class="header-list-items desktop-brand-actions">
-                                    <div class="helpline-wrapper">
-                                        <div class="header-action-menu">
-                                            <div class="action-item action-track">
-                                                <a href="{{ route('customer.order_track') }}" title="Track Your Order">
-                                                    <i class="fa-solid fa-truck-fast"></i>
-                                                </a>
-                                            </div>
-
-                                            @if (Auth::guard('customer')->user())
-                                                <div class="action-item action-login">
-                                                    <a href="{{ route('customer.account') }}"
-                                                        title="{{ Str::limit(Auth::guard('customer')->user()->name, 14) }}">
-                                                        <i class="woodmart woodmart-user"></i>
-                                                    </a>
-                                                </div>
-                                            @else
-                                                <div class="action-item action-login">
-                                                    <a href="{{ route('customer.login') }}" title="Login / Sign Up">
-                                                        <i class="woodmart woodmart-user"></i>
-                                                    </a>
-                                                </div>
-                                            @endif
-
-                                            <div class="action-item action-cart" id="cart-qty">
-                                                <a href="">
-                                                    <i class="woodmart woodmart-cart"></i>
-                                                    <span>{{ Cart::instance('shopping')->count() }}</span>
-                                                </a>
-
-                                                <div class="cshort-summary">
-                                                    <ul>
-                                                        @foreach (Cart::instance('shopping')->content() as $key => $value)
-                                                            <li>
-                                                                <a href=""><img
-                                                                        src="{{ asset($value->options->image) }}"
-                                                                        alt="" /></a>
-                                                            </li>
-                                                            <li><a
-                                                                    href="">{{ Str::limit($value->name, 30) }}</a>
-                                                            </li>
-                                                            <li>Qty: {{ $value->qty }}</li>
-                                                            <li>
-                                                                <p>৳{{ $value->price }}</p>
-                                                                <button class="remove-cart cart_remove"
-                                                                    data-id="{{ $value->rowId }}"><i
-                                                                        class="fa-regular fa-trash-can trash_icon"
-                                                                        title="Delete this item"></i></button>
-                                                            </li>
-                                                        @endforeach
-                                                    </ul>
-                                                    <p><strong>Total : Tk {{ $subtotal }}</strong></p>
-                                                    <a href="{{ route('customer.checkout') }}" class="go_cart"> Order
-                                                        Now </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <button class="dz-sidebar-close" data-bs-dismiss="offcanvas" aria-label="Close">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
-            <div class="menu-area">
-                <div class="custom-container">
-                    <div class="row">
-                        <div class="col-sm-12 d-flex justify-content-between">
-                            <div class="catagory_menu ">
-                                <ul>
-                                    <div class="offcanvas offcanvas-start shadow-sm offcanvas-sidebar" tabindex="-1" id="sidebar">
-                                        <div class="offcanvas-header py-2 px-3 border-bottom">
-                                            <h6 class="offcanvas-title mb-0 text-uppercase">Categories</h6>
-                                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
-                                                aria-label="Close"></button>
-                                        </div>
 
-                                        <div class="offcanvas-body p-0 bg-light category-drawer">
-                                            <ul class="list-group rounded-0 drawer-group">
-                                                @foreach ($menucategories as $scategory)
-                                                    <li
-                                                        class="list-group-item py-2 px-3 text-dark bg-white border-0 border-bottom drawer-item">
-                                                        <div class="d-flex justify-content-between align-items-center drawer-item-head">
-                                                            <a href="{{ url('category/' . $scategory->slug) }}"
-                                                                class="text-decoration-none text-dark d-flex align-items-center small fw-semibold drawer-link">
-                                                                <img src="{{ asset($scategory->image) }}"
-                                                                    alt="" class="me-2 drawer-link-image" width="20"
-                                                                    height="20" />
-                                                                {{ $scategory->name }}
-                                                            </a>
-                                                            @if ($scategory->menusubcategories->count() > 0)
-                                                                <span class="text-muted drawer-trigger" role="button"
-                                                                    data-submenu-toggle>
-                                                                    <i class="fa fa-chevron-down small"></i>
-                                                                </span>
-                                                            @endif
-                                                        </div>
-
-                                                        @if ($scategory->menusubcategories->count() > 0)
-                                                            <ul class="list-group list-group-flush ms-3 mt-2 bg-white rounded submenu-collapsed drawer-submenu drawer-submenu-level-2">
-                                                                @foreach ($scategory->menusubcategories as $subcategory)
-                                                                    <li class="list-group-item py-1 px-2 border-0 drawer-submenu-item">
-                                                                        <div
-                                                                            class="d-flex justify-content-between align-items-center drawer-item-head">
-                                                                            <a href="{{ url('subcategory/' . $subcategory->slug) }}"
-                                                                                class="text-decoration-none text-dark small drawer-sublink">
-                                                                                {{ $subcategory->subcategoryName }}
-                                                                            </a>
-                                                                            @if ($subcategory->menuchildcategories->count() > 0)
-                                                                                <span class="text-muted drawer-trigger"
-                                                                                    role="button"
-                                                                                    data-submenu-toggle>
-                                                                                    <i
-                                                                                        class="fa fa-chevron-down small"></i>
-                                                                                </span>
-                                                                            @endif
-                                                                        </div>
-
-                                                                        @if ($subcategory->menuchildcategories->count() > 0)
-                                                                            <ul class="list-group list-group-flush ms-3 mt-2 bg-white submenu-collapsed drawer-submenu drawer-submenu-level-3">
-                                                                                @foreach ($subcategory->menuchildcategories as $childcat)
-                                                                                    <li
-                                                                                        class="list-group-item py-1 ps-3 pe-2 border-0 drawer-child-item">
-                                                                                        <a href="{{ url('products/' . $childcat->slug) }}"
-                                                                                            class="text-decoration-none text-dark small drawer-child-link">
-                                                                                            {{ $childcat->childcategoryName }}
-                                                                                        </a>
-                                                                                    </li>
-                                                                                @endforeach
-                                                                            </ul>
-                                                                        @endif
-                                                                    </li>
-                                                                @endforeach
-                                                            </ul>
-                                                        @endif
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                    </div>{{-- end offcanvas --}}
-                                    <li class="cat_bar text-dark home-toggle-item">
-                                        <div class="action-item1 action-toggle menu-home-toggle">
-                                            <a class="menu-toggle-link" type="button" data-bs-toggle="offcanvas"
-                                                data-bs-target="#sidebar" aria-controls="sidebar">
-                                                <span class="wd-tools-icon"></span>
-                                            </a>
-                                        </div>
-                                        <a class="text-dark menu-home-link" href="{{ route('home') }}"> <i
-                                                class="fas fa-home"></i> Home </a>
-                                    </li>
-
-                                    @foreach ($menucategories as $scategory)
-                                        <li class="cat_bar desktop-category-item">
-                                            <a class="text-dark menu-category-link"
-                                                href="{{ url('category/' . $scategory->slug) }}">
-                                                <span class="cat_head">{{ $scategory->name }}</span>
-                                                @if ($scategory->menusubcategories->count() > 0)
-                                                    <i class="fa-solid fa-angle-down cat_down"></i>
-                                                @endif
-                                            </a>
-                                            @if ($scategory->menusubcategories->count() > 0)
-                                                <ul class="Cat_menu desktop-submenu">
-                                                    @foreach ($scategory->menusubcategories as $subcat)
-                                                        <li class="Cat_list cat_list_hover desktop-submenu-item">
-                                                            <a class="text-dark desktop-submenu-link"
-                                                                href="{{ url('subcategory/' . $subcat->slug) }}">
-                                                                <span>{{ Str::limit($subcat->subcategoryName, 25) }}</span>
-                                                                @if ($subcat->menuchildcategories->count() > 0)
-                                                                    <i class="fa-solid fa-chevron-right cat_down"></i>
-                                                                @endif
-                                                            </a>
-                                                            @if ($subcat->menuchildcategories->count() > 0)
-                                                                <ul class="child_menu desktop-child-menu">
-                                                                    @foreach ($subcat->menuchildcategories as $childcat)
-                                                                        <li class="child_main desktop-child-item">
-                                                                            <a class="text-dark desktop-child-link"
-                                                                                href="{{ url('products/' . $childcat->slug) }}">
-                                                                                {{ $childcat->childcategoryName }}
-                                                                            </a>
-                                                                        </li>
-                                                                    @endforeach
-                                                                </ul>
-                                                            @endif
-                                                        </li>
-                                                    @endforeach
-                                                </ul>
-                                            @endif
-                                        </li>
-                                    @endforeach
-                                </ul>
-
-
-                            </div>
-
+            {{-- Body --}}
+            <div class="dz-sidebar-body offcanvas-body">
+                @foreach ($menucategories as $scategory)
+                    <div class="dz-cat-item">
+                        <div class="dz-cat-row" @if($scategory->menusubcategories->count() > 0) data-dz-toggle @endif>
+                            <img src="{{ asset($scategory->image) }}" alt="{{ $scategory->name }}" class="dz-cat-img">
+                            <a href="{{ url('category/' . $scategory->slug) }}" class="dz-cat-name" onclick="event.stopPropagation()">
+                                {{ $scategory->name }}
+                            </a>
+                            @if ($scategory->menusubcategories->count() > 0)
+                                <i class="fa-solid fa-chevron-down dz-cat-chevron"></i>
+                            @endif
                         </div>
+
+                        @if ($scategory->menusubcategories->count() > 0)
+                            <div class="dz-subcat-list">
+                                @foreach ($scategory->menusubcategories as $subcategory)
+                                    <div class="dz-subcat-item">
+                                        <div class="dz-subcat-row" @if($subcategory->menuchildcategories->count() > 0) data-dz-toggle @endif>
+                                            <a href="{{ url('subcategory/' . $subcategory->slug) }}" class="dz-subcat-name" onclick="event.stopPropagation()">
+                                                {{ $subcategory->subcategoryName }}
+                                            </a>
+                                            @if ($subcategory->menuchildcategories->count() > 0)
+                                                <i class="fa-solid fa-chevron-down dz-cat-chevron"></i>
+                                            @endif
+                                        </div>
+                                        @if ($subcategory->menuchildcategories->count() > 0)
+                                            <div class="dz-child-list">
+                                                @foreach ($subcategory->menuchildcategories as $childcat)
+                                                    <a href="{{ url('products/' . $childcat->slug) }}" class="dz-child-link">
+                                                        {{ $childcat->childcategoryName }}
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
-                </div>
+                @endforeach
             </div>
         </div>
-        <!-- main-header end -->
+        {{-- end offcanvas --}}
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('[data-dz-toggle]').forEach(function (row) {
+                row.addEventListener('click', function () {
+                    var parent = row.parentElement;
+                    var isOpen = parent.classList.contains('open');
+                    // close siblings
+                    parent.parentElement.querySelectorAll(':scope > .dz-cat-item.open, :scope > .dz-subcat-item.open').forEach(function (el) {
+                        if (el !== parent) el.classList.remove('open');
+                    });
+                    parent.classList.toggle('open', !isOpen);
+                });
+            });
+        });
+        </script>
+        <!-- header end -->
     </header>
     <div id="content">
         @yield('content')

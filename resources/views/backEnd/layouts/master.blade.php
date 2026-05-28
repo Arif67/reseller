@@ -885,6 +885,10 @@
                                             <a class="text-white" href="{{ route('banners.index') }}"><i
                                                     data-feather="image"></i> Marketing Banner</a>
                                         </li>
+                                        <li>
+                                            <a class="text-white" href="{{ route('promo_strip.index') }}"><i
+                                                    data-feather="zap"></i> Promo Strip</a>
+                                        </li>
 
                                     </ul>
                                 </div>

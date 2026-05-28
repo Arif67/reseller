@@ -56,6 +56,42 @@
                         </div>
                     </div>
                     <!-- col end -->
+                    <div class="col-sm-12 mb-2">
+                        <div class="alert alert-info border-0 p-3 mb-0" style="background:#f0f8ff;border-left:4px solid #0d6efd !important;border-radius:8px;">
+                            <h6 class="mb-2 fw-bold" style="color:#0d47a1;">
+                                <i class="mdi mdi-image-size-select-actual me-1"></i> Recommended Image Size
+                            </h6>
+                            <div class="row g-2">
+                                <div class="col-sm-4">
+                                    <div class="p-2 rounded text-center" style="background:#e3f2fd;border:1px solid #90caf9;">
+                                        <div class="fw-bold text-primary" style="font-size:13px;">Layout 1</div>
+                                        <div style="font-size:18px;font-weight:800;color:#1565c0;">1920 × 680</div>
+                                        <small class="text-muted">Full width slider</small>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="p-2 rounded text-center" style="background:#e8f5e9;border:1px solid #a5d6a7;">
+                                        <div class="fw-bold" style="font-size:13px;color:#2e7d32;">Layout 2</div>
+                                        <div style="font-size:18px;font-weight:800;color:#1b5e20;">1280 × 500</div>
+                                        <small class="text-muted">Left + 2 side banners</small>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="p-2 rounded text-center" style="background:#fff3e0;border:1px solid #ffcc80;">
+                                        <div class="fw-bold" style="font-size:13px;color:#e65100;">Layout 3 (Daraz)</div>
+                                        <div style="font-size:18px;font-weight:800;color:#bf360c;">1976 × 688</div>
+                                        <small class="text-muted">10 col slider + app panel</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-2" style="font-size:12px;color:#555;">
+                                <i class="mdi mdi-information-outline"></i>
+                                Minimum: <strong>1280×450 px</strong> &nbsp;|&nbsp;
+                                Format: <strong>JPG, PNG, WebP, AVIF</strong> &nbsp;|&nbsp;
+                                Max size: <strong>4 MB</strong>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-sm-12 mb-3">
                         @include('backEnd.category.partials.media-field', [
                             'field' => 'image',

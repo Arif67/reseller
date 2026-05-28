@@ -737,7 +737,7 @@
 <?php elseif ($detailsLayout === 3): ?>
     @include('frontEnd.pages.partials.details-layout-3')
 <?php else: ?>
-    <div class="container chheckout-section p-3">
+    <div class="custom-container chheckout-section p-3">
         <div class="product-hero-shell">
             <div class="row g-4 align-items-start">
                 <div class="col-lg-6 position-relative product-gallery-column">
@@ -1120,7 +1120,7 @@
                                         </h4>
                                     </div>
 
-                                    <div class="container my-4">
+                                    <div class="custom-container my-4">
                                         <div class="row g-3 text-center">
                                             <div class="col-6 col-md-3">
                                                 <div class="border rounded shadow-sm p-3 h-100 text-center">
@@ -1166,13 +1166,13 @@
     </div>
 
 
-    <div class="container reviews-shell text-center">
+    <div class="custom-container reviews-shell text-center">
         <div class="row justify-content-center">
             <div class="col-lg-10">
                 <div class="reviews-card-shell">
                     <div class="section-kicker">Customer Feedback</div>
 
-                    <div class="container">
+                    <div class="custom-container">
                         <div class="row text-center">
                             <div class="col-sm-12">
                                 <div class="section-head">
@@ -1329,7 +1329,7 @@
 
 
     <section class="related-product-section">
-        <div class="container">
+        <div class="custom-container">
             <div class="row mt-2">
                 <div class="col-12 text-center">
                     <div class="section-kicker">You may also like</div>
@@ -1353,7 +1353,7 @@
 
     @if (($recentlyViewedProducts ?? collect())->isNotEmpty())
     <section class="related-product-section">
-        <div class="container">
+        <div class="custom-container">
             <div class="row mt-2">
                 <div class="col-12 text-center">
                     <div class="section-kicker">Continue browsing</div>

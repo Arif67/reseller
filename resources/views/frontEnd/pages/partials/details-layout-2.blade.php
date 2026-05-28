@@ -95,6 +95,12 @@
             height: 100%;
             object-fit: cover;
             display: block;
+            transition: transform 0.4s ease;
+            cursor: zoom-in;
+        }
+
+        .layout2-main-image:hover img {
+            transform: scale(1.12);
         }
 
         .layout2-thumbs {
@@ -515,7 +521,7 @@
                 <div class="layout2-main-image">
                     @php($mainImageValue = is_string($mainImage) ? $mainImage : (data_get($mainImage, 'path', data_get($mainImage, 'image'))))
                     @php($mainImageUrl = \Illuminate\Support\Str::startsWith($mainImageValue, ['http://', 'https://']) ? $mainImageValue : asset($mainImageValue ?: 'uploads/logo.png'))
-                    <img src="{{ $mainImageUrl }}" alt="{{ $details?->name }}">
+                    <img id="layout2-main-img" src="{{ $mainImageUrl }}" alt="{{ $details?->name }}" class="block__pic">
                 </div>
 
                 <div class="layout2-thumbs">
@@ -781,6 +787,9 @@
 
             if (mainImage && imageSrc) {
                 mainImage.src = imageSrc;
+                if (typeof $.fn.imagezoomsl !== 'undefined') {
+                    $(mainImage).imagezoomsl({ zoomrange: [3, 3] });
+                }
             }
         });
     </script>

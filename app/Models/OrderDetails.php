@@ -18,6 +18,25 @@ class OrderDetails extends Model
         'selected_attributes' => 'array',
     ];
 
+    // "Size: M, Color: Red" — dynamic attributes, legacy fallback soho
+    public function getVariantLabelAttribute(): string
+    {
+        $attrs = $this->selected_attributes ?? [];
+        if (! empty($attrs)) {
+            return collect($attrs)
+                ->map(fn ($a) => ($a['attribute'] ?? '') . ': ' . ($a['value'] ?? ''))
+                ->filter()
+                ->implode(', ');
+        }
+
+        return collect([
+            'Size'   => $this->product_size,
+            'Color'  => $this->product_color,
+            'Model'  => $this->product_model,
+            'Weight' => $this->product_weight,
+        ])->filter()->map(fn ($v, $k) => "$k: $v")->implode(', ');
+    }
+
     public function image()
     {
         return $this->belongsTo(Productimage::class, 'product_id', 'product_id')

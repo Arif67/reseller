@@ -199,6 +199,7 @@ class ProductAttributeService
             $product = ProductVariable::query()
                 ->with('selectedValues.attribute')
                 ->where('product_id', $productId)
+                ->availableForReseller()
                 ->whereHas('selectedValues', function ($query) use ($selectedValueIds) {
                     $query->whereIn('values.id', $selectedValueIds);
                 }, '=', count($selectedValueIds))
@@ -216,6 +217,7 @@ class ProductAttributeService
         return ProductVariable::query()
             ->with('selectedValues.attribute')
             ->where('product_id', $productId)
+            ->availableForReseller()
             ->when(! empty($resolvedSelections['color']), fn ($query) => $query->where('color', $resolvedSelections['color']))
             ->when(! empty($resolvedSelections['size']), fn ($query) => $query->where('size', $resolvedSelections['size']))
             ->when(! empty($resolvedSelections['model']), fn ($query) => $query->where('model', $resolvedSelections['model']))

@@ -13,7 +13,13 @@ class ProductVariable extends Model
 
     protected $casts = [
         'images' => 'array',
+        'vendor_status' => 'boolean',
     ];
+
+    public function scopeAvailableForReseller($query)
+    {
+        return $query->where('stock', '>', 0)->where('vendor_status', 1);
+    }
 
 
     public function getGalleryImagesAttribute(): array
@@ -37,6 +43,31 @@ class ProductVariable extends Model
         $media = $this->relationLoaded('media') ? $this->media : $this->media()->get();
 
         return $media->first()?->path ?? $this->gallery_images[0] ?? $this->image;
+    }
+
+    public function getVariantLabelAttribute(): string
+    {
+        $selectedValues = $this->relationLoaded('selectedValues')
+            ? $this->selectedValues
+            : $this->selectedValues()->with('attribute')->get();
+
+        if ($selectedValues->isNotEmpty()) {
+            return $selectedValues
+                ->map(fn ($value) => ($value->attribute?->title ?? 'Option') . ': ' . $value->title)
+                ->implode(', ');
+        }
+
+        return collect([
+            'Size' => $this->size,
+            'Color' => $this->color,
+            'Model' => $this->model,
+            'Weight' => $this->weight,
+        ])->filter()->map(fn ($value, $label) => "$label: $value")->implode(', ');
+    }
+
+    public function getIsAvailableForResellerAttribute(): bool
+    {
+        return (bool) $this->vendor_status && (int) $this->stock > 0;
     }
 
     public function product()

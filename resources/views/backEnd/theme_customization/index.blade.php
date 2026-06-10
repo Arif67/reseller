@@ -594,6 +594,13 @@
             ],
         ],
         [
+            'title' => 'Checkout Page',
+            'description' => 'When enabled, the checkout page hides the navbar, search bar, footer and all other elements — leaving only the order form so customers can focus on placing the order.',
+            'fields' => [
+                ['name' => 'focused_checkout', 'label' => 'Focused Checkout (hide everything except the order form)', 'type' => 'toggle', 'default' => 0],
+            ],
+        ],
+        [
             'title' => 'Homepage Section Visibility',
             'description' => 'Control which homepage sections are visible on the storefront.',
             'fields' => [

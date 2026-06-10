@@ -68,6 +68,8 @@ class Kernel extends HttpKernel
         'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
         'lock' => \App\Http\Middleware\LockAccount::class,
         'customer' => \App\Http\Middleware\Customer::class,
+        'vendor' => \App\Http\Middleware\VendorAuth::class,
+        'reseller' => \App\Http\Middleware\ResellerAuth::class,
         'ipcheck' => \App\Http\Middleware\IpFilter::class,
         'check_refer' => \App\Http\Middleware\CheckReffer::class,
     ];

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\Frontend\LandingController;
 use App\Http\Controllers\Frontend\CatalogController;
 use App\Http\Controllers\Frontend\ContentController;
 use App\Http\Controllers\Frontend\MarketingController;
@@ -10,6 +11,21 @@ use App\Http\Controllers\Frontend\CampaignController as FrontendCampaignControll
 use App\Http\Controllers\Frontend\FrontendAjaxController;
 use App\Http\Controllers\Frontend\ShoppingController;
 use App\Http\Controllers\Frontend\CustomerController;
+use App\Http\Controllers\Vendor\AuthController as VendorAuthController;
+use App\Http\Controllers\Vendor\DashboardController as VendorDashboardController;
+use App\Http\Controllers\Vendor\ProductController as VendorProductController;
+use App\Http\Controllers\Vendor\OrderController as VendorOrderController;
+use App\Http\Controllers\Admin\VendorController as AdminVendorController;
+use App\Http\Controllers\Admin\ResellerController as AdminResellerController;
+use App\Http\Controllers\Admin\ResellerTicketController as AdminResellerTicketController;
+use App\Http\Controllers\Reseller\AuthController as ResellerAuthController;
+use App\Http\Controllers\Reseller\DashboardController as ResellerDashboardController;
+use App\Http\Controllers\Reseller\ProductController as ResellerProductController;
+use App\Http\Controllers\Reseller\FavouriteController as ResellerFavouriteController;
+use App\Http\Controllers\Reseller\TicketController as ResellerTicketController;
+use App\Http\Controllers\Reseller\CartController as ResellerCartController;
+use App\Http\Controllers\Reseller\CheckoutController as ResellerCheckoutController;
+use App\Http\Controllers\Reseller\WithdrawController as ResellerWithdrawController;
 use App\Http\Controllers\Marketing\FacebookEventController;
 use App\Http\Controllers\Marketing\TiktokEventController;
 use App\Http\Controllers\Payment\BkashController;
@@ -178,13 +194,36 @@ Route::get('/frontEnd/css/theme.css', function () {
         ->header('Content-Type', 'text/css');
 })->name('frontend.theme_css');
 
+/*
+|--------------------------------------------------------------------------
+| NEW: Reseller/Dropshipping marketing landing page (replaces storefront home)
+|--------------------------------------------------------------------------
+*/
+Route::get('/', [LandingController::class, 'index'])->name('home');
+Route::get('/about-us', [LandingController::class, 'about'])->name('landing.about');
+Route::get('/services', [LandingController::class, 'services'])->name('landing.services');
+Route::get('/our-products', [LandingController::class, 'products'])->name('landing.products');
+Route::get('/product/{slug}', [LandingController::class, 'productShow'])->name('landing.product.show');
+Route::get('/how-it-works', [LandingController::class, 'howItWorks'])->name('landing.how');
+Route::get('/contact-us', [LandingController::class, 'contact'])->name('landing.contact');
+Route::post('/contact-us', [LandingController::class, 'contactSubmit'])->name('landing.contact.submit');
+
+/*
+|--------------------------------------------------------------------------
+| DISABLED: Customer-facing e-commerce storefront
+| -------------------------------------------------------------------------
+| The public shopping experience (catalog, product details, cart, checkout,
+| customer accounts, payment callbacks) has been retired in favour of the
+| reseller/vendor model. Routes kept commented for reference; do not remove.
+|--------------------------------------------------------------------------
+*/
+/*
     Route::get('/store',[HomeController::class,'storepage'])->name('storepage');
 
 
 Route::post('/customer/coupon', [CustomerController::class, 'customer_coupon'])->name('customer.coupon');
 Route::post('/customer/coupon-remove', [CustomerController::class, 'coupon_remove'])->name('customer.coupon_remove');
 Route::group(['namespace'=>'Frontend', 'middleware' => ['ipcheck','check_refer']], function() {
-    Route::get('/', [HomeController::class, 'index'])->name('home');
     Route::get('category/{category}', [CatalogController::class, 'category'])->name('category');
     Route::get('subcategory/{subcategory}', [CatalogController::class, 'subcategory'])->name('subcategory');
     Route::get('products/{slug}', [CatalogController::class, 'products'])->name('products');
@@ -271,6 +310,8 @@ Route::get('bkash/checkout-url/callback',[BkashController::class,'callback'])->n
     Route::get('/payment-cancel', [ShurjopayControllers::class, 'payment_cancel'])->name('payment_cancel');
 
 });
+*/
+// END disabled storefront routes
 
 // unathenticate admin route
 Route::group(['namespace'=>'Admin','prefix'=>'admin','middleware' => ['customer','ipcheck','check_refer']], function() {
@@ -490,6 +531,8 @@ Route::group(['namespace'=>'Admin','middleware' => ['auth','lock','check_refer']
 
     Route::get('theme-customization', [ThemeCustomizationController::class,'index'])->name('theme.customization.index');
     Route::post('theme-customization/update', [ThemeCustomizationController::class,'update'])->name('theme.customization.update');
+    Route::get('theme-customization/landing-hero', [ThemeCustomizationController::class,'hero'])->name('theme.hero.index');
+    Route::post('theme-customization/landing-hero/update', [ThemeCustomizationController::class,'heroUpdate'])->name('theme.hero.update');
 
      // settings route
     Route::get('social-media/manage', [SocialMediaController::class,'index'])->name('socialmedias.index');
@@ -921,4 +964,127 @@ Route::group(['namespace'=>'Admin','middleware' => ['auth','lock','check_refer']
 
     Route::post('/summernote/upload', [SummernoteController::class, 'upload'])->name('summernote.upload');
 
+    // Vendor management (admin)
+    Route::get('vendors', [AdminVendorController::class, 'index'])->name('admin.vendors.index');
+    Route::get('vendors/{id}/show', [AdminVendorController::class, 'show'])->name('admin.vendors.show');
+    Route::post('vendors/approve', [AdminVendorController::class, 'approve'])->name('admin.vendors.approve');
+    Route::post('vendors/suspend', [AdminVendorController::class, 'suspend'])->name('admin.vendors.suspend');
+    Route::post('vendors/commission', [AdminVendorController::class, 'updateCommission'])->name('admin.vendors.commission');
+    Route::post('vendors/destroy', [AdminVendorController::class, 'destroy'])->name('admin.vendors.destroy');
+
+    // Reseller management (admin)
+    Route::get('resellers', [AdminResellerController::class, 'index'])->name('admin.resellers.index');
+    Route::get('resellers/withdrawals', [AdminResellerController::class, 'withdrawals'])->name('admin.resellers.withdrawals');
+    Route::post('resellers/withdraw-status', [AdminResellerController::class, 'withdrawStatus'])->name('admin.resellers.withdraw_status');
+    Route::get('resellers/{id}/show', [AdminResellerController::class, 'show'])->name('admin.resellers.show');
+    Route::post('resellers/approve', [AdminResellerController::class, 'approve'])->name('admin.resellers.approve');
+    Route::post('resellers/suspend', [AdminResellerController::class, 'suspend'])->name('admin.resellers.suspend');
+    Route::post('resellers/margin', [AdminResellerController::class, 'updateMargin'])->name('admin.resellers.margin');
+    Route::post('resellers/destroy', [AdminResellerController::class, 'destroy'])->name('admin.resellers.destroy');
+
+    // Reseller Support Tickets
+    Route::get('reseller-tickets', [AdminResellerTicketController::class, 'index'])->name('admin.reseller_tickets.index');
+    Route::get('reseller-tickets/{id}', [AdminResellerTicketController::class, 'show'])->name('admin.reseller_tickets.show');
+    Route::get('reseller-tickets/{id}/messages', [AdminResellerTicketController::class, 'messages'])->name('admin.reseller_tickets.messages');
+    Route::post('reseller-tickets/{id}/reply', [AdminResellerTicketController::class, 'reply'])->name('admin.reseller_tickets.reply');
+    Route::post('reseller-tickets/{id}/status', [AdminResellerTicketController::class, 'status'])->name('admin.reseller_tickets.status');
+
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Vendor Panel (guard: vendor)
+|--------------------------------------------------------------------------
+*/
+Route::group(['prefix' => 'vendor', 'middleware' => ['ipcheck', 'check_refer']], function () {
+    // guest
+    Route::get('/login', [VendorAuthController::class, 'login'])->name('vendor.login');
+    Route::post('/signin', [VendorAuthController::class, 'signin'])->name('vendor.signin');
+    Route::get('/register', [VendorAuthController::class, 'register'])->name('vendor.register');
+    Route::post('/store', [VendorAuthController::class, 'store'])->name('vendor.store');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Reseller Panel (guard: reseller)
+|--------------------------------------------------------------------------
+*/
+Route::group(['prefix' => 'reseller', 'middleware' => ['ipcheck', 'check_refer']], function () {
+    Route::get('/login', [ResellerAuthController::class, 'login'])->name('reseller.login');
+    Route::post('/signin', [ResellerAuthController::class, 'signin'])->name('reseller.signin');
+    Route::get('/register', [ResellerAuthController::class, 'register'])->name('reseller.register');
+    Route::post('/store', [ResellerAuthController::class, 'store'])->name('reseller.store');
+});
+
+Route::group(['prefix' => 'reseller', 'middleware' => ['reseller', 'ipcheck', 'check_refer']], function () {
+    Route::get('/dashboard', [ResellerDashboardController::class, 'dashboard'])->name('reseller.dashboard');
+    Route::get('/products', [ResellerProductController::class, 'index'])->name('reseller.products.index');
+    Route::get('/products/details/{id}', [ResellerProductController::class, 'details'])->name('reseller.products.details');
+    Route::get('/products/{id}/download/{index}', [ResellerProductController::class, 'downloadImage'])->name('reseller.products.download');
+
+    // Favourites (wishlist)
+    Route::get('/favourites', [ResellerFavouriteController::class, 'index'])->name('reseller.favourites.index');
+    Route::post('/favourites/toggle', [ResellerFavouriteController::class, 'toggle'])->name('reseller.favourites.toggle');
+
+    // Cart
+    Route::post('/cart/add', [ResellerCartController::class, 'add'])->name('reseller.order.add');
+    Route::get('/cart', [ResellerCartController::class, 'index'])->name('reseller.cart.index');
+    Route::post('/cart/update', [ResellerCartController::class, 'update'])->name('reseller.cart.update');
+    Route::post('/cart/remove', [ResellerCartController::class, 'remove'])->name('reseller.cart.remove');
+    Route::post('/cart/clear', [ResellerCartController::class, 'clear'])->name('reseller.cart.clear');
+
+    // Checkout / Orders
+    Route::get('/checkout', [ResellerCheckoutController::class, 'checkout'])->name('reseller.checkout');
+    Route::post('/order/place', [ResellerCheckoutController::class, 'placeOrder'])->name('reseller.orders.place');
+    Route::get('/order/success/{id}', [ResellerCheckoutController::class, 'success'])->name('reseller.orders.success');
+    Route::get('/orders', [ResellerCheckoutController::class, 'myOrders'])->name('reseller.orders.index');
+    Route::get('/orders/{id}', [ResellerCheckoutController::class, 'show'])->name('reseller.orders.show');
+    Route::post('/orders/fraud-check', [ResellerCheckoutController::class, 'fraudCheck'])->name('reseller.orders.fraud_check');
+    Route::get('/orders/{id}/edit', [ResellerCheckoutController::class, 'edit'])->name('reseller.orders.edit');
+    Route::post('/orders/{id}/update', [ResellerCheckoutController::class, 'update'])->name('reseller.orders.update');
+    Route::post('/orders/{id}/cancel', [ResellerCheckoutController::class, 'cancel'])->name('reseller.orders.cancel');
+
+    // Support Tickets
+    Route::get('/tickets', [ResellerTicketController::class, 'index'])->name('reseller.tickets.index');
+    Route::get('/tickets/create', [ResellerTicketController::class, 'create'])->name('reseller.tickets.create');
+    Route::post('/tickets', [ResellerTicketController::class, 'store'])->name('reseller.tickets.store');
+    Route::get('/tickets/{id}', [ResellerTicketController::class, 'show'])->name('reseller.tickets.show');
+    Route::get('/tickets/{id}/messages', [ResellerTicketController::class, 'messages'])->name('reseller.tickets.messages');
+    Route::post('/tickets/{id}/reply', [ResellerTicketController::class, 'reply'])->name('reseller.tickets.reply');
+
+    // Withdraw
+    Route::get('/withdraw', [ResellerWithdrawController::class, 'index'])->name('reseller.withdraw.index');
+    Route::post('/withdraw', [ResellerWithdrawController::class, 'store'])->name('reseller.withdraw.store');
+    Route::get('/profile', [ResellerDashboardController::class, 'profile'])->name('reseller.profile');
+    Route::post('/profile/update', [ResellerDashboardController::class, 'profileUpdate'])->name('reseller.profile.update');
+    Route::post('/profile/password', [ResellerDashboardController::class, 'passwordUpdate'])->name('reseller.password.update');
+    Route::get('/payment-methods', [ResellerDashboardController::class, 'paymentMethods'])->name('reseller.payment_methods.index');
+    Route::post('/profile/payment-method/add', [ResellerDashboardController::class, 'addPaymentMethod'])->name('reseller.payment_method.add');
+    Route::post('/profile/payment-method/delete', [ResellerDashboardController::class, 'deletePaymentMethod'])->name('reseller.payment_method.delete');
+    Route::post('/logout', [ResellerAuthController::class, 'logout'])->name('reseller.logout');
+});
+
+Route::group(['prefix' => 'vendor', 'middleware' => ['vendor', 'ipcheck', 'check_refer']], function () {
+    Route::get('/dashboard', [VendorDashboardController::class, 'dashboard'])->name('vendor.dashboard');
+    Route::get('/profile', [VendorDashboardController::class, 'profile'])->name('vendor.profile');
+    Route::post('/profile/update', [VendorDashboardController::class, 'profileUpdate'])->name('vendor.profile.update');
+    Route::post('/profile/password', [VendorDashboardController::class, 'passwordUpdate'])->name('vendor.password.update');
+    Route::post('/logout', [VendorAuthController::class, 'logout'])->name('vendor.logout');
+
+    // Products — vendor sudhu list, stock, status on/off (add/edit admin kore)
+    Route::get('/products', [VendorProductController::class, 'index'])->name('vendor.products.index');
+    Route::post('/products/stock', [VendorProductController::class, 'updateStock'])->name('vendor.products.stock');
+    Route::post('/products/toggle', [VendorProductController::class, 'toggleStatus'])->name('vendor.products.toggle');
+    Route::post('/products/variation-toggle', [VendorProductController::class, 'toggleVariable'])->name('vendor.products.variation_toggle');
+
+    // Orders & Collections
+    Route::get('/collection', [VendorOrderController::class, 'collection'])->name('vendor.collection');
+    Route::get('/pending-summary', [VendorOrderController::class, 'pendingSummary'])->name('vendor.pending_summary');
+    Route::get('/collected', [VendorOrderController::class, 'collected'])->name('vendor.collected');
+    Route::get('/payment', [VendorDashboardController::class, 'payment'])->name('vendor.payment');
+    Route::get('/recent-post', [VendorProductController::class, 'recentPost'])->name('vendor.recent_post');
+
+    Route::get('/orders/{slug}', [VendorOrderController::class, 'index'])->name('vendor.orders.index');
+    Route::get('/orders/show/{id}', [VendorOrderController::class, 'show'])->name('vendor.orders.show');
 });

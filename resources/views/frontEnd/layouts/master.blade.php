@@ -235,13 +235,20 @@
 
 @php
     $hideViewDetails = (int) ($themeCustomization?->show_view_details ?? 1) !== 1;
+    $focusedConfigOn = (int) ($themeCustomization?->focused_checkout ?? 0) === 1;
+    // Hide all chrome (navbar, search, footer, etc.) only on the checkout page.
+    $focusedCheckout = $focusedConfigOn && request()->routeIs('customer.checkout');
+    // Show the bottom WhatsApp button on both checkout and product details pages.
+    $showFocusedWa = $focusedConfigOn
+        && (request()->routeIs('customer.checkout') || request()->routeIs('product'));
 @endphp
-<body class="gotop frontend-body {{ $hideViewDetails ? 'hide-view-details' : '' }}">
+<body class="gotop frontend-body {{ $hideViewDetails ? 'hide-view-details' : '' }} {{ $focusedCheckout ? 'focused-checkout' : '' }}">
 
 
     @php
         $subtotal = Cart::instance('shopping')->subtotal();
     @endphp
+    @unless ($focusedCheckout)
     <div class="mobile-menu">
         <div class="mobile-menu-logo">
             <div class="logo-image">
@@ -507,10 +514,12 @@
         </script>
         <!-- header end -->
     </header>
+    @endunless
     <div id="content">
         @yield('content')
     </div>
     <!-- content end -->
+    @unless ($focusedCheckout)
     <footer class="storefront-footer">
         <div class="footer-top-section footer-top py-5 px-3">
             <div class="custom-container">
@@ -607,7 +616,9 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+
+
+                        </div>
 
                     <!-- Column 3: Useful Links -->
                     <div class="col-md-3">
@@ -824,6 +835,79 @@
             @endif
         </ul>
     </div>
+    @endunless
+
+    @if ($showFocusedWa)
+        <style>
+            .focused-checkout #content {
+                padding-bottom: 84px;
+            }
+
+            .focused-wa-bar {
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 1050;
+                background: #fff;
+                border-top: 1px solid #e5e7eb;
+                box-shadow: 0 -6px 18px rgba(15, 23, 42, 0.08);
+                padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+            }
+
+            .focused-wa-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                width: 100%;
+                max-width: 520px;
+                margin: 0 auto;
+                min-height: 52px;
+                border-radius: 14px;
+                background: #25d366;
+                color: #fff;
+                font-weight: 800;
+                font-size: 16px;
+                text-decoration: none;
+                box-shadow: 0 8px 18px rgba(37, 211, 102, 0.35);
+                transition: background 0.18s ease, transform 0.18s ease;
+            }
+
+            .focused-wa-btn:hover {
+                background: #1ebe5b;
+                color: #fff;
+                transform: translateY(-1px);
+            }
+
+            .focused-wa-btn i {
+                font-size: 22px;
+            }
+
+            /* On product details the mobile bottom nav (.footer_nav) is visible,
+               so lift the WhatsApp bar above it to avoid overlap. */
+            @media only screen and (min-width: 320px) and (max-width: 767px) {
+                .focused-wa-bar.is-above-nav {
+                    bottom: 58px;
+                    box-shadow: none;
+                    border-top: 0;
+                    padding-bottom: 6px;
+                }
+            }
+        </style>
+
+        @php
+            $focusedWaMessage = $details?->name
+                ? 'Hello, I want to order: ' . $details->name
+                : 'Hello, I want to place an order.';
+        @endphp
+        <div class="focused-wa-bar {{ $focusedCheckout ? '' : 'is-above-nav' }}">
+            <a href="https://api.whatsapp.com/send?phone={{ $contact?->hotline }}&text={{ urlencode($focusedWaMessage) }}"
+                target="_blank" rel="noopener" class="focused-wa-btn">
+                <i class="fa-brands fa-whatsapp"></i> Message on WhatsApp
+            </a>
+        </div>
+    @endif
 
 
     <div class="scrolltop">

@@ -147,12 +147,12 @@ class Product extends Model
 
     public function variable()
     {
-        return $this->hasOne('App\Models\ProductVariable')->where('stock','>',0);
+        return $this->hasOne(ProductVariable::class)->availableForReseller();
     }
 
     public function variables()
     {
-        return $this->hasMany('App\Models\ProductVariable')->where('stock','>',0);
+        return $this->hasMany(ProductVariable::class)->availableForReseller();
     }
 
     public function allVariables()

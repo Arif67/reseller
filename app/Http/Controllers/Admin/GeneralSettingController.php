@@ -52,7 +52,10 @@ class GeneralSettingController extends Controller
     protected function clearSettingCaches(): void
     {
         Cache::forget('shared_view_data_v3');
+        Cache::forget('shared_view_data_v4');
         Cache::forget('upload_settings_v1');
+        // Static landing pages embed the logo/name/contact, so drop their cache too.
+        \App\Http\Controllers\Frontend\LandingController::flushCache();
     }
 
     public function store(Request $request)

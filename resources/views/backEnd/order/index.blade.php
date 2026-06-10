@@ -464,6 +464,13 @@
                                             <input id="order-start-date" type="date" name="start_date" class="form-control" value="{{ $activeFilters['start_date'] ?? '' }}">
                                             <input id="order-end-date" type="date" name="end_date" class="form-control" value="{{ $activeFilters['end_date'] ?? '' }}">
                                     </div>
+                                    <div>
+                                        <select name="source" class="form-control" onchange="this.form.submit()">
+                                            <option value="">All Orders</option>
+                                            <option value="reseller" @selected(request('source')=='reseller')>Reseller Only</option>
+                                            <option value="normal" @selected(request('source')=='normal')>Normal Only</option>
+                                        </select>
+                                    </div>
                                     <div class="order-filter-actions">
                                                 <button class="btn rounded-pill btn-info">Filter</button>
                                                 <a href="{{ route('admin.orders', $currentOrderSlug) }}" class="btn rounded-pill btn-secondary">Reset</a>
@@ -566,7 +573,14 @@
                                 </div>
                             </td>
 
-                            <td>{{$value->invoice_id}}</td>
+                            <td>{{$value->invoice_id}}
+                                @if($value->reseller_id)
+                                    <br><span class="badge bg-success" title="Reseller order">
+                                        <i class="mdi mdi-account-tie"></i> {{ $value->reseller?->name ?? 'Reseller' }}
+                                    </span>
+                                    <br><small class="text-success">Margin: ৳{{ number_format($value->reseller_margin, 0) }}</small>
+                                @endif
+                            </td>
 
                             <td>{{$value->ip_address}}</td>
                             <td>{{date('d-m-Y', strtotime($value->updated_at))}}<br> {{date('h:i:s a', strtotime($value->updated_at))}}</td>

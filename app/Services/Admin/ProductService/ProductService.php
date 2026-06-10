@@ -156,6 +156,7 @@ class ProductService
             return $this->response([
                 'categories' => Category::where('status', 1)->select('id', 'name', 'status')->get(),
                 'brands' => Brand::where('status', 1)->select('id', 'name', 'status')->get(),
+                'vendors' => \App\Models\Vendor::where('status', 'active')->orderBy('shop_name')->get(['id', 'shop_name']),
                 'attributes' => $this->productAttributeService->getActiveAttributes(),
                 'primaryCategoryId' => $primaryCategoryId,
                 'selectedCategoryIds' => $selectedCategoryIds,
@@ -239,6 +240,7 @@ class ProductService
 
             return $this->response([
                 'edit_data' => $editData,
+                'vendors' => \App\Models\Vendor::where('status', 'active')->orderBy('shop_name')->get(['id', 'shop_name']),
                 'categories' => Category::where('status', 1)->select('id', 'name', 'status')->get(),
                 'subcategory' => Subcategory::where('category_id', $categoryId)->select('id', 'subcategoryName', 'status')->get(),
                 'childcategory' => Childcategory::where('subcategory_id', $subcategoryId)->select('id', 'childcategoryName', 'status')->get(),
@@ -677,6 +679,8 @@ class ProductService
         $input['variation_pricing_mode'] = $this->resolveVariationPricingMode($request);
         $input['pro_barcode'] = $this->normalizeBarcode($request->input('pro_barcode'));
         $input['selected_attribute_ids'] = $this->sanitizeAttributeIds($request->input('selected_attribute_ids', []));
+        $input['vendor_id'] = $request->filled('vendor_id') ? (int) $request->vendor_id : null;
+        $input['wholesale_price'] = $request->filled('wholesale_price') ? (float) $request->wholesale_price : 0;
         $input['status'] = $request->status ? 1 : 0;
         $input['is_catalog'] = $request->is_catalog ? 1 : 0;
         $input['topsale'] = $request->topsale ? 1 : 0;

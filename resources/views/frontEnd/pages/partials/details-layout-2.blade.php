@@ -80,6 +80,7 @@
         .layout2-gallery {
             padding: 14px;
             border-top: 4px solid #f97316;
+            position: relative;
         }
 
         .layout2-main-image {
@@ -87,6 +88,7 @@
             overflow: hidden;
             background: linear-gradient(180deg, #fff7ed 0%, #ffedd5 100%);
             aspect-ratio: 1 / 1;
+            cursor: zoom-in;
             border: 1px solid #fed7aa;
         }
 
@@ -95,12 +97,99 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            transition: transform 0.4s ease;
-            cursor: zoom-in;
         }
 
-        .layout2-main-image:hover img {
-            transform: scale(1.12);
+        /* In-place zoom (Daraz / stmartbd style) */
+        .mag-zoom {
+            position: absolute;
+            inset: 0;
+            background-repeat: no-repeat;
+            background-size: 230%;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.18s ease;
+            pointer-events: none;
+            z-index: 12;
+        }
+
+        .layout2-main-image.is-zooming .mag-zoom {
+            opacity: 1;
+        }
+
+        @media (max-width: 1199.98px) {
+            .mag-zoom { display: none !important; }
+        }
+
+        /* Mobile tap-to-zoom */
+        .mag-tap-hint {
+            display: none;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.45);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            pointer-events: none;
+            z-index: 5;
+            gap: 5px;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        @media (max-width: 1199.98px) {
+            .mag-tap-hint { display: flex; }
+            .layout2-main-image { cursor: zoom-in; }
+            /* Prevent any accidental overflow from result pane */
+            .layout2-gallery { overflow: hidden; }
+        }
+
+        /* Lightbox */
+        .mag-lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: rgba(0, 0, 0, 0.96);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .mag-lightbox.is-open { display: flex; }
+
+        .mag-lightbox-img {
+            max-width: 100%;
+            max-height: 85vh;
+            object-fit: contain;
+            touch-action: pinch-zoom;
+            user-select: none;
+            border-radius: 8px;
+        }
+
+        .mag-lightbox-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .mag-lightbox-hint {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 12px;
+            margin-top: 12px;
         }
 
         .layout2-thumbs {
@@ -518,10 +607,12 @@
         <div class="layout2-grid">
             <div class="layout2-gallery">
                 @php($mainImage = $galleryImages->first())
-                <div class="layout2-main-image">
+                <div class="layout2-main-image" id="magImgContainer">
+                    <div class="mag-tap-hint"><i class="fa-solid fa-magnifying-glass-plus"></i> Tap to zoom</div>
                     @php($mainImageValue = is_string($mainImage) ? $mainImage : (data_get($mainImage, 'path', data_get($mainImage, 'image'))))
                     @php($mainImageUrl = \Illuminate\Support\Str::startsWith($mainImageValue, ['http://', 'https://']) ? $mainImageValue : asset($mainImageValue ?: 'uploads/logo.png'))
-                    <img id="layout2-main-img" src="{{ $mainImageUrl }}" alt="{{ $details?->name }}" class="block__pic">
+                    <img id="layout2-main-img" src="{{ $mainImageUrl }}" alt="{{ $details?->name }}">
+                    <div class="mag-zoom" id="magZoom"></div>
                 </div>
 
                 <div class="layout2-thumbs">
@@ -774,23 +865,98 @@
     </div>
 </div>
 
+<div class="mag-lightbox" id="magLightbox">
+    <button class="mag-lightbox-close" id="magLightboxClose">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+    <img class="mag-lightbox-img" id="magLightboxImg" src="" alt="">
+    <span class="mag-lightbox-hint"><i class="fa-solid fa-hand-pointer"></i> Pinch করে zoom করুন</span>
+</div>
+
 @push('script')
     <script>
-        document.addEventListener('click', function(event) {
-            const thumb = event.target.closest('[data-layout2-thumb]');
-            if (!thumb) {
-                return;
+        // Desktop in-place zoom (Daraz / stmartbd style)
+        (function () {
+            var wrap = document.getElementById('magImgContainer');
+            var img  = document.getElementById('layout2-main-img');
+            var zoom = document.getElementById('magZoom');
+            if (!wrap || !img || !zoom) return;
+
+            var desktopMq = window.matchMedia('(hover: hover) and (min-width: 1200px)');
+
+            function syncImage() {
+                zoom.style.backgroundImage = "url('" + img.src + "')";
             }
 
-            const mainImage = document.querySelector('.layout2-main-image img');
-            const imageSrc = thumb.getAttribute('data-image-src');
+            wrap.addEventListener('mouseenter', function () {
+                if (!desktopMq.matches) return;
+                syncImage();
+                wrap.classList.add('is-zooming');
+            });
 
-            if (mainImage && imageSrc) {
-                mainImage.src = imageSrc;
-                if (typeof $.fn.imagezoomsl !== 'undefined') {
-                    $(mainImage).imagezoomsl({ zoomrange: [3, 3] });
+            wrap.addEventListener('mouseleave', function () {
+                wrap.classList.remove('is-zooming');
+            });
+
+            wrap.addEventListener('mousemove', function (e) {
+                if (!desktopMq.matches) return;
+                var rect = img.getBoundingClientRect();
+                var x = ((e.clientX - rect.left) / rect.width) * 100;
+                var y = ((e.clientY - rect.top) / rect.height) * 100;
+                x = Math.max(0, Math.min(100, x));
+                y = Math.max(0, Math.min(100, y));
+                zoom.style.backgroundPosition = x + '% ' + y + '%';
+            });
+
+            document.addEventListener('click', function (event) {
+                var thumb = event.target.closest('[data-layout2-thumb]');
+                if (!thumb) return;
+                var src = thumb.getAttribute('data-image-src');
+                if (img && src) {
+                    img.src = src;
+                    if (wrap.classList.contains('is-zooming')) syncImage();
                 }
+            });
+        })();
+
+        // Mobile tap-to-zoom lightbox
+        (function () {
+            var wrap     = document.getElementById('magImgContainer');
+            var img      = document.getElementById('layout2-main-img');
+            var lightbox = document.getElementById('magLightbox');
+            var lbImg    = document.getElementById('magLightboxImg');
+            var lbClose  = document.getElementById('magLightboxClose');
+            if (!wrap || !img || !lightbox || !lbImg) return;
+
+            function openLightbox() {
+                // Only open on mobile/tablet — desktop uses hover magnifier
+                if (window.matchMedia('(hover: hover) and (min-width: 1200px)').matches) return;
+                lbImg.src = img.src;
+                lightbox.classList.add('is-open');
+                document.body.style.overflow = 'hidden';
             }
-        });
+
+            function closeLightbox() {
+                lightbox.classList.remove('is-open');
+                document.body.style.overflow = '';
+                lbImg.src = '';
+            }
+
+            wrap.addEventListener('click', openLightbox);
+            if (lbClose) lbClose.addEventListener('click', closeLightbox);
+            lightbox.addEventListener('click', function (e) {
+                if (e.target === lightbox) closeLightbox();
+            });
+
+            // Update lightbox image when thumbnail changes
+            document.addEventListener('click', function (event) {
+                var thumb = event.target.closest('[data-layout2-thumb]');
+                if (!thumb) return;
+                var src = thumb.getAttribute('data-image-src');
+                if (img && src && lightbox.classList.contains('is-open')) {
+                    lbImg.src = src;
+                }
+            });
+        })();
     </script>
 @endpush

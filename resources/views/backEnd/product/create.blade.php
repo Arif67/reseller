@@ -1035,6 +1035,18 @@
                   </div>
                   <div class="col-sm-4">
                     <div class="form-group mb-3">
+                      <label for="vendor_id" class="form-label">Vendor (Optional)</label>
+                      <select class="form-control select2 @error('vendor_id') is-invalid @enderror" name="vendor_id" id="vendor_id">
+                        <option value="">Platform (own product)</option>
+                        @foreach(($vendors ?? []) as $vendor)
+                        <option value="{{$vendor->id}}" @selected(old('vendor_id') == $vendor->id)>{{$vendor->shop_name}}</option>
+                        @endforeach
+                      </select>
+                      <small class="text-muted">Kon vendor-er product seta select korun. Khali rakhle platform-er nijer product.</small>
+                    </div>
+                  </div>
+                  <div class="col-sm-4">
+                    <div class="form-group mb-3">
                       <label for="pro_barcode" class="form-label">Product Barcode (Optional)</label>
                       <div class="input-group">
                         <input type="text" class="form-control @error('pro_barcode') is-invalid @enderror barcode-input" name="pro_barcode" value="{{ old('pro_barcode') }}" id="pro_barcode" placeholder="Scan or enter product barcode" />
@@ -1247,6 +1259,20 @@
                     <input type="text" class="form-control @error('new_price') is-invalid @enderror" name="new_price"
                       value="{{ old('new_price') }}" id="new_price" />
                     @error('new_price')
+                    <span class="invalid-feedback" role="alert">
+                      <strong>{{ $message }}</strong>
+                    </span>
+                    @enderror
+                  </div>
+                </div>
+                <!-- col-end -->
+                <div class="col-sm-3">
+                  <div class="form-group mb-3">
+                    <label for="wholesale_price" class="form-label">Wholesale Price (Reseller)</label>
+                    <input type="text" class="form-control @error('wholesale_price') is-invalid @enderror" name="wholesale_price"
+                      value="{{ old('wholesale_price') }}" id="wholesale_price" />
+                    <small class="text-muted">Reseller panel e ei price dekhabe.</small>
+                    @error('wholesale_price')
                     <span class="invalid-feedback" role="alert">
                       <strong>{{ $message }}</strong>
                     </span>

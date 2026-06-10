@@ -7,8 +7,10 @@ use App\Models\Media;
 use App\Models\Product;
 use App\Services\Admin\AdminActivityLogService;
 use App\Services\Admin\MediaService\MediaService;
+use App\Http\Controllers\Frontend\LandingController;
 use App\Traits\Response;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
@@ -134,6 +136,7 @@ class CategoryService
                 null,
                 $this->snapshotCategory($category)
             );
+            $this->flushCategoryCaches();
             return $this->response(['category' => $category])->success('Category inserted successfully');
         } catch (\Throwable $exception) {
             return $this->response()->error($exception->getMessage());
@@ -160,6 +163,7 @@ class CategoryService
                 $this->snapshotCategory($category)
             );
 
+            $this->flushCategoryCaches();
             return $this->response(['category' => $category])->success('Category updated successfully');
         } catch (\Throwable $exception) {
             return $this->response()->error($exception->getMessage());
@@ -185,6 +189,7 @@ class CategoryService
                 $this->snapshotCategory($category)
             );
 
+            $this->flushCategoryCaches();
             return $this->response(['category' => $category])->success(
                 $status === 1 ? 'Data active successfully' : 'Data inactive successfully'
             );
@@ -261,12 +266,25 @@ class CategoryService
                 );
             }
 
+            $this->flushCategoryCaches();
             return $this->response(['deleted_count' => $deletedCount])->success(
                 $deletedCount > 1 ? 'Categories deleted successfully' : 'Category deleted successfully'
             );
         } catch (\Throwable $exception) {
             return $this->response()->error($exception->getMessage());
         }
+    }
+
+    /**
+     * Refresh caches that embed the category list (shared menu data + the
+     * cached static landing pages that show the category grid).
+     */
+    private function flushCategoryCaches(): void
+    {
+        Cache::forget('shared_view_data_v2');
+        Cache::forget('shared_view_data_v3');
+        Cache::forget('shared_view_data_v4');
+        LandingController::flushCache();
     }
 
     private function prepareData(array $payload): array

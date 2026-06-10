@@ -125,6 +125,10 @@ class Order extends Model
     {
         return $this->belongsTo(User::class,'user_id');
     }
+    public function reseller()
+    {
+        return $this->belongsTo(Reseller::class,'reseller_id');
+    }
 
     public function getMarketingSourceLabelAttribute(): string
     {

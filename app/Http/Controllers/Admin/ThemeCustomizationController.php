@@ -25,6 +25,31 @@ class ThemeCustomizationController extends Controller
         'all_products',
     ];
 
+    /**
+     * Editable text fields for the reseller landing hero (see migration
+     * 2026_06_10_000001_add_hero_to_theme_customizations_table).
+     */
+    private const HERO_TEXT_FIELDS = [
+        'hero_badge',
+        'hero_title',
+        'hero_highlight',
+        'hero_subtitle',
+        'hero_primary_text',
+        'hero_primary_link',
+        'hero_secondary_text',
+        'hero_secondary_link',
+        'hero_visual_title',
+        'hero_visual_text',
+        'hero_stat1_value',
+        'hero_stat1_label',
+        'hero_stat2_value',
+        'hero_stat2_label',
+        'hero_stat3_value',
+        'hero_stat3_label',
+        'hero_stat4_value',
+        'hero_stat4_label',
+    ];
+
     public function index()
     {
         $defaults = [
@@ -59,6 +84,7 @@ class ThemeCustomizationController extends Controller
             'view_details_bg_color' => '#f8fafc',
             'view_details_font_color' => '#0f172a',
             'product_details_layout' => 1,
+            'focused_checkout' => 0,
             'search_button_style' => 'full',
             'product_card_layout' => 'default',
             'slider_layout' => 1,
@@ -137,6 +163,7 @@ class ThemeCustomizationController extends Controller
             'view_details_bg_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'view_details_font_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
             'product_details_layout' => ['required', 'integer', 'in:1,2,3'],
+            'focused_checkout' => ['nullable', 'boolean'],
             'search_button_style' => ['required', 'string', 'in:full,compact,icon'],
             'product_card_layout' => ['required', 'string', 'in:default,daraz'],
             'slider_layout' => ['required', 'integer', 'in:1,2,3'],
@@ -191,6 +218,7 @@ class ThemeCustomizationController extends Controller
             'show_new_popular',
             'show_service_features',
             'show_all_products',
+            'focused_checkout',
         ] as $toggleField) {
             $validated[$toggleField] = $request->has($toggleField) ? 1 : 0;
         }
@@ -214,12 +242,50 @@ class ThemeCustomizationController extends Controller
 
         Cache::forget('shared_view_data_v2');
         Cache::forget('shared_view_data_v3');
+        Cache::forget('shared_view_data_v4');
         foreach (range(4, 16) as $limit) {
             Cache::forget('home_categories_v2_' . $limit);
         }
+        \App\Http\Controllers\Frontend\LandingController::flushCache();
 
         Toastr::success('Success', 'Theme customization updated successfully');
         return redirect()->route('theme.customization.index');
+    }
+
+    /**
+     * Dedicated editor page for the reseller landing page hero section.
+     */
+    public function hero()
+    {
+        $themeCustomization = ThemeCustomization::firstOrCreate([]);
+
+        return view('backEnd.theme_customization.hero', compact('themeCustomization'));
+    }
+
+    public function heroUpdate(Request $request)
+    {
+        if (! $this->hasThemeCustomizationColumn('hero_title')) {
+            Toastr::error('Please run database migrations first.', 'Hero columns missing');
+            return redirect()->route('theme.hero.index');
+        }
+
+        $rules = ['hero_bg_color' => ['nullable', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/']];
+        foreach (self::HERO_TEXT_FIELDS as $heroField) {
+            $rules[$heroField] = ['nullable', 'string', 'max:500'];
+        }
+
+        $validated = $request->validate($rules);
+
+        $themeCustomization = ThemeCustomization::firstOrCreate([]);
+        $themeCustomization->update($validated);
+
+        Cache::forget('shared_view_data_v2');
+        Cache::forget('shared_view_data_v3');
+        Cache::forget('shared_view_data_v4');
+        \App\Http\Controllers\Frontend\LandingController::flushCache();
+
+        Toastr::success('Success', 'Landing hero updated successfully');
+        return redirect()->route('theme.hero.index');
     }
 
     private function sanitizeHomeSectionOrder(?string $rawOrder, string $productCategoryPosition = 'default'): array

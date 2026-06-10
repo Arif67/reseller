@@ -226,6 +226,7 @@ public function index($slug, Request $request)
         $show_data = Order::latest()->with([
             'shipping',
             'status',
+            'reseller',
             'orderdetails.product.image',
             'orderdetails.product.media',
             'orderdetails.productVariable.media',
@@ -301,6 +302,7 @@ public function index($slug, Request $request)
         $show_data = $show_data->latest()->with([
             'shipping',
             'status',
+            'reseller',
             'orderdetails.product.image',
             'orderdetails.product.media',
             'orderdetails.productVariable.media',
@@ -375,6 +377,13 @@ private function applyOrderListFilters($query, Request $request)
                         ->orWhere('name', 'LIKE', '%' . $keyword . '%');
                 });
         });
+    }
+
+    // reseller source filter
+    if ($request->get('source') === 'reseller') {
+        $query->whereNotNull('reseller_id');
+    } elseif ($request->get('source') === 'normal') {
+        $query->whereNull('reseller_id');
     }
 
     $resolvedDateRange = $this->resolveOrderDateRange($request->get('date'));

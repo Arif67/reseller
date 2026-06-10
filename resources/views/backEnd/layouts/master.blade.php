@@ -426,6 +426,172 @@
                 border: 0;
             }
         }
+
+        /* ===================== Modern admin theme ===================== */
+        :root {
+            --admin-accent: #FF8C44;
+            --admin-accent-dark: #f97316;
+            --admin-accent-soft: rgba(255, 140, 68, 0.14);
+        }
+
+        body {
+            background: #f4f5f9;
+        }
+
+        /* Topbar */
+        .navbar-custom {
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.12);
+        }
+
+        .navbar-custom .nav-link,
+        .navbar-custom .noti-icon,
+        .navbar-custom .topnav-menu .nav-link {
+            color: #e6e7ef !important;
+        }
+
+        .navbar-custom .nav-link:hover {
+            color: var(--admin-accent) !important;
+        }
+
+        .button-menu-mobile i,
+        .button-menu-mobile svg {
+            color: #e6e7ef !important;
+            stroke: #e6e7ef !important;
+        }
+
+        /* Sidebar shell */
+        .left-side-menu {
+            box-shadow: 4px 0 28px rgba(15, 23, 42, 0.10);
+        }
+
+        .left-side-menu .h-100,
+        #sidebar-menu {
+            background: transparent !important;
+        }
+
+        .user-box {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+            padding: 20px 14px;
+        }
+
+        .user-box a,
+        .user-box .text-dark,
+        .user-box p,
+        .user-box .text-muted {
+            color: #e6e7ef !important;
+        }
+
+        .user-box img.avatar-md {
+            border: 3px solid rgba(255, 140, 68, 0.55);
+        }
+
+        /* Menu items */
+        #sidebar-menu {
+            padding: 10px 0 24px;
+        }
+
+        #sidebar-menu > ul > li > a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 3px 12px;
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-weight: 500;
+            color: #c9cbd6 !important;
+            transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+        }
+
+        #sidebar-menu > ul > li > a i,
+        #sidebar-menu > ul > li > a svg,
+        #sidebar-menu > ul > li > a span {
+            color: #c9cbd6 !important;
+            stroke: #c9cbd6 !important;
+        }
+
+        #sidebar-menu > ul > li > a .menu-arrow {
+            margin-left: auto;
+        }
+
+        #sidebar-menu > ul > li > a:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        #sidebar-menu > ul > li > a:hover,
+        #sidebar-menu > ul > li > a:hover i,
+        #sidebar-menu > ul > li > a:hover svg,
+        #sidebar-menu > ul > li > a:hover span {
+            color: #ffffff !important;
+            stroke: #ffffff !important;
+        }
+
+        /* Active item */
+        #sidebar-menu > ul > li.menuitem-active > a,
+        #sidebar-menu > ul > li > a.active,
+        #sidebar-menu > ul > li > a[aria-expanded="true"] {
+            background: linear-gradient(90deg, var(--admin-accent) 0%, var(--admin-accent-dark) 100%) !important;
+            box-shadow: 0 8px 20px rgba(255, 140, 68, 0.32);
+        }
+
+        #sidebar-menu > ul > li.menuitem-active > a,
+        #sidebar-menu > ul > li.menuitem-active > a i,
+        #sidebar-menu > ul > li.menuitem-active > a svg,
+        #sidebar-menu > ul > li.menuitem-active > a span,
+        #sidebar-menu > ul > li > a.active,
+        #sidebar-menu > ul > li > a.active i,
+        #sidebar-menu > ul > li > a.active svg,
+        #sidebar-menu > ul > li > a.active span,
+        #sidebar-menu > ul > li > a[aria-expanded="true"],
+        #sidebar-menu > ul > li > a[aria-expanded="true"] i,
+        #sidebar-menu > ul > li > a[aria-expanded="true"] svg,
+        #sidebar-menu > ul > li > a[aria-expanded="true"] span {
+            color: #ffffff !important;
+            stroke: #ffffff !important;
+        }
+
+        /* Submenu */
+        #sidebar-menu .nav-second-level {
+            margin: 2px 12px 6px;
+        }
+
+        #sidebar-menu .nav-second-level li a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px 9px 40px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #a9abb8 !important;
+            transition: background .2s ease, color .2s ease;
+        }
+
+        #sidebar-menu .nav-second-level li a:hover,
+        #sidebar-menu .nav-second-level li a.active {
+            background: var(--admin-accent-soft);
+            color: #ffffff !important;
+        }
+
+        #sidebar-menu .nav-second-level li a.active {
+            color: var(--admin-accent) !important;
+        }
+
+        /* Accent badges / buttons */
+        .noti-icon-badge,
+        .badge.bg-danger {
+            background: var(--admin-accent) !important;
+        }
+
+        /* Sidebar scrollbar */
+        .left-side-menu .simplebar-scrollbar:before {
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+        /* Cards */
+        .card {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 2px 14px rgba(15, 23, 42, 0.06);
+        }
     </style>
     <!-- Head js -->
     @yield('css')
@@ -441,7 +607,7 @@
     <div id="wrapper">
         <!-- Topbar Start -->
         @if (!$isModalView)
-            <div class="navbar-custom" style="background: black !important;">
+            <div class="navbar-custom" style="background: linear-gradient(90deg, #14121d 0%, #1f1c2c 100%) !important;">
 
                 <div class="container-fluid">
                     <ul class="list-unstyled topnav-menu float-end mb-0">
@@ -640,10 +806,10 @@
 
         <!-- ========== Left Sidebar Start ========== -->
         @if (!$isModalView)
-            <div class="left-side-menu" style="background: black;">
+            <div class="left-side-menu" style="background: linear-gradient(180deg, #1c1a2b 0%, #14121d 100%);">
                 <div class="h-100" data-simplebar>
                     <!-- User box -->
-                    <div class="user-box text-center" style="background: green;">
+                    <div class="user-box text-center" style="background: linear-gradient(180deg, rgba(255,140,68,0.20) 0%, rgba(255,140,68,0) 100%);">
                         <img src="{{ asset('public/backEnd/') }}/assets/images/users/user-1.jpg" alt="user-img"
                             title="Mat Helme" class="rounded-circle avatar-md" />
                         <div class="dropdown">
@@ -686,7 +852,7 @@
                     </div>
 
                     <!--- Sidemenu -->
-                    <div id="sidebar-menu" style="background: black;">
+                    <div id="sidebar-menu" style="background: transparent;">
                         <ul id="side-menu">
                             <li>
                                 <a href="{{ route('dashboard') }}">
@@ -858,6 +1024,22 @@
                                             <a class="text-white" href="{{ route('customers.index') }}"><i
                                                     data-feather="file-plus"></i> Customers</a>
                                         </li>
+                                        <li>
+                                            <a class="text-white" href="{{ route('admin.vendors.index') }}"><i
+                                                    data-feather="shopping-bag"></i> Vendors</a>
+                                        </li>
+                                        <li>
+                                            <a class="text-white" href="{{ route('admin.resellers.index') }}"><i
+                                                    data-feather="users"></i> Resellers</a>
+                                        </li>
+                                        <li>
+                                            <a class="text-white" href="{{ route('admin.resellers.withdrawals') }}"><i
+                                                    data-feather="dollar-sign"></i> Reseller Withdrawals</a>
+                                        </li>
+                                        <li>
+                                            <a class="text-white" href="{{ route('admin.reseller_tickets.index') }}"><i
+                                                    data-feather="life-buoy"></i> Reseller Tickets</a>
+                                        </li>
                                     </ul>
                                 </div>
                             </li>
@@ -876,6 +1058,10 @@
                                         <li>
                                             <a class="text-white" href="{{ route('theme.customization.index') }}"><i
                                                     data-feather="sliders"></i> Components </a>
+                                        </li>
+                                        <li>
+                                            <a class="text-white" href="{{ route('theme.hero.index') }}"><i
+                                                    data-feather="layout"></i> Landing Hero </a>
                                         </li>
                                         <li>
                                             <a class="text-white" href="{{ route('banner_category.index') }}"><i

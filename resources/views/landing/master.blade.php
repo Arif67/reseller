@@ -296,6 +296,46 @@
             cursor: pointer;
         }
 
+        /* Mobile sidebar pieces — hidden on desktop, activated in the responsive block */
+        .nav-close {
+            display: none;
+            position: absolute;
+            top: 16px;
+            right: 18px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            line-height: 1;
+            color: var(--ink);
+            cursor: pointer;
+        }
+
+        .nav-menu .nav-auth {
+            display: none;
+        }
+
+        .nav-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .45);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .3s ease, visibility .3s ease;
+            /* below the .nav header (z-index:50) so the sidebar, which lives
+               inside the header's stacking context, stays above the overlay */
+            z-index: 45;
+        }
+
+        .nav-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        body.nav-open {
+            overflow: hidden;
+        }
+
         /* ===== Hero ===== */
         .hero {
             background: #FFE790;
@@ -907,21 +947,57 @@
             }
 
             .nav-menu {
-                display: none;
-                position: absolute;
-                top: 100%;
+                position: fixed;
+                top: 0;
                 left: 0;
-                right: 0;
+                bottom: 0;
+                right: auto;
+                width: min(82vw, 320px);
                 background: #fff;
                 flex-direction: column;
-                padding: 16px 24px;
-                gap: 14px;
-                border-bottom: 1px solid var(--line);
-                box-shadow: var(--shadow);
+                align-items: stretch;
+                gap: 2px;
+                padding: 70px 22px 28px;
+                box-shadow: 6px 0 24px rgba(0, 0, 0, .16);
+                transform: translateX(-100%);
+                transition: transform .3s ease;
+                overflow-y: auto;
+                z-index: 60;
             }
 
             .nav-menu.open {
+                transform: translateX(0);
+            }
+
+            .nav-menu a {
+                padding: 13px 4px;
+                border-bottom: 1px solid var(--line);
+                font-size: 16px;
+            }
+
+            .nav-close {
+                display: block;
+            }
+
+            .nav-overlay {
+                display: block;
+            }
+
+            .nav-menu .nav-auth {
                 display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 20px;
+            }
+
+            .nav-menu .nav-auth .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            /* CTA buttons live inside the sidebar on mobile */
+            .nav-cta .btn {
+                display: none;
             }
 
             .nav-toggle {
@@ -977,6 +1053,7 @@
             </a>
 
             <nav class="nav-menu" id="navMenu">
+                <button class="nav-close" id="navClose" aria-label="মেনু বন্ধ করুন"><i class="fa-solid fa-xmark"></i></button>
                 <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">হোম</a>
                 <a href="{{ route('landing.about') }}" class="{{ request()->routeIs('landing.about') ? 'active' : '' }}">আমাদের সম্পর্কে</a>
                 <a href="{{ route('landing.services') }}" class="{{ request()->routeIs('landing.services') ? 'active' : '' }}">সার্ভিস</a>
@@ -984,6 +1061,12 @@
                 <a href="{{ route('landing.how') }}" class="{{ request()->routeIs('landing.how') ? 'active' : '' }}">যেভাবে কাজ করবেন</a>
                 <a href="{{ route('landing.contact') }}" class="{{ request()->routeIs('landing.contact') ? 'active' : '' }}">যোগাযোগ</a>
 
+                <div class="nav-auth">
+                    <a href="{{ Route::has('reseller.login') ? route('reseller.login') : '#' }}"
+                        class="btn btn-ghost">লগইন</a>
+                    <a href="{{ Route::has('reseller.register') ? route('reseller.register') : '#' }}"
+                        class="btn btn-primary">রেজিস্ট্রেশন</a>
+                </div>
             </nav>
 
             <div class="nav-cta">
@@ -995,6 +1078,7 @@
             </div>
         </div>
     </header>
+    <div class="nav-overlay" id="navOverlay"></div>
 
     @yield('content')
 
@@ -1061,8 +1145,27 @@
     <script>
         const toggle = document.getElementById('navToggle');
         const menu = document.getElementById('navMenu');
-        toggle?.addEventListener('click', () => menu.classList.toggle('open'));
-        menu?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.remove('open')));
+        const overlay = document.getElementById('navOverlay');
+        const closeBtn = document.getElementById('navClose');
+
+        const openMenu = () => {
+            menu?.classList.add('open');
+            overlay?.classList.add('open');
+            document.body.classList.add('nav-open');
+        };
+        const closeMenu = () => {
+            menu?.classList.remove('open');
+            overlay?.classList.remove('open');
+            document.body.classList.remove('nav-open');
+        };
+
+        toggle?.addEventListener('click', openMenu);
+        closeBtn?.addEventListener('click', closeMenu);
+        overlay?.addEventListener('click', closeMenu);
+        menu?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeMenu();
+        });
     </script>
     @stack('scripts')
 </body>

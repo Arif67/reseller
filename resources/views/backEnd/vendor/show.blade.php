@@ -55,18 +55,29 @@
                     <h4 class="header-title mb-3">Products</h4>
                     <div class="table-responsive">
                         <table class="table table-striped">
-                            <thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Stock</th><th>Status</th></tr></thead>
+                            <thead><tr>
+                                <th>Image</th><th>Name</th>
+                                <th class="text-end">Vendor Rate</th>
+                                <th class="text-end">Reseller Rate</th>
+                                <th class="text-end">Retail</th>
+                                <th class="text-end">Admin Margin</th>
+                                <th>Stock</th><th>Status</th>
+                            </tr></thead>
                             <tbody>
                                 @forelse($products as $p)
+                                    @php $adminMargin = (float)$p->wholesale_price - (float)$p->purchase_price; @endphp
                                     <tr>
                                         <td><img src="{{ asset($p->image->image ?? 'public/uploads/default/user.png') }}" height="36" class="rounded"></td>
                                         <td>{{ $p->name }}</td>
-                                        <td>৳ {{ number_format($p->new_price,2) }}</td>
+                                        <td class="text-end">৳ {{ number_format($p->purchase_price,2) }}</td>
+                                        <td class="text-end">৳ {{ number_format($p->wholesale_price,2) }}</td>
+                                        <td class="text-end">৳ {{ number_format($p->new_price,2) }}</td>
+                                        <td class="text-end {{ $adminMargin >= 0 ? 'text-success' : 'text-danger' }}">৳ {{ number_format($adminMargin,2) }}</td>
                                         <td>{{ $p->stock }}</td>
                                         <td>@if($p->status)<span class="badge bg-success">Active</span>@else<span class="badge bg-danger">Inactive</span>@endif</td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="5" class="text-center text-muted py-3">Kono product nei.</td></tr>
+                                    <tr><td colspan="8" class="text-center text-muted py-3">Kono product nei.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>

@@ -42,6 +42,32 @@
         height: auto;
         border-radius: 8px;
     }
+    .vendor-item-footer {
+        padding: 0 15px 15px;
+    }
+    .collected-tick {
+        text-align: center;
+        color: #28a745;
+        font-weight: 600;
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+    .hub-received-tag {
+        text-align: center;
+        background: #e8f5e9;
+        color: #1b5e20;
+        border-radius: 6px;
+        padding: 8px;
+        font-weight: 600;
+        font-size: 13px;
+    }
+    .hub-waiting-tag {
+        text-align: center;
+        color: #b8860b;
+        font-weight: 600;
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
     .total-pics-card {
         text-align: center;
         padding: 15px;
@@ -67,7 +93,7 @@
     </div>
 
     <div class="row">
-        @foreach($orderDetails as $detail)
+        @forelse($orderDetails as $detail)
         <div class="col-md-6 col-xl-4">
             <div class="vendor-item-card">
                 <div class="vendor-item-header">
@@ -90,8 +116,39 @@
                         @endif
                     </div>
                 </div>
+                <div class="vendor-item-footer">
+                    @if($detail->vendor_collected_at)
+                        <div class="collected-tick">
+                            <i class="fe-check-circle"></i> Collected on {{ \Illuminate\Support\Carbon::parse($detail->vendor_collected_at)->format('M-d h:i A') }}
+                        </div>
+                    @endif
+
+                    @if($detail->admin_received)
+                        <div class="hub-received-tag">
+                            <i class="fe-home"></i> Received at Hub
+                            @if($detail->admin_received_at)
+                                <small>({{ \Illuminate\Support\Carbon::parse($detail->admin_received_at)->format('M-d h:i A') }})</small>
+                            @endif
+                        </div>
+                    @else
+                        <div class="hub-waiting-tag">
+                            <i class="fe-clock"></i> Waiting for hub pickup
+                        </div>
+                        <form action="{{ route('vendor.collection.uncollect') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="id" value="{{ $detail->id }}">
+                            <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
+                                <i class="fe-corner-up-left"></i> Move back to Collection
+                            </button>
+                        </form>
+                    @endif
+                </div>
             </div>
         </div>
-        @endforeach
+        @empty
+        <div class="col-12">
+            <div class="text-center text-muted py-5">No collected items yet.</div>
+        </div>
+        @endforelse
     </div>
 @endsection

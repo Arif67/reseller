@@ -25,4 +25,9 @@ class Vendor extends Authenticatable
     {
         return $this->hasMany(Product::class, 'vendor_id');
     }
+
+    public function payoutMethods()
+    {
+        return $this->hasMany(VendorPayoutMethod::class, 'vendor_id')->latest('is_default');
+    }
 }

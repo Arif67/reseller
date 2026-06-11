@@ -94,11 +94,36 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ route('vendor.collection') }}">
+                                <i class="fe-shopping-bag"></i><span> Collection </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('vendor.pending_summary') }}">
+                                <i class="fe-refresh-cw"></i><span> Pending Summary </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('vendor.collected') }}">
+                                <i class="fe-check-square"></i><span> Collected </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('vendor.returns') }}">
+                                <i class="fe-corner-down-left"></i><span> Returns </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('vendor.payment') }}">
+                                <i class="fe-credit-card"></i><span> Payment </span>
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ route('vendor.profile') }}">
                                 <i class="fe-user"></i><span> My Shop </span>
                             </a>
                         </li>
-                        {{-- Phase 3 e Orders, Earnings menu add hobe --}}
+                        {{-- Phase 3 e Earnings menu add hobe --}}
                     </ul>
                 </div>
                 <div class="clearfix"></div>

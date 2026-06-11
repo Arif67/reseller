@@ -19,21 +19,6 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header bg-light">
-                    <h5 class="mb-0">Customer Information</h5>
-                </div>
-                <div class="card-body">
-                    @if($order->shipping)
-                        <p class="mb-1"><strong>Name:</strong> {{ $order->shipping->name }}</p>
-                        <p class="mb-1"><strong>Phone:</strong> {{ $order->shipping->phone }}</p>
-                        <p class="mb-1"><strong>Address:</strong> {{ $order->shipping->address }}</p>
-                    @else
-                        <p class="text-muted">No shipping info available.</p>
-                    @endif
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header bg-light">
                     <h5 class="mb-0">Order Summary</h5>
                 </div>
                 <div class="card-body">
@@ -61,16 +46,16 @@
                                     <th>Product</th>
                                     <th>Variant</th>
                                     <th>Qty</th>
-                                    <th>Price</th>
-                                    <th>Total</th>
+                                    <th class="text-end">Your Rate</th>
+                                    <th class="text-end">Your Earning</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @php $totalAmount = 0; @endphp
+                                @php $totalEarning = 0; @endphp
                                 @foreach($order->orderdetails as $detail)
                                     @php
-                                        $subtotal = $detail->qty * $detail->sale_price;
-                                        $totalAmount += $subtotal;
+                                        $lineEarning = $detail->qty * $detail->purchase_price;
+                                        $totalEarning += $lineEarning;
                                     @endphp
                                     <tr>
                                         <td class="text-center">
@@ -89,24 +74,24 @@
                                             @endif
                                         </td>
                                         <td class="text-center">{{ $detail->qty }}</td>
-                                        <td class="text-end">৳ {{ number_format($detail->sale_price, 2) }}</td>
-                                        <td class="text-end">৳ {{ number_format($subtotal, 2) }}</td>
+                                        <td class="text-end">৳ {{ number_format($detail->purchase_price, 2) }}</td>
+                                        <td class="text-end">৳ {{ number_format($lineEarning, 2) }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>
                             <tfoot class="bg-light">
                                 <tr>
-                                    <td colspan="5" class="text-end"><strong>Your Total Sales from this Order:</strong></td>
-                                    <td class="text-end"><strong>৳ {{ number_format($totalAmount, 2) }}</strong></td>
+                                    <td colspan="5" class="text-end"><strong>Your Total Earning from this Order:</strong></td>
+                                    <td class="text-end"><strong class="text-success">৳ {{ number_format($totalEarning, 2) }}</strong></td>
                                 </tr>
                             </tfoot>
                         </table>
                     </div>
                 </div>
             </div>
-            
+
             <div class="alert alert-info">
-                <i class="fe-info"></i> Note: This total is the raw sales amount for your products in this order. Platform commissions and shipping charges are calculated separately in your earnings balance.
+                <i class="fe-info"></i> Note: "Your Rate" is the wholesale price you charge the hub/admin. The retail price customers pay is higher; the difference goes to the platform and resellers.
             </div>
         </div>
     </div>

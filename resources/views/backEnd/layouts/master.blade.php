@@ -1029,6 +1029,18 @@
                                                     data-feather="shopping-bag"></i> Vendors</a>
                                         </li>
                                         <li>
+                                            <a class="text-white" href="{{ route('admin.vendor.withdrawals') }}"><i
+                                                    data-feather="dollar-sign"></i> Vendor Withdrawals</a>
+                                        </li>
+                                        <li>
+                                            <a class="text-white" href="{{ route('admin.hub.receiving') }}"><i
+                                                    data-feather="download"></i> Hub Receiving</a>
+                                        </li>
+                                        <li>
+                                            <a class="text-white" href="{{ route('admin.hub.stock') }}"><i
+                                                    data-feather="box"></i> Hub Stock</a>
+                                        </li>
+                                        <li>
                                             <a class="text-white" href="{{ route('admin.resellers.index') }}"><i
                                                     data-feather="users"></i> Resellers</a>
                                         </li>

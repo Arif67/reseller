@@ -52,6 +52,18 @@
         font-weight: bold;
         font-size: 16px;
     }
+    .size-chip {
+        display: inline-block;
+        background: #f1f1f4;
+        color: #444;
+        border-radius: 4px;
+        padding: 2px 8px;
+        margin: 2px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .size-chip b { color: #e91e63; }
+    .vendor-item-qty { font-size: 28px; font-weight: 700; color: #e91e63; line-height: 1; }
 </style>
 @endsection
 
@@ -61,37 +73,39 @@
     <div class="row">
         <div class="col-12">
             <div class="total-pics-card">
-                Total: {{ $orderDetails->sum('qty') }} Pics
+                Total: {{ $summary->sum('total_qty') }} Pics &nbsp;•&nbsp; {{ $summary->count() }} Product(s)
             </div>
         </div>
     </div>
 
     <div class="row">
-        @foreach($orderDetails as $detail)
+        @forelse($summary as $item)
         <div class="col-md-6 col-xl-4">
             <div class="vendor-item-card">
                 <div class="vendor-item-header">
-                    <span>ID: {{ $detail->order ? $detail->order->invoice_id : $detail->id }}</span>
-                    <span>Time: {{ $detail->created_at->format('M-d h:i A') }}</span>
+                    <span>Pending in <b>{{ $item->order_count }}</b> order(s)</span>
+                    <span>Total QTY: <b class="pink-text">{{ $item->total_qty }}</b></span>
                 </div>
                 <div class="vendor-item-body">
-                    <div class="vendor-item-stats">
-                        <span>SIZE : <span class="pink-text">{{ $detail->product_size ?: 'N/A' }}</span></span>
-                        <span>QTY : <span class="pink-text">{{ $detail->qty }}</span></span>
+                    <div class="vendor-item-image mb-2">
+                        <img src="{{ asset($item->image) }}" alt="{{ $item->product_name }}">
                     </div>
                     <div class="vendor-item-title">
-                        {{ $detail->product_name }}
+                        {{ $item->product_name }}
                     </div>
-                    <div class="vendor-item-image">
-                        @if($detail->product && $detail->product->image)
-                            <img src="{{ asset($detail->product->image->image) }}" alt="{{ $detail->product_name }}">
-                        @else
-                            <img src="{{ asset('public/uploads/default/product.png') }}" alt="{{ $detail->product_name }}">
-                        @endif
+                    <div class="vendor-item-qty mb-2">{{ $item->total_qty }} pcs</div>
+                    <div>
+                        @foreach($item->sizes as $size => $qty)
+                            <span class="size-chip">{{ $size }}: <b>{{ $qty }}</b></span>
+                        @endforeach
                     </div>
                 </div>
             </div>
         </div>
-        @endforeach
+        @empty
+        <div class="col-12">
+            <div class="text-center text-muted py-5">No pending items.</div>
+        </div>
+        @endforelse
     </div>
 @endsection

@@ -16,6 +16,8 @@ use App\Http\Controllers\Vendor\DashboardController as VendorDashboardController
 use App\Http\Controllers\Vendor\ProductController as VendorProductController;
 use App\Http\Controllers\Vendor\OrderController as VendorOrderController;
 use App\Http\Controllers\Admin\VendorController as AdminVendorController;
+use App\Http\Controllers\Admin\HubController as AdminHubController;
+use App\Http\Controllers\Admin\VendorWithdrawController as AdminVendorWithdrawController;
 use App\Http\Controllers\Admin\ResellerController as AdminResellerController;
 use App\Http\Controllers\Admin\ResellerTicketController as AdminResellerTicketController;
 use App\Http\Controllers\Reseller\AuthController as ResellerAuthController;
@@ -972,6 +974,15 @@ Route::group(['namespace'=>'Admin','middleware' => ['auth','lock','check_refer']
     Route::post('vendors/commission', [AdminVendorController::class, 'updateCommission'])->name('admin.vendors.commission');
     Route::post('vendors/destroy', [AdminVendorController::class, 'destroy'])->name('admin.vendors.destroy');
 
+    // Vendor withdrawals (admin)
+    Route::get('vendor-withdrawals', [AdminVendorWithdrawController::class, 'index'])->name('admin.vendor.withdrawals');
+    Route::post('vendor-withdrawals/process', [AdminVendorWithdrawController::class, 'process'])->name('admin.vendor.withdrawals.process');
+
+    // Hub: receiving collected items from vendors + hub stock (admin)
+    Route::get('hub/receiving', [AdminHubController::class, 'receiving'])->name('admin.hub.receiving');
+    Route::post('hub/receive', [AdminHubController::class, 'receive'])->name('admin.hub.receive');
+    Route::get('hub/stock', [AdminHubController::class, 'stock'])->name('admin.hub.stock');
+
     // Reseller management (admin)
     Route::get('resellers', [AdminResellerController::class, 'index'])->name('admin.resellers.index');
     Route::get('resellers/withdrawals', [AdminResellerController::class, 'withdrawals'])->name('admin.resellers.withdrawals');
@@ -1082,7 +1093,15 @@ Route::group(['prefix' => 'vendor', 'middleware' => ['vendor', 'ipcheck', 'check
     Route::get('/collection', [VendorOrderController::class, 'collection'])->name('vendor.collection');
     Route::get('/pending-summary', [VendorOrderController::class, 'pendingSummary'])->name('vendor.pending_summary');
     Route::get('/collected', [VendorOrderController::class, 'collected'])->name('vendor.collected');
+    Route::post('/collection/mark-collected', [VendorOrderController::class, 'markCollected'])->name('vendor.collection.mark');
+    Route::post('/collection/uncollect', [VendorOrderController::class, 'unmarkCollected'])->name('vendor.collection.uncollect');
+    Route::get('/returns', [VendorOrderController::class, 'returns'])->name('vendor.returns');
+    Route::post('/returns/receive', [VendorOrderController::class, 'markReturnReceived'])->name('vendor.returns.receive');
     Route::get('/payment', [VendorDashboardController::class, 'payment'])->name('vendor.payment');
+    Route::post('/payment/withdraw', [VendorDashboardController::class, 'withdrawRequest'])->name('vendor.withdraw.request');
+    Route::post('/payout-methods', [VendorDashboardController::class, 'storePayoutMethod'])->name('vendor.payout.store');
+    Route::post('/payout-methods/default', [VendorDashboardController::class, 'setDefaultPayoutMethod'])->name('vendor.payout.default');
+    Route::post('/payout-methods/delete', [VendorDashboardController::class, 'deletePayoutMethod'])->name('vendor.payout.delete');
     Route::get('/recent-post', [VendorProductController::class, 'recentPost'])->name('vendor.recent_post');
 
     Route::get('/orders/{slug}', [VendorOrderController::class, 'index'])->name('vendor.orders.index');

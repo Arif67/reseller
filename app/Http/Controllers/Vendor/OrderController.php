@@ -3,92 +3,22 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
+use App\Models\HubStock;
 use App\Models\Order;
 use App\Models\OrderDetails;
 use App\Models\OrderStatus;
+use App\Support\VendorEarnings;
+use App\Support\VendorMenuCounts;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
     private function vendorId(): int
     {
         return Auth::guard('vendor')->id();
-    }
-
-    /**
-     * Demo product catalogue used to seed dummy data while the vendor
-     * has no real orders yet. Returned as plain objects so the existing
-     * blade views render them exactly like Eloquent models.
-     */
-    private function dummyCatalogue(): array
-    {
-        return [
-            ['name' => 'Premium Cotton Panjabi', 'size' => 'L', 'qty' => 3],
-            ['name' => 'Slim Fit Denim Jeans', 'size' => '32', 'qty' => 2],
-            ['name' => 'Casual Cotton T-Shirt', 'size' => 'M', 'qty' => 5],
-            ['name' => 'Embroidered Three Piece', 'size' => 'Free', 'qty' => 1],
-            ['name' => 'Formal Office Shirt', 'size' => 'XL', 'qty' => 4],
-            ['name' => 'Kids Party Frock', 'size' => '6Y', 'qty' => 2],
-            ['name' => 'Leather Casual Loafer', 'size' => '42', 'qty' => 1],
-            ['name' => 'Winter Hoodie Jacket', 'size' => 'L', 'qty' => 3],
-            ['name' => 'Printed Cotton Saree', 'size' => 'Free', 'qty' => 2],
-        ];
-    }
-
-    /**
-     * Build a dummy collection of order-detail-like objects for the
-     * collection / pending / collected pages when there is no real data.
-     */
-    private function dummyOrderDetails(): Collection
-    {
-        return collect($this->dummyCatalogue())->values()->map(function ($item, $index) {
-            return (object) [
-                'id'           => 9000 + $index,
-                'order'        => (object) ['invoice_id' => 'INV-' . (10500 + $index)],
-                'created_at'   => Carbon::now()->subHours($index * 5 + 1),
-                'product_size' => $item['size'],
-                'qty'          => $item['qty'],
-                'product_name' => $item['name'],
-                'product'      => null,
-            ];
-        });
-    }
-
-    /**
-     * Build a dummy paginator of order-like objects for the orders list.
-     */
-    private function dummyOrders(Request $request): LengthAwarePaginator
-    {
-        $names    = ['Rahim Uddin', 'Karina Akter', 'Shuvo Das', 'Nusrat Jahan', 'Tanvir Hasan', 'Mitu Rahman', 'Jamal Mia', 'Ayesha Siddika'];
-        $statuses = ['Pending', 'Processing', 'Approved', 'On The Way', 'Completed', 'Cancelled'];
-
-        $items = collect(range(0, 7))->map(function ($i) use ($names, $statuses) {
-            return (object) [
-                'id'         => 9000 + $i,
-                'invoice_id' => 'INV-' . (10500 + $i),
-                'created_at' => Carbon::now()->subDays($i)->subHours($i),
-                'shipping'   => (object) [
-                    'name'    => $names[$i % count($names)],
-                    'phone'   => '01' . rand(3, 9) . rand(10000000, 99999999),
-                    'address' => 'House ' . ($i + 10) . ', Road ' . ($i + 2) . ', Dhaka',
-                ],
-                'status'     => (object) ['name' => $statuses[$i % count($statuses)]],
-            ];
-        });
-
-        return new LengthAwarePaginator(
-            $items,
-            $items->count(),
-            20,
-            1,
-            ['path' => $request->url(), 'query' => $request->query()]
-        );
     }
 
     public function index($slug, Request $request)
@@ -101,18 +31,34 @@ class OrderController extends Controller
                     $pq->where('vendor_id', $vendorId);
                 });
             })
-            ->with(['status', 'shipping']);
+            ->with([
+                'status',
+                'shipping',
+                // Only this vendor's items, with their images for the thumbnails.
+                'orderdetails' => function ($q) use ($vendorId) {
+                    $q->whereHas('product', function ($pq) use ($vendorId) {
+                        $pq->where('vendor_id', $vendorId);
+                    })->with(['image', 'product.image']);
+                },
+            ]);
 
         if ($slug !== 'all') {
-            $status = OrderStatus::where('slug', $slug)->first();
-            if ($status) {
+            // Grouped filters (take precedence over a single matching status).
+            $groups = [
+                'returned' => ['returned', 'refunded'],
+            ];
+
+            if (isset($groups[$slug])) {
+                $statusIds = OrderStatus::whereIn('slug', $groups[$slug])->pluck('id');
+                $query->whereIn('order_status', $statusIds);
+            } elseif ($status = OrderStatus::where('slug', $slug)->first()) {
                 $query->where('order_status', $status->id);
             } else {
                 $virtual_map = [
                     'processing' => ['processing', 'approved'],
                     'on-the-way' => ['on-the-way', 'on the way', 'packed', 'shipped'],
                     'completed' => ['completed', 'delivered', 'complete', 'deliveryed'],
-                    'cancelled' => ['cancelled', 'canceled', 'returned'],
+                    'cancelled' => ['cancelled', 'canceled', 'failed'],
                     'in-courier' => ['in-courier', 'in courier', 'out-for-delivery'],
                 ];
 
@@ -127,20 +73,17 @@ class OrderController extends Controller
         }
 
         if ($request->keyword) {
-            $query->where(function ($q) use ($request) {
+            $vendorId = $this->vendorId();
+            $query->where(function ($q) use ($request, $vendorId) {
                 $q->where('invoice_id', 'like', "%{$request->keyword}%")
-                  ->orWhereHas('shipping', function ($sq) use ($request) {
-                      $sq->where('phone', 'like', "%{$request->keyword}%")
-                        ->orWhere('name', 'like', "%{$request->keyword}%");
+                  ->orWhereHas('orderdetails', function ($dq) use ($request, $vendorId) {
+                      $dq->where('product_name', 'like', "%{$request->keyword}%")
+                         ->whereHas('product', fn ($pq) => $pq->where('vendor_id', $vendorId));
                   });
             });
         }
 
         $orders = $query->latest()->paginate(20)->withQueryString();
-
-        if ($orders->isEmpty() && !$request->keyword) {
-            $orders = $this->dummyOrders($request);
-        }
 
         $order_statuses = OrderStatus::where('status', 1)->get();
 
@@ -166,73 +109,179 @@ class OrderController extends Controller
         return view('vendorPanel.order.show', compact('order'));
     }
 
+    // Only this vendor's own order line items (404 otherwise).
+    private function ownOrderDetail($id): OrderDetails
+    {
+        return OrderDetails::where('id', $id)
+            ->whereHas('product', fn ($q) => $q->where('vendor_id', $this->vendorId()))
+            ->firstOrFail();
+    }
+
     public function collection()
     {
         $vendorId = $this->vendorId();
-        
+
+        // Pending items this vendor has NOT collected yet.
         $orderDetails = OrderDetails::whereHas('product', function ($q) use ($vendorId) {
             $q->where('vendor_id', $vendorId);
         })
+        ->where('vendor_collected', 0)
         ->whereHas('order', function ($q) {
             $q->whereHas('status', function($sq) {
-                $sq->whereIn('name', ['Pending', 'Processing', 'Approved']); 
+                $sq->whereIn('name', ['Pending', 'Processing', 'Approved']);
             });
         })
-        ->with(['product', 'order'])
+        ->with(['product.image', 'image', 'order'])
         ->latest()
         ->get();
 
-        if ($orderDetails->isEmpty()) {
-            $orderDetails = $this->dummyOrderDetails();
+        return view('vendorPanel.collection.index', compact('orderDetails'));
+    }
+
+    // Vendor marks an item as collected -> it moves to the Collected page.
+    public function markCollected(Request $request)
+    {
+        $this->validate($request, ['id' => 'required|integer']);
+
+        $detail = $this->ownOrderDetail($request->id);
+        $detail->vendor_collected = 1;
+        $detail->vendor_collected_at = now();
+        $detail->save();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Item marked as collected',
+                'counts'  => VendorMenuCounts::get($this->vendorId()),
+            ]);
         }
 
-        return view('vendorPanel.collection.index', compact('orderDetails'));
+        Toastr::success('Item marked as collected', 'Success');
+        return back();
+    }
+
+    // Undo: move a collected item back to the Collection page.
+    public function unmarkCollected(Request $request)
+    {
+        $this->validate($request, ['id' => 'required|integer']);
+
+        $detail = $this->ownOrderDetail($request->id);
+        $detail->vendor_collected = 0;
+        $detail->vendor_collected_at = null;
+        $detail->save();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Item moved back to collection',
+                'counts'  => VendorMenuCounts::get($this->vendorId()),
+            ]);
+        }
+
+        Toastr::success('Item moved back to collection', 'Success');
+        return back();
     }
 
     public function pendingSummary()
     {
         $vendorId = $this->vendorId();
-        
-        // Similar to collection but maybe grouped or just the same view for now
+
+        // All pending line items for this vendor...
         $orderDetails = OrderDetails::whereHas('product', function ($q) use ($vendorId) {
             $q->where('vendor_id', $vendorId);
         })
+        ->where('vendor_collected', 0)
         ->whereHas('order', function ($q) {
-            $q->whereHas('status', function($sq) {
-                $sq->whereIn('name', ['Pending', 'Processing', 'Approved']); 
+            $q->whereHas('status', function ($sq) {
+                $sq->whereIn('name', ['Pending', 'Processing', 'Approved']);
             });
         })
-        ->with(['product', 'order'])
-        ->latest()
+        ->with(['product.image', 'image'])
         ->get();
 
-        if ($orderDetails->isEmpty()) {
-            $orderDetails = $this->dummyOrderDetails()->take(5);
-        }
+        // ...rolled up product-wise: total qty + how many orders + size breakdown.
+        $summary = $orderDetails
+            ->groupBy('product_id')
+            ->map(function ($items) {
+                $first = $items->first();
 
-        return view('vendorPanel.collection.pending_summary', compact('orderDetails'));
+                return (object) [
+                    'product_id'   => $first->product_id,
+                    'product_name' => $first->product_name,
+                    'image'        => $first->image->image
+                        ?? optional(optional($first->product)->image)->image
+                        ?? 'uploads/logo.png',
+                    'total_qty'    => $items->sum('qty'),
+                    'order_count'  => $items->pluck('order_id')->unique()->count(),
+                    'sizes'        => $items->groupBy(fn ($i) => $i->product_size ?: 'N/A')
+                                            ->map->sum('qty'),
+                ];
+            })
+            ->sortByDesc('total_qty')
+            ->values();
+
+        return view('vendorPanel.collection.pending_summary', compact('summary'));
     }
 
     public function collected()
     {
         $vendorId = $this->vendorId();
-        
+
+        // Items the vendor has marked as collected.
         $orderDetails = OrderDetails::whereHas('product', function ($q) use ($vendorId) {
             $q->where('vendor_id', $vendorId);
         })
-        ->whereHas('order', function ($q) {
-            $q->whereHas('status', function($sq) {
-                $sq->whereNotIn('name', ['Pending', 'Processing', 'Approved', 'Cancelled', 'Canceled', 'Returned']); 
-            });
-        })
-        ->with(['product', 'order'])
-        ->latest()
+        ->where('vendor_collected', 1)
+        ->with(['product.image', 'image', 'order'])
+        ->latest('vendor_collected_at')
         ->get();
 
-        if ($orderDetails->isEmpty()) {
-            $orderDetails = $this->dummyOrderDetails()->skip(3)->values();
-        }
-
         return view('vendorPanel.collection.collected', compact('orderDetails'));
+    }
+
+    // Returned items for this vendor: products from returned/refunded orders.
+    public function returns()
+    {
+        $vendorId = $this->vendorId();
+
+        $base = OrderDetails::whereHas('product', fn ($q) => $q->where('vendor_id', $vendorId))
+            ->whereHas('order.status', fn ($q) => $q->whereIn('slug', VendorEarnings::RETURNED_SLUGS))
+            ->with(['product.image', 'image', 'order']);
+
+        // Waiting for the vendor to confirm they got the product back.
+        $toReceive = (clone $base)->where('vendor_return_received', 0)->latest()->get();
+        // Already confirmed -> vendor's return list.
+        $received = (clone $base)->where('vendor_return_received', 1)->latest('vendor_return_received_at')->get();
+
+        return view('vendorPanel.collection.returns', compact('toReceive', 'received'));
+    }
+
+    // Vendor confirms the returned product is back in their hand.
+    public function markReturnReceived(Request $request)
+    {
+        $this->validate($request, ['id' => 'required|integer']);
+
+        $detail = $this->ownOrderDetail($request->id);
+
+        DB::transaction(function () use ($detail) {
+            $detail->vendor_return_received = 1;
+            $detail->vendor_return_received_at = now();
+            $detail->save();
+
+            // Product leaves the hub back to the vendor: drop hub stock if it
+            // had been received at the hub earlier.
+            if ($detail->admin_received) {
+                $stock = HubStock::where('product_id', $detail->product_id)
+                    ->where('product_variable_id', $detail->product_variable_id ?? 0)
+                    ->first();
+                if ($stock) {
+                    $stock->qty = max(0, (int) $stock->qty - (int) $detail->qty);
+                    $stock->save();
+                }
+            }
+        });
+
+        Toastr::success('Return received — back in your stock', 'Success');
+        return back();
     }
 }

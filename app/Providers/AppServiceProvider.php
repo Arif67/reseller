@@ -108,6 +108,14 @@ class AppServiceProvider extends ServiceProvider
         view()->share('pendingorder', Cache::remember('pendingorder_list', 10, function () {
             return Order::where('order_status', 1)->latest()->limit(9)->get();
         }));
+
+        // Live counters for the vendor panel top menu badges.
+        view()->composer('vendorPanel.layouts.mobile_menu', function ($view) {
+            $vendor = auth('vendor')->user();
+            $view->with('vendorMenuCounts', $vendor
+                ? \App\Support\VendorMenuCounts::get($vendor->id)
+                : []);
+        });
     }
 
 }

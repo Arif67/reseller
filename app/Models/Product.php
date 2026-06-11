@@ -18,6 +18,10 @@ class Product extends Model
     public function getRouteKeyName() {
         return 'slug';
     }
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class, 'vendor_id');
+    }
     public function image()
     {
         return $this->hasOne(Productimage::class, 'product_id')

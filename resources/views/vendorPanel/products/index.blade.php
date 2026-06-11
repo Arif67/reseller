@@ -56,12 +56,11 @@
                     </div>
                     <div class="card-body p-2">
                         <p class="vp-name mb-1" title="{{ $product->name }}">{{ $product->name }}</p>
-                        <h5 class="mb-2 text-primary">
-                            ৳ {{ number_format($product->new_price, 0) }}
-                            @if($product->old_price > $product->new_price)
-                                <del class="text-muted fs-6">৳{{ number_format($product->old_price, 0) }}</del>
-                            @endif
-                        </h5>
+                        <div class="mb-2">
+                            <span class="d-block" style="font-size:11px; color:#888;">Your Rate</span>
+                            <h5 class="mb-0 text-primary">৳ {{ number_format($product->purchase_price, 0) }}</h5>
+                            <small class="text-muted">Retail: ৳{{ number_format($product->new_price, 0) }}</small>
+                        </div>
 
                         <form action="{{ route('vendor.products.stock') }}" method="POST" class="mb-2">
                             @csrf
